@@ -1,7 +1,7 @@
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.Shapes;
 
-namespace Genbox.VelcroPhysics.Definitions.Shapes
+namespace VelcroPhysics.Definitions.Shapes
 {
     /// <summary>A line segment (edge) shape. These can be connected in chains or loops to other edge shapes. The connectivity
     /// information is used to ensure correct contact normals.</summary>

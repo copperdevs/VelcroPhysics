@@ -1,12 +1,12 @@
 using System.Collections.Generic;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Factories;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Tools.PolygonManipulation;
-using Genbox.VelcroPhysics.Tools.Triangulation.TriangulationBase;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Factories;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Tools.PolygonManipulation;
+using VelcroPhysics.Tools.Triangulation.TriangulationBase;
 
-namespace Genbox.VelcroPhysics.Tools.TextureTools
+namespace VelcroPhysics.Tools.TextureTools
 {
     /// <summary>Simple class to maintain a terrain. It can keep track</summary>
     public class Terrain
@@ -87,7 +87,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         public void Initialize()
         {
             // find top left of terrain in world space
-            _topLeft = new Vector2(Center.X - (Width * 0.5f), Center.Y - (-Height * 0.5f));
+            _topLeft = new Vector2(Center.X - Width * 0.5f, Center.Y - -Height * 0.5f);
 
             // convert the terrains size to a point cloud size
             _localWidth = Width * PointsPerUnit;
@@ -95,9 +95,9 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
             _terrainMap = new sbyte[(int)_localWidth + 1, (int)_localHeight + 1];
 
-            for (int x = 0; x < _localWidth; x++)
+            for (var x = 0; x < _localWidth; x++)
             {
-                for (int y = 0; y < _localHeight; y++)
+                for (var y = 0; y < _localHeight; y++)
                 {
                     _terrainMap[x, y] = 1;
                 }
@@ -116,9 +116,9 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         /// <param name="offset"></param>
         public void ApplyData(sbyte[,] data, Vector2 offset = default)
         {
-            for (int x = 0; x < data.GetUpperBound(0); x++)
+            for (var x = 0; x < data.GetUpperBound(0); x++)
             {
-                for (int y = 0; y < data.GetUpperBound(1); y++)
+                for (var y = 0; y < data.GetUpperBound(1); y++)
                 {
                     if (x + offset.X >= 0 && x + offset.X < _localWidth && y + offset.Y >= 0 && y + offset.Y < _localHeight)
                         _terrainMap[(int)(x + offset.X), (int)(y + offset.Y)] = data[x, y];
@@ -135,7 +135,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         {
             // find local position
             // make position local to map space
-            Vector2 p = location - _topLeft;
+            var p = location - _topLeft;
 
             // find map position for each axis
             p.X = p.X * _localWidth / Width;
@@ -167,19 +167,19 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             unchecked
             {
                 //iterate effected cells
-                int xStart = (int)(_dirtyArea.LowerBound.X / CellSize);
+                var xStart = (int)(_dirtyArea.LowerBound.X / CellSize);
                 if (xStart < 0)
                     xStart = 0;
 
-                int xEnd = (int)(_dirtyArea.UpperBound.X / CellSize) + 1;
+                var xEnd = (int)(_dirtyArea.UpperBound.X / CellSize) + 1;
                 if (xEnd > _xnum)
                     xEnd = _xnum;
 
-                int yStart = (int)(_dirtyArea.LowerBound.Y / CellSize);
+                var yStart = (int)(_dirtyArea.LowerBound.Y / CellSize);
                 if (yStart < 0)
                     yStart = 0;
 
-                int yEnd = (int)(_dirtyArea.UpperBound.Y / CellSize) + 1;
+                var yEnd = (int)(_dirtyArea.UpperBound.Y / CellSize) + 1;
                 if (yEnd > _ynum)
                     yEnd = _ynum;
 
@@ -191,14 +191,14 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         private void RemoveOldData(int xStart, int xEnd, int yStart, int yEnd)
         {
-            for (int x = xStart; x < xEnd; x++)
+            for (var x = xStart; x < xEnd; x++)
             {
-                for (int y = yStart; y < yEnd; y++)
+                for (var y = yStart; y < yEnd; y++)
                 {
                     //remove old terrain object at grid cell
                     if (_bodyMap[x, y] != null)
                     {
-                        for (int i = 0; i < _bodyMap[x, y].Count; i++)
+                        for (var i = 0; i < _bodyMap[x, y].Count; i++)
                         {
                             World.RemoveBody(_bodyMap[x, y][i]);
                         }
@@ -217,26 +217,26 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             float ax = gx * CellSize;
             float ay = gy * CellSize;
 
-            List<Vertices> polys = MarchingSquares.DetectSquares(new AABB(new Vector2(ax, ay), new Vector2(ax + CellSize, ay + CellSize)), SubCellSize, SubCellSize, _terrainMap, Iterations, true);
+            var polys = MarchingSquares.DetectSquares(new AABB(new Vector2(ax, ay), new Vector2(ax + CellSize, ay + CellSize)), SubCellSize, SubCellSize, _terrainMap, Iterations, true);
             if (polys.Count == 0)
                 return;
 
-            _bodyMap[gx, gy] = new List<Body>();
+            _bodyMap[gx, gy] = [];
 
             // create the scale vector
-            Vector2 scale = new Vector2(1f / PointsPerUnit, 1f / -PointsPerUnit);
+            var scale = new Vector2(1f / PointsPerUnit, 1f / -PointsPerUnit);
 
             // create physics object for this grid cell
-            foreach (Vertices item in polys)
+            foreach (var item in polys)
             {
                 // does this need to be negative?
                 item.Scale(ref scale);
                 item.Translate(ref _topLeft);
-                Vertices simplified = SimplifyTools.CollinearSimplify(item);
+                var simplified = SimplifyTools.CollinearSimplify(item);
 
-                List<Vertices> decompPolys = Triangulate.ConvexPartition(simplified, Decomposer);
+                var decompPolys = Triangulate.ConvexPartition(simplified, Decomposer);
 
-                foreach (Vertices poly in decompPolys)
+                foreach (var poly in decompPolys)
                 {
                     if (poly.Count > 2)
                         _bodyMap[gx, gy].Add(BodyFactory.CreatePolygon(World, poly, 1));

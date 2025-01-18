@@ -26,14 +26,14 @@
 */
 
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Definitions.Joints;
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
-using Genbox.VelcroPhysics.Dynamics.Solver;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Definitions.Joints;
+using VelcroPhysics.Dynamics.Joints.Misc;
+using VelcroPhysics.Dynamics.Solver;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Dynamics.Joints
+namespace VelcroPhysics.Dynamics.Joints
 {
     // Linear constraint (point-to-line)
     // d = p2 - p1 = x2 + r2 - x1 - r1
@@ -150,7 +150,7 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             _localAnchorB = def.LocalAnchorB;
             _localXAxisA = def.LocalAxisA;
 
-            _localXAxisA.Normalize();
+            _localXAxisA = Vector2.Normalize(_localXAxisA);
             _localYAxisA = MathUtils.Cross(1.0f, _localXAxisA);
             _referenceAngle = def.ReferenceAngle;
 
@@ -197,12 +197,12 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
         {
             get
             {
-                Vector2 pA = _bodyA.GetWorldPoint(_localAnchorA);
-                Vector2 pB = _bodyB.GetWorldPoint(_localAnchorB);
-                Vector2 d = pB - pA;
-                Vector2 axis = _bodyA.GetWorldVector(_localXAxisA);
+                var pA = _bodyA.GetWorldPoint(_localAnchorA);
+                var pB = _bodyB.GetWorldPoint(_localAnchorB);
+                var d = pB - pA;
+                var axis = _bodyA.GetWorldVector(_localXAxisA);
 
-                float translation = MathUtils.Dot(d, axis);
+                var translation = MathUtils.Dot(d, axis);
                 return translation;
             }
         }
@@ -212,22 +212,22 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
         {
             get
             {
-                Body bA = _bodyA;
-                Body bB = _bodyB;
+                var bA = _bodyA;
+                var bB = _bodyB;
 
-                Vector2 rA = MathUtils.Mul(bA._xf.q, _localAnchorA - bA._sweep.LocalCenter);
-                Vector2 rB = MathUtils.Mul(bB._xf.q, _localAnchorB - bB._sweep.LocalCenter);
-                Vector2 p1 = bA._sweep.C + rA;
-                Vector2 p2 = bB._sweep.C + rB;
-                Vector2 d = p2 - p1;
-                Vector2 axis = MathUtils.Mul(bA._xf.q, _localXAxisA);
+                var rA = MathUtils.Mul(bA._xf.q, _localAnchorA - bA._sweep.LocalCenter);
+                var rB = MathUtils.Mul(bB._xf.q, _localAnchorB - bB._sweep.LocalCenter);
+                var p1 = bA._sweep.C + rA;
+                var p2 = bB._sweep.C + rB;
+                var d = p2 - p1;
+                var axis = MathUtils.Mul(bA._xf.q, _localXAxisA);
 
-                Vector2 vA = bA._linearVelocity;
-                Vector2 vB = bB._linearVelocity;
-                float wA = bA._angularVelocity;
-                float wB = bB._angularVelocity;
+                var vA = bA._linearVelocity;
+                var vB = bB._linearVelocity;
+                var wA = bA._angularVelocity;
+                var wB = bB._angularVelocity;
 
-                float speed = MathUtils.Dot(d, MathUtils.Cross(wA, axis)) + MathUtils.Dot(axis, vB + MathUtils.Cross(wB, rB) - vA - MathUtils.Cross(wA, rA));
+                var speed = MathUtils.Dot(d, MathUtils.Cross(wA, axis)) + MathUtils.Dot(axis, vB + MathUtils.Cross(wB, rB) - vA - MathUtils.Cross(wA, rA));
                 return speed;
             }
         }
@@ -374,22 +374,22 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             _invIA = _bodyA._invI;
             _invIB = _bodyB._invI;
 
-            Vector2 cA = data.Positions[_indexA].C;
-            float aA = data.Positions[_indexA].A;
-            Vector2 vA = data.Velocities[_indexA].V;
-            float wA = data.Velocities[_indexA].W;
+            var cA = data.Positions[_indexA].C;
+            var aA = data.Positions[_indexA].A;
+            var vA = data.Velocities[_indexA].V;
+            var wA = data.Velocities[_indexA].W;
 
-            Vector2 cB = data.Positions[_indexB].C;
-            float aB = data.Positions[_indexB].A;
-            Vector2 vB = data.Velocities[_indexB].V;
-            float wB = data.Velocities[_indexB].W;
+            var cB = data.Positions[_indexB].C;
+            var aB = data.Positions[_indexB].A;
+            var vB = data.Velocities[_indexB].V;
+            var wB = data.Velocities[_indexB].W;
 
-            Rot qA = new Rot(aA), qB = new Rot(aB);
+            Rot qA = new(aA), qB = new(aB);
 
             // Compute the effective masses.
-            Vector2 rA = MathUtils.Mul(qA, _localAnchorA - _localCenterA);
-            Vector2 rB = MathUtils.Mul(qB, _localAnchorB - _localCenterB);
-            Vector2 d = (cB - cA) + rB - rA;
+            var rA = MathUtils.Mul(qA, _localAnchorA - _localCenterA);
+            var rB = MathUtils.Mul(qB, _localAnchorB - _localCenterB);
+            var d = cB - cA + rB - rA;
 
             float mA = _invMassA, mB = _invMassB;
             float iA = _invIA, iB = _invIB;
@@ -412,9 +412,9 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
                 _s1 = MathUtils.Cross(d + rA, _perp);
                 _s2 = MathUtils.Cross(rB, _perp);
 
-                float k11 = mA + mB + iA * _s1 * _s1 + iB * _s2 * _s2;
-                float k12 = iA * _s1 + iB * _s2;
-                float k22 = iA + iB;
+                var k11 = mA + mB + iA * _s1 * _s1 + iB * _s2 * _s2;
+                var k12 = iA * _s1 + iB * _s2;
+                var k22 = iA + iB;
                 if (k22 == 0.0f)
                 {
                     // For bodies with fixed rotation.
@@ -446,10 +446,10 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
                 _lowerImpulse *= data.Step.DeltaTimeRatio;
                 _upperImpulse *= data.Step.DeltaTimeRatio;
 
-                float axialImpulse = _motorImpulse + _lowerImpulse - _upperImpulse;
-                Vector2 P = _impulse.X * _perp + axialImpulse * _axis;
-                float LA = _impulse.X * _s1 + _impulse.Y + axialImpulse * _a1;
-                float LB = _impulse.X * _s2 + _impulse.Y + axialImpulse * _a2;
+                var axialImpulse = _motorImpulse + _lowerImpulse - _upperImpulse;
+                var P = _impulse.X * _perp + axialImpulse * _axis;
+                var LA = _impulse.X * _s1 + _impulse.Y + axialImpulse * _a1;
+                var LB = _impulse.X * _s2 + _impulse.Y + axialImpulse * _a2;
 
                 vA -= mA * P;
                 wA -= iA * LA;
@@ -473,10 +473,10 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
 
         internal override void SolveVelocityConstraints(ref SolverData data)
         {
-            Vector2 vA = data.Velocities[_indexA].V;
-            float wA = data.Velocities[_indexA].W;
-            Vector2 vB = data.Velocities[_indexB].V;
-            float wB = data.Velocities[_indexB].W;
+            var vA = data.Velocities[_indexA].V;
+            var wA = data.Velocities[_indexA].W;
+            var vB = data.Velocities[_indexB].V;
+            var wB = data.Velocities[_indexB].W;
 
             float mA = _invMassA, mB = _invMassB;
             float iA = _invIA, iB = _invIB;
@@ -484,16 +484,16 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             // Solve linear motor constraint.
             if (_enableMotor)
             {
-                float Cdot = Vector2.Dot(_axis, vB - vA) + _a2 * wB - _a1 * wA;
-                float impulse = _axialMass * (_motorSpeed - Cdot);
-                float oldImpulse = _motorImpulse;
-                float maxImpulse = data.Step.DeltaTime * _maxMotorForce;
+                var Cdot = Vector2.Dot(_axis, vB - vA) + _a2 * wB - _a1 * wA;
+                var impulse = _axialMass * (_motorSpeed - Cdot);
+                var oldImpulse = _motorImpulse;
+                var maxImpulse = data.Step.DeltaTime * _maxMotorForce;
                 _motorImpulse = MathUtils.Clamp(_motorImpulse + impulse, -maxImpulse, maxImpulse);
                 impulse = _motorImpulse - oldImpulse;
 
-                Vector2 P = impulse * _axis;
-                float LA = impulse * _a1;
-                float LB = impulse * _a2;
+                var P = impulse * _axis;
+                var LA = impulse * _a1;
+                var LB = impulse * _a2;
 
                 vA -= mA * P;
                 wA -= iA * LA;
@@ -505,16 +505,16 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             {
                 // Lower limit
                 {
-                    float C = _translation - _lowerTranslation;
-                    float Cdot = MathUtils.Dot(_axis, vB - vA) + _a2 * wB - _a1 * wA;
-                    float impulse = -_axialMass * (Cdot + MathUtils.Max(C, 0.0f) * data.Step.InvertedDeltaTime);
-                    float oldImpulse = _lowerImpulse;
+                    var C = _translation - _lowerTranslation;
+                    var Cdot = MathUtils.Dot(_axis, vB - vA) + _a2 * wB - _a1 * wA;
+                    var impulse = -_axialMass * (Cdot + MathUtils.Max(C, 0.0f) * data.Step.InvertedDeltaTime);
+                    var oldImpulse = _lowerImpulse;
                     _lowerImpulse = MathUtils.Max(_lowerImpulse + impulse, 0.0f);
                     impulse = _lowerImpulse - oldImpulse;
 
-                    Vector2 P = impulse * _axis;
-                    float LA = impulse * _a1;
-                    float LB = impulse * _a2;
+                    var P = impulse * _axis;
+                    var LA = impulse * _a1;
+                    var LB = impulse * _a2;
 
                     vA -= mA * P;
                     wA -= iA * LA;
@@ -526,16 +526,16 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
                 // Note: signs are flipped to keep C positive when the constraint is satisfied.
                 // This also keeps the impulse positive when the limit is active.
                 {
-                    float C = _upperTranslation - _translation;
-                    float Cdot = MathUtils.Dot(_axis, vA - vB) + _a1 * wA - _a2 * wB;
-                    float impulse = -_axialMass * (Cdot + MathUtils.Max(C, 0.0f) * data.Step.InvertedDeltaTime);
-                    float oldImpulse = _upperImpulse;
+                    var C = _upperTranslation - _translation;
+                    var Cdot = MathUtils.Dot(_axis, vA - vB) + _a1 * wA - _a2 * wB;
+                    var impulse = -_axialMass * (Cdot + MathUtils.Max(C, 0.0f) * data.Step.InvertedDeltaTime);
+                    var oldImpulse = _upperImpulse;
                     _upperImpulse = MathUtils.Max(_upperImpulse + impulse, 0.0f);
                     impulse = _upperImpulse - oldImpulse;
 
-                    Vector2 P = impulse * _axis;
-                    float LA = impulse * _a1;
-                    float LB = impulse * _a2;
+                    var P = impulse * _axis;
+                    var LA = impulse * _a1;
+                    var LB = impulse * _a2;
 
                     vA += mA * P;
                     wA += iA * LA;
@@ -550,12 +550,12 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
                 Cdot.X = MathUtils.Dot(_perp, vB - vA) + _s2 * wB - _s1 * wA;
                 Cdot.Y = wB - wA;
 
-                Vector2 df = _K.Solve(-Cdot);
+                var df = _K.Solve(-Cdot);
                 _impulse += df;
 
-                Vector2 P = df.X * _perp;
-                float LA = df.X * _s1 + df.Y;
-                float LB = df.X * _s2 + df.Y;
+                var P = df.X * _perp;
+                var LA = df.X * _s1 + df.Y;
+                var LB = df.X * _s2 + df.Y;
 
                 vA -= mA * P;
                 wA -= iA * LA;
@@ -579,42 +579,42 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
         // solver indicates the limit is inactive.
         internal override bool SolvePositionConstraints(ref SolverData data)
         {
-            Vector2 cA = data.Positions[_indexA].C;
-            float aA = data.Positions[_indexA].A;
-            Vector2 cB = data.Positions[_indexB].C;
-            float aB = data.Positions[_indexB].A;
+            var cA = data.Positions[_indexA].C;
+            var aA = data.Positions[_indexA].A;
+            var cB = data.Positions[_indexB].C;
+            var aB = data.Positions[_indexB].A;
 
-            Rot qA = new Rot(aA), qB = new Rot(aB);
+            Rot qA = new(aA), qB = new(aB);
 
             float mA = _invMassA, mB = _invMassB;
             float iA = _invIA, iB = _invIB;
 
             // Compute fresh Jacobians
-            Vector2 rA = MathUtils.Mul(qA, _localAnchorA - _localCenterA);
-            Vector2 rB = MathUtils.Mul(qB, _localAnchorB - _localCenterB);
-            Vector2 d = cB + rB - cA - rA;
+            var rA = MathUtils.Mul(qA, _localAnchorA - _localCenterA);
+            var rB = MathUtils.Mul(qB, _localAnchorB - _localCenterB);
+            var d = cB + rB - cA - rA;
 
-            Vector2 axis = MathUtils.Mul(qA, _localXAxisA);
-            float a1 = MathUtils.Cross(d + rA, axis);
-            float a2 = MathUtils.Cross(rB, axis);
-            Vector2 perp = MathUtils.Mul(qA, _localYAxisA);
+            var axis = MathUtils.Mul(qA, _localXAxisA);
+            var a1 = MathUtils.Cross(d + rA, axis);
+            var a2 = MathUtils.Cross(rB, axis);
+            var perp = MathUtils.Mul(qA, _localYAxisA);
 
-            float s1 = MathUtils.Cross(d + rA, perp);
-            float s2 = MathUtils.Cross(rB, perp);
+            var s1 = MathUtils.Cross(d + rA, perp);
+            var s2 = MathUtils.Cross(rB, perp);
 
             Vector3 impulse;
             Vector2 C1;
             C1.X = Vector2.Dot(perp, d);
             C1.Y = aB - aA - _referenceAngle;
 
-            float linearError = MathUtils.Abs(C1.X);
-            float angularError = MathUtils.Abs(C1.Y);
+            var linearError = MathUtils.Abs(C1.X);
+            var angularError = MathUtils.Abs(C1.Y);
 
-            bool active = false;
-            float C2 = 0.0f;
+            var active = false;
+            var C2 = 0.0f;
             if (_enableLimit)
             {
-                float translation = MathUtils.Dot(axis, d);
+                var translation = MathUtils.Dot(axis, d);
                 if (MathUtils.Abs(_upperTranslation - _lowerTranslation) < 2.0f * Settings.LinearSlop)
                 {
                     C2 = translation;
@@ -637,17 +637,17 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
 
             if (active)
             {
-                float k11 = mA + mB + iA * s1 * s1 + iB * s2 * s2;
-                float k12 = iA * s1 + iB * s2;
-                float k13 = iA * s1 * a1 + iB * s2 * a2;
-                float k22 = iA + iB;
+                var k11 = mA + mB + iA * s1 * s1 + iB * s2 * s2;
+                var k12 = iA * s1 + iB * s2;
+                var k13 = iA * s1 * a1 + iB * s2 * a2;
+                var k22 = iA + iB;
                 if (k22 == 0.0f)
                 {
                     // For fixed rotation
                     k22 = 1.0f;
                 }
-                float k23 = iA * a1 + iB * a2;
-                float k33 = mA + mB + iA * a1 * a1 + iB * a2 * a2;
+                var k23 = iA * a1 + iB * a2;
+                var k33 = mA + mB + iA * a1 * a1 + iB * a2 * a2;
 
                 Mat33 K;
                 K.ex = new Vector3(k11, k12, k13);
@@ -663,9 +663,9 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             }
             else
             {
-                float k11 = mA + mB + iA * s1 * s1 + iB * s2 * s2;
-                float k12 = iA * s1 + iB * s2;
-                float k22 = iA + iB;
+                var k11 = mA + mB + iA * s1 * s1 + iB * s2 * s2;
+                var k12 = iA * s1 + iB * s2;
+                var k22 = iA + iB;
                 if (k22 == 0.0f)
                     k22 = 1.0f;
 
@@ -673,15 +673,15 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
                 K.ex = new Vector2(k11, k12);
                 K.ey = new Vector2(k12, k22);
 
-                Vector2 impulse1 = K.Solve(-C1);
+                var impulse1 = K.Solve(-C1);
                 impulse.X = impulse1.X;
                 impulse.Y = impulse1.Y;
                 impulse.Z = 0.0f;
             }
 
-            Vector2 P = impulse.X * perp + impulse.Z * axis;
-            float LA = impulse.X * s1 + impulse.Y + impulse.Z * a1;
-            float LB = impulse.X * s2 + impulse.Y + impulse.Z * a2;
+            var P = impulse.X * perp + impulse.Z * axis;
+            var LA = impulse.X * s1 + impulse.Y + impulse.Z * a1;
+            var LB = impulse.X * s2 + impulse.Y + impulse.Z * a2;
 
             cA -= mA * P;
             aA -= iA * LA;
@@ -714,7 +714,7 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             }
 
             _referenceAngle = _bodyB.Rotation - _bodyA.Rotation;
-            _localXAxisA.Normalize();
+            _localXAxisA = Vector2.Normalize(_localXAxisA);
             _localYAxisA = MathUtils.Cross(1.0f, _localXAxisA);
         }
     }

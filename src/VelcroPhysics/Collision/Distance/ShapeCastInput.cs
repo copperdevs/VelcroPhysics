@@ -1,7 +1,7 @@
-﻿using Genbox.VelcroPhysics.Shared;
-using Microsoft.Xna.Framework;
+﻿using System.Numerics;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Collision.Distance
+namespace VelcroPhysics.Collision.Distance
 {
     /// <summary>Input parameters for b2ShapeCast</summary>
     public struct ShapeCastInput

@@ -17,7 +17,7 @@
 * 3. This notice may not be removed or altered from any source distribution. 
 */
 
-namespace Genbox.VelcroPhysics.Dynamics
+namespace VelcroPhysics.Dynamics
 {
     /// <summary>This is an internal structure.</summary>
     internal struct TimeStep

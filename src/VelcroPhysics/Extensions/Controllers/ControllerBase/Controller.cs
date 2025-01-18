@@ -1,7 +1,7 @@
-﻿using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase;
+﻿using VelcroPhysics.Dynamics;
+using VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase;
 
-namespace Genbox.VelcroPhysics.Extensions.Controllers.ControllerBase
+namespace VelcroPhysics.Extensions.Controllers.ControllerBase
 {
     public abstract class Controller : FilterData
     {

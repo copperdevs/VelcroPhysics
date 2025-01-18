@@ -1,4 +1,4 @@
-namespace Genbox.VelcroPhysics.Extensions.Controllers.ControllerBase
+namespace VelcroPhysics.Extensions.Controllers.ControllerBase
 {
     public struct ControllerFilter
     {

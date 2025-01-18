@@ -1,34 +1,34 @@
 /*
-* Velcro Physics:
-* Copyright (c) 2017 Ian Qvist
-* 
-* Original source Box2D:
-* Copyright (c) 2006-2011 Erin Catto http://www.box2d.org 
-* 
-* This software is provided 'as-is', without any express or implied 
-* warranty.  In no event will the authors be held liable for any damages 
-* arising from the use of this software. 
-* Permission is granted to anyone to use this software for any purpose, 
-* including commercial applications, and to alter it and redistribute it 
-* freely, subject to the following restrictions: 
-* 1. The origin of this software must not be misrepresented; you must not 
-* claim that you wrote the original software. If you use this software 
-* in a product, an acknowledgment in the product documentation would be 
-* appreciated but is not required. 
-* 2. Altered source versions must be plainly marked as such, and must not be 
-* misrepresented as being the original software. 
-* 3. This notice may not be removed or altered from any source distribution. 
-*/
+ * Velcro Physics:
+ * Copyright (c) 2017 Ian Qvist
+ *
+ * Original source Box2D:
+ * Copyright (c) 2006-2011 Erin Catto http://www.box2d.org
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
 
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Definitions.Joints;
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
-using Genbox.VelcroPhysics.Dynamics.Solver;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Definitions.Joints;
+using VelcroPhysics.Dynamics.Joints.Misc;
+using VelcroPhysics.Dynamics.Solver;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Dynamics.Joints
+namespace VelcroPhysics.Dynamics.Joints
 {
     // Point-to-point constraint
     // Cdot = v2 - v1
@@ -99,7 +99,7 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
         public MotorJoint(Body bodyA, Body bodyB, bool useWorldCoordinates = false)
             : base(bodyA, bodyB, JointType.Motor)
         {
-            Vector2 xB = bodyB.Position;
+            var xB = bodyB.Position;
 
             if (useWorldCoordinates)
                 _linearOffset = bodyA.GetLocalPoint(xB);
@@ -197,18 +197,18 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             _invIA = BodyA._invI;
             _invIB = BodyB._invI;
 
-            Vector2 cA = data.Positions[_indexA].C;
-            float aA = data.Positions[_indexA].A;
-            Vector2 vA = data.Velocities[_indexA].V;
-            float wA = data.Velocities[_indexA].W;
+            var cA = data.Positions[_indexA].C;
+            var aA = data.Positions[_indexA].A;
+            var vA = data.Velocities[_indexA].V;
+            var wA = data.Velocities[_indexA].W;
 
-            Vector2 cB = data.Positions[_indexB].C;
-            float aB = data.Positions[_indexB].A;
-            Vector2 vB = data.Velocities[_indexB].V;
-            float wB = data.Velocities[_indexB].W;
+            var cB = data.Positions[_indexB].C;
+            var aB = data.Positions[_indexB].A;
+            var vB = data.Velocities[_indexB].V;
+            var wB = data.Velocities[_indexB].W;
 
-            Rot qA = new Rot(aA);
-            Rot qB = new Rot(aB);
+            var qA = new Rot(aA);
+            var qB = new Rot(aB);
 
             // Compute the effective mass matrix.
             _rA = MathUtils.Mul(qA, _linearOffset - _localCenterA);
@@ -227,7 +227,7 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             float iA = _invIA, iB = _invIB;
 
             // Upper 2 by 2 of K for point to point
-            Mat22 K = new Mat22();
+            var K = new Mat22();
             K.ex.X = mA + mB + iA * _rA.Y * _rA.Y + iB * _rB.Y * _rB.Y;
             K.ex.Y = -iA * _rA.X * _rA.Y - iB * _rB.X * _rB.Y;
             K.ey.X = K.ex.Y;
@@ -248,7 +248,7 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
                 _linearImpulse *= data.Step.DeltaTimeRatio;
                 _angularImpulse *= data.Step.DeltaTimeRatio;
 
-                Vector2 P = new Vector2(_linearImpulse.X, _linearImpulse.Y);
+                var P = new Vector2(_linearImpulse.X, _linearImpulse.Y);
                 vA -= mA * P;
                 wA -= iA * (MathUtils.Cross(_rA, P) + _angularImpulse);
                 vB += mB * P;
@@ -268,24 +268,24 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
 
         internal override void SolveVelocityConstraints(ref SolverData data)
         {
-            Vector2 vA = data.Velocities[_indexA].V;
-            float wA = data.Velocities[_indexA].W;
-            Vector2 vB = data.Velocities[_indexB].V;
-            float wB = data.Velocities[_indexB].W;
+            var vA = data.Velocities[_indexA].V;
+            var wA = data.Velocities[_indexA].W;
+            var vB = data.Velocities[_indexB].V;
+            var wB = data.Velocities[_indexB].W;
 
             float mA = _invMassA, mB = _invMassB;
             float iA = _invIA, iB = _invIB;
 
-            float h = data.Step.DeltaTime;
-            float inv_h = data.Step.InvertedDeltaTime;
+            var h = data.Step.DeltaTime;
+            var inv_h = data.Step.InvertedDeltaTime;
 
             // Solve angular friction
             {
-                float Cdot = wB - wA + inv_h * _correctionFactor * _angularError;
-                float impulse = -_angularMass * Cdot;
+                var Cdot = wB - wA + inv_h * _correctionFactor * _angularError;
+                var impulse = -_angularMass * Cdot;
 
-                float oldImpulse = _angularImpulse;
-                float maxImpulse = h * _maxTorque;
+                var oldImpulse = _angularImpulse;
+                var maxImpulse = h * _maxTorque;
                 _angularImpulse = MathUtils.Clamp(_angularImpulse + impulse, -maxImpulse, maxImpulse);
                 impulse = _angularImpulse - oldImpulse;
 
@@ -295,17 +295,17 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
 
             // Solve linear friction
             {
-                Vector2 Cdot = vB + MathUtils.Cross(wB, _rB) - vA - MathUtils.Cross(wA, _rA) + inv_h * _correctionFactor * _linearError;
+                var Cdot = vB + MathUtils.Cross(wB, _rB) - vA - MathUtils.Cross(wA, _rA) + inv_h * _correctionFactor * _linearError;
 
-                Vector2 impulse = -MathUtils.Mul(ref _linearMass, ref Cdot);
-                Vector2 oldImpulse = _linearImpulse;
+                var impulse = -MathUtils.Mul(ref _linearMass, ref Cdot);
+                var oldImpulse = _linearImpulse;
                 _linearImpulse += impulse;
 
-                float maxImpulse = h * _maxForce;
+                var maxImpulse = h * _maxForce;
 
                 if (_linearImpulse.LengthSquared() > maxImpulse * maxImpulse)
                 {
-                    _linearImpulse.Normalize();
+                    _linearImpulse = Vector2.Normalize(_linearImpulse);
                     _linearImpulse *= maxImpulse;
                 }
 

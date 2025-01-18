@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using Genbox.VelcroPhysics.Collision.ContactSystem;
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Genbox.VelcroPhysics.Dynamics.Solver;
-using Genbox.VelcroPhysics.Factories;
-using Genbox.VelcroPhysics.Shared;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.ContactSystem;
+using VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Dynamics.Solver;
+using VelcroPhysics.Factories;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Dynamics
+namespace VelcroPhysics.Dynamics
 {
     /// <summary>A type of body that supports multiple fixtures that can break apart.</summary>
     public class BreakableBody
@@ -17,7 +17,7 @@ namespace Genbox.VelcroPhysics.Dynamics
         private bool _break;
         private Vector2[] _velocitiesCache = new Vector2[8];
 
-        public BreakableBody(World world, ICollection<Vertices> parts, float density, Vector2 position = new Vector2(), float rotation = 0)
+        public BreakableBody(World world, ICollection<Vertices> parts, float density, Vector2 position = new(), float rotation = 0)
         {
             _world = world;
             _world.ContactManager.PostSolve += PostSolve;
@@ -25,24 +25,24 @@ namespace Genbox.VelcroPhysics.Dynamics
             MainBody = BodyFactory.CreateBody(_world, position, rotation, BodyType.Dynamic);
             Strength = 500.0f;
 
-            foreach (Vertices part in parts)
+            foreach (var part in parts)
             {
-                PolygonShape polygonShape = new PolygonShape(part, density);
-                Fixture fixture = MainBody.AddFixture(polygonShape);
+                var polygonShape = new PolygonShape(part, density);
+                var fixture = MainBody.AddFixture(polygonShape);
                 Parts.Add(fixture);
             }
         }
 
-        public BreakableBody(World world, IEnumerable<Shape> shapes, Vector2 position = new Vector2(), float rotation = 0)
+        public BreakableBody(World world, IEnumerable<Shape> shapes, Vector2 position = new(), float rotation = 0)
         {
             _world = world;
             _world.ContactManager.PostSolve += PostSolve;
             MainBody = BodyFactory.CreateBody(_world, position, rotation, BodyType.Dynamic);
             Parts = new List<Fixture>(8);
 
-            foreach (Shape part in shapes)
+            foreach (var part in shapes)
             {
-                Fixture fixture = MainBody.AddFixture(part);
+                var fixture = MainBody.AddFixture(part);
                 Parts.Add(fixture);
             }
         }
@@ -60,10 +60,10 @@ namespace Genbox.VelcroPhysics.Dynamics
             {
                 if (Parts.Contains(contact._fixtureA) || Parts.Contains(contact._fixtureB))
                 {
-                    float maxImpulse = 0.0f;
-                    int count = contact.Manifold.PointCount;
+                    var maxImpulse = 0.0f;
+                    var count = contact.Manifold.PointCount;
 
-                    for (int i = 0; i < count; ++i)
+                    for (var i = 0; i < count; ++i)
                     {
                         maxImpulse = Math.Max(maxImpulse, impulse.Points[i].NormalImpulse);
                     }
@@ -97,7 +97,7 @@ namespace Genbox.VelcroPhysics.Dynamics
                 }
 
                 //Cache the linear and angular velocities.
-                for (int i = 0; i < Parts.Count; i++)
+                for (var i = 0; i < Parts.Count; i++)
                 {
                     _velocitiesCache[i] = Parts[i].Body.LinearVelocity;
                     _angularVelocitiesCache[i] = Parts[i].Body.AngularVelocity;
@@ -110,18 +110,18 @@ namespace Genbox.VelcroPhysics.Dynamics
             //Unsubsribe from the PostSolve delegate
             _world.ContactManager.PostSolve -= PostSolve;
 
-            for (int i = 0; i < Parts.Count; i++)
+            for (var i = 0; i < Parts.Count; i++)
             {
-                Fixture oldFixture = Parts[i];
+                var oldFixture = Parts[i];
 
-                Shape shape = oldFixture.Shape.Clone();
-                object userData = oldFixture.UserData;
+                var shape = oldFixture.Shape.Clone();
+                var userData = oldFixture.UserData;
 
                 MainBody.RemoveFixture(oldFixture);
 
-                Body body = BodyFactory.CreateBody(_world, MainBody.Position, MainBody.Rotation, BodyType.Dynamic, MainBody.UserData);
+                var body = BodyFactory.CreateBody(_world, MainBody.Position, MainBody.Rotation, BodyType.Dynamic, MainBody.UserData);
 
-                Fixture newFixture = body.AddFixture(shape);
+                var newFixture = body.AddFixture(shape);
                 newFixture.UserData = userData;
                 Parts[i] = newFixture;
 

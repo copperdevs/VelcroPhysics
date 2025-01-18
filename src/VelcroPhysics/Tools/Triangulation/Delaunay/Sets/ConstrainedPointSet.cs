@@ -31,7 +31,7 @@
 
 using System.Collections.Generic;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Sets
+namespace VelcroPhysics.Tools.Triangulation.Delaunay.Sets
 {
     /*
      * Extends the PointSet by adding some Constraints on how it will be triangulated<br>
@@ -61,7 +61,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Sets
         public ConstrainedPointSet(List<TriangulationPoint> points, IEnumerable<TriangulationPoint> constraints)
             : base(points)
         {
-            _constrainedPointList = new List<TriangulationPoint>();
+            _constrainedPointList = [];
             _constrainedPointList.AddRange(constraints);
         }
 
@@ -75,7 +75,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Sets
             if (_constrainedPointList != null)
             {
                 TriangulationPoint p1, p2;
-                using (List<TriangulationPoint>.Enumerator iterator = _constrainedPointList.GetEnumerator())
+                using (var iterator = _constrainedPointList.GetEnumerator())
                 {
                     while (iterator.MoveNext())
                     {
@@ -88,7 +88,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Sets
             }
             else
             {
-                for (int i = 0; i < EdgeIndex.Length; i += 2)
+                for (var i = 0; i < EdgeIndex.Length; i += 2)
                 {
                     // XXX: must change!!
                     tcx.NewConstraint(Points[EdgeIndex[i]], Points[EdgeIndex[i + 1]]);

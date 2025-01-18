@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Factories;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+﻿using System.Diagnostics;
+using System.Numerics;
+using VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Factories;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Tools.PathGenerator
+namespace VelcroPhysics.Tools.PathGenerator
 {
     public static class LinkFactory
     {
@@ -27,15 +26,15 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
             Debug.Assert(numberOfLinks >= 2);
 
             //Chain start / end
-            Path path = new Path();
+            var path = new Path();
             path.Add(start);
             path.Add(end);
 
             //A single chainlink
-            PolygonShape shape = new PolygonShape(PolygonUtils.CreateRectangle(linkWidth, linkHeight), linkDensity);
+            var shape = new PolygonShape(PolygonUtils.CreateRectangle(linkWidth, linkHeight), linkDensity);
 
             //Use PathManager to create all the chainlinks based on the chainlink created before.
-            List<Body> chainLinks = PathManager.EvenlyDistributeShapesAlongPath(world, path, shape, BodyType.Dynamic, numberOfLinks);
+            var chainLinks = PathManager.EvenlyDistributeShapesAlongPath(world, path, shape, BodyType.Dynamic, numberOfLinks);
 
             //TODO
             //if (fixStart)
@@ -57,7 +56,7 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
             PathManager.AttachBodiesWithRevoluteJoint(world, chainLinks, new Vector2(0, -linkHeight), new Vector2(0, linkHeight), false, false);
 
             if (attachRopeJoint)
-                JointFactory.CreateDistanceJoint(world, chainLinks[0], chainLinks[chainLinks.Count - 1], Vector2.Zero, Vector2.Zero);
+                JointFactory.CreateDistanceJoint(world, chainLinks[0], chainLinks[^1], Vector2.Zero, Vector2.Zero);
 
             return path;
         }

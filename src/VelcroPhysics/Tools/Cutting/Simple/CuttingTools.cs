@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Factories;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Factories;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Tools.Cutting.Simple
+namespace VelcroPhysics.Tools.Cutting.Simple
 {
     public static class CuttingTools
     {
@@ -21,19 +21,19 @@ namespace Genbox.VelcroPhysics.Tools.Cutting.Simple
         /// <param name="second">The second collection of vertexes</param>
         public static void SplitShape(Fixture fixture, Vector2 entryPoint, Vector2 exitPoint, out Vertices first, out Vertices second)
         {
-            Vector2 localEntryPoint = fixture.Body.GetLocalPoint(ref entryPoint);
-            Vector2 localExitPoint = fixture.Body.GetLocalPoint(ref exitPoint);
+            var localEntryPoint = fixture.Body.GetLocalPoint(ref entryPoint);
+            var localExitPoint = fixture.Body.GetLocalPoint(ref exitPoint);
 
             //We can only cut polygons at the moment
             if (!(fixture.Shape is PolygonShape shape))
             {
-                first = new Vertices();
-                second = new Vertices();
+                first = [];
+                second = [];
                 return;
             }
 
             //Offset the entry and exit points if they are too close to the vertices
-            foreach (Vector2 vertex in shape._vertices)
+            foreach (var vertex in shape._vertices)
             {
                 if (vertex.Equals(localEntryPoint))
                     localEntryPoint -= new Vector2(0, MathConstants.Epsilon);
@@ -42,17 +42,17 @@ namespace Genbox.VelcroPhysics.Tools.Cutting.Simple
                     localExitPoint += new Vector2(0, MathConstants.Epsilon);
             }
 
-            Vertices vertices = new Vertices(shape._vertices);
-            Vertices[] newPolygon = new Vertices[2];
+            var vertices = new Vertices(shape._vertices);
+            var newPolygon = new Vertices[2];
 
-            for (int i = 0; i < newPolygon.Length; i++)
+            for (var i = 0; i < newPolygon.Length; i++)
             {
                 newPolygon[i] = new Vertices(vertices.Count);
             }
 
-            int[] cutAdded = { -1, -1 };
-            int last = -1;
-            for (int i = 0; i < vertices.Count; i++)
+            int[] cutAdded = [-1, -1];
+            var last = -1;
+            for (var i = 0; i < vertices.Count; i++)
             {
                 int n;
 
@@ -99,14 +99,14 @@ namespace Genbox.VelcroPhysics.Tools.Cutting.Simple
                 newPolygon[1].Add(localExitPoint);
             }
 
-            for (int n = 0; n < 2; n++)
+            for (var n = 0; n < 2; n++)
             {
                 Vector2 offset;
                 if (cutAdded[n] > 0)
                     offset = newPolygon[n][cutAdded[n] - 1] - newPolygon[n][cutAdded[n]];
                 else
                     offset = newPolygon[n][newPolygon[n].Count - 1] - newPolygon[n][0];
-                offset.Normalize();
+                offset = Vector2.Normalize(offset);
 
                 if (!offset.IsValid())
                     offset = Vector2.One;
@@ -117,7 +117,7 @@ namespace Genbox.VelcroPhysics.Tools.Cutting.Simple
                     offset = newPolygon[n][cutAdded[n] + 2] - newPolygon[n][cutAdded[n] + 1];
                 else
                     offset = newPolygon[n][0] - newPolygon[n][newPolygon[n].Count - 1];
-                offset.Normalize();
+                offset = Vector2.Normalize(offset);
 
                 if (!offset.IsValid())
                     offset = Vector2.One;
@@ -139,9 +139,9 @@ namespace Genbox.VelcroPhysics.Tools.Cutting.Simple
         /// <returns>True if the cut was performed.</returns>
         public static bool Cut(World world, Vector2 start, Vector2 end)
         {
-            List<Fixture> fixtures = new List<Fixture>();
-            List<Vector2> entryPoints = new List<Vector2>();
-            List<Vector2> exitPoints = new List<Vector2>();
+            var fixtures = new List<Fixture>();
+            var entryPoints = new List<Vector2>();
+            var exitPoints = new List<Vector2>();
 
             //We don't support cutting when the start or end is inside a shape.
             if (world.TestPoint(start) != null || world.TestPoint(end) != null)
@@ -166,7 +166,7 @@ namespace Genbox.VelcroPhysics.Tools.Cutting.Simple
             if (entryPoints.Count + exitPoints.Count < 2)
                 return false;
 
-            for (int i = 0; i < fixtures.Count; i++)
+            for (var i = 0; i < fixtures.Count; i++)
             {
                 // can't cut circles or edges yet !
                 if (fixtures[i].Shape.ShapeType != ShapeType.Polygon)
@@ -175,12 +175,12 @@ namespace Genbox.VelcroPhysics.Tools.Cutting.Simple
                 if (fixtures[i].Body.BodyType != BodyType.Static)
                 {
                     //Split the shape up into two shapes
-                    SplitShape(fixtures[i], entryPoints[i], exitPoints[i], out Vertices first, out Vertices second);
+                    SplitShape(fixtures[i], entryPoints[i], exitPoints[i], out var first, out var second);
 
                     //Delete the original shape and create two new. Retain the properties of the body.
                     if (first.CheckPolygon() == PolygonError.NoError)
                     {
-                        Body firstFixture = BodyFactory.CreatePolygon(world, first, fixtures[i].Shape._density, fixtures[i].Body.Position);
+                        var firstFixture = BodyFactory.CreatePolygon(world, first, fixtures[i].Shape._density, fixtures[i].Body.Position);
                         firstFixture.Rotation = fixtures[i].Body.Rotation;
                         firstFixture.LinearVelocity = fixtures[i].Body.LinearVelocity;
                         firstFixture.AngularVelocity = fixtures[i].Body.AngularVelocity;
@@ -189,7 +189,7 @@ namespace Genbox.VelcroPhysics.Tools.Cutting.Simple
 
                     if (second.CheckPolygon() == PolygonError.NoError)
                     {
-                        Body secondFixture = BodyFactory.CreatePolygon(world, second, fixtures[i].Shape._density, fixtures[i].Body.Position);
+                        var secondFixture = BodyFactory.CreatePolygon(world, second, fixtures[i].Shape._density, fixtures[i].Body.Position);
                         secondFixture.Rotation = fixtures[i].Body.Rotation;
                         secondFixture.LinearVelocity = fixtures[i].Body.LinearVelocity;
                         secondFixture.AngularVelocity = fixtures[i].Body.AngularVelocity;

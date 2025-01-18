@@ -1,4 +1,4 @@
-namespace Genbox.VelcroPhysics.Extensions.Controllers.Gravity
+namespace VelcroPhysics.Extensions.Controllers.Gravity
 {
     public enum GravityType
     {

@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Genbox.VelcroPhysics.Collision.ContactSystem
+namespace VelcroPhysics.Collision.ContactSystem
 {
     /// <summary>Contact ids to facilitate warm starting.</summary>
     [StructLayout(LayoutKind.Explicit)]

@@ -1,6 +1,6 @@
-using Genbox.VelcroPhysics.Dynamics.Joints;
+using VelcroPhysics.Dynamics.Joints;
 
-namespace Genbox.VelcroPhysics.Dynamics.Handlers
+namespace VelcroPhysics.Dynamics.Handlers
 {
     public delegate void JointHandler(Joint joint);
 }

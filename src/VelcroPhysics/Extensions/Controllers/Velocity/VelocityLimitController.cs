@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Extensions.Controllers.ControllerBase;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Extensions.Controllers.ControllerBase;
 
-namespace Genbox.VelcroPhysics.Extensions.Controllers.Velocity
+namespace VelcroPhysics.Extensions.Controllers.Velocity
 {
     /// <summary>
     /// Put a limit on the linear (translation - the move speed) and angular (rotation) velocity of bodies added to
@@ -11,7 +11,7 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Velocity
     /// </summary>
     public class VelocityLimitController : Controller
     {
-        private List<Body> _bodies = new List<Body>();
+        private List<Body> _bodies = [];
         private float _maxAngularSqared;
         private float _maxAngularVelocity;
         private float _maxLinearSqared;
@@ -75,7 +75,7 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Velocity
 
         public override void Update(float dt)
         {
-            foreach (Body body in _bodies)
+            foreach (var body in _bodies)
             {
                 if (!IsActiveOn(body))
                     continue;
@@ -84,15 +84,15 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Velocity
                 {
                     //Translation
                     // Check for large velocities.
-                    float translationX = dt * body._linearVelocity.X;
-                    float translationY = dt * body._linearVelocity.Y;
-                    float result = translationX * translationX + translationY * translationY;
+                    var translationX = dt * body._linearVelocity.X;
+                    var translationY = dt * body._linearVelocity.Y;
+                    var result = translationX * translationX + translationY * translationY;
 
                     if (result > dt * _maxLinearSqared)
                     {
-                        float sq = (float)Math.Sqrt(result);
+                        var sq = (float)Math.Sqrt(result);
 
-                        float ratio = _maxLinearVelocity / sq;
+                        var ratio = _maxLinearVelocity / sq;
                         body._linearVelocity.X *= ratio;
                         body._linearVelocity.Y *= ratio;
                     }
@@ -101,10 +101,10 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Velocity
                 if (LimitAngularVelocity)
                 {
                     //Rotation
-                    float rotation = dt * body._angularVelocity;
+                    var rotation = dt * body._angularVelocity;
                     if (rotation * rotation > _maxAngularSqared)
                     {
-                        float ratio = _maxAngularVelocity / Math.Abs(rotation);
+                        var ratio = _maxAngularVelocity / Math.Abs(rotation);
                         body._angularVelocity *= ratio;
                     }
                 }

@@ -20,11 +20,11 @@
 * 3. This notice may not be removed or altered from any source distribution. 
 */
 
-using Genbox.VelcroPhysics.Collision.RayCast;
-using Genbox.VelcroPhysics.Shared;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.RayCast;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Collision.Shapes
+namespace VelcroPhysics.Collision.Shapes
 {
     /// <summary>
     /// A line segment (edge) shape. These can be connected in chains or loops to other edge shapes. Edges created
@@ -137,16 +137,18 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
 
         public override Shape Clone()
         {
-            EdgeShape clone = new EdgeShape();
-            clone._shapeType = _shapeType;
-            clone._radius = _radius;
-            clone._density = _density;
-            clone._oneSided = _oneSided;
-            clone._vertex0 = _vertex0;
-            clone._vertex1 = _vertex1;
-            clone._vertex2 = _vertex2;
-            clone._vertex3 = _vertex3;
-            clone._massData = _massData;
+            var clone = new EdgeShape
+            {
+                _shapeType = _shapeType,
+                _radius = _radius,
+                _density = _density,
+                _oneSided = _oneSided,
+                _vertex0 = _vertex0,
+                _vertex1 = _vertex1,
+                _vertex2 = _vertex2,
+                _vertex3 = _vertex3,
+                _massData = _massData
+            };
             return clone;
         }
     }

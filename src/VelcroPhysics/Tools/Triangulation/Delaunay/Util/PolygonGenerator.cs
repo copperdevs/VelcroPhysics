@@ -30,21 +30,21 @@
  */
 
 using System;
-using Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Polygon;
-using Genbox.VelcroPhysics.Utilities;
+using VelcroPhysics.Tools.Triangulation.Delaunay.Polygon;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Util
+namespace VelcroPhysics.Tools.Triangulation.Delaunay.Util
 {
     internal class PolygonGenerator
     {
-        private static readonly Random _rng = new Random();
+        private static readonly Random _rng = new();
 
         public static Polygon.Polygon RandomCircleSweep(double scale, int vertexCount)
         {
-            double radius = scale / 4;
+            var radius = scale / 4;
 
-            PolygonPoint[] points = new PolygonPoint[vertexCount];
-            for (int i = 0; i < vertexCount; i++)
+            var points = new PolygonPoint[vertexCount];
+            for (var i = 0; i < vertexCount; i++)
             {
                 do
                 {
@@ -66,10 +66,10 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Util
 
         public static Polygon.Polygon RandomCircleSweep2(double scale, int vertexCount)
         {
-            double radius = scale / 4;
-            PolygonPoint[] points = new PolygonPoint[vertexCount];
+            var radius = scale / 4;
+            var points = new PolygonPoint[vertexCount];
 
-            for (int i = 0; i < vertexCount; i++)
+            for (var i = 0; i < vertexCount; i++)
             {
                 do
                 {

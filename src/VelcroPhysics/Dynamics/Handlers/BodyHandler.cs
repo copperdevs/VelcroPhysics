@@ -1,4 +1,4 @@
-namespace Genbox.VelcroPhysics.Dynamics.Handlers
+namespace VelcroPhysics.Dynamics.Handlers
 {
     public delegate void BodyHandler(Body body);
 }

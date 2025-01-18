@@ -21,12 +21,12 @@
 */
 
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.RayCast;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.RayCast;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Collision.Shapes
+namespace VelcroPhysics.Collision.Shapes
 {
     /// <summary>
     /// A chain shape is a free form sequence of line segments. The chain has one-sided collision, with the surface
@@ -48,13 +48,13 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
         public ChainShape(Vertices vertices, bool createLoop = false) : base(ShapeType.Chain, Settings.PolygonRadius)
         {
             Debug.Assert(vertices != null && vertices.Count >= 3);
-            Debug.Assert(vertices[0] != vertices[vertices.Count - 1]); //Velcro. See http://www.box2d.org/forum/viewtopic.php?f=4&t=7973&p=35363
+            Debug.Assert(vertices[0] != vertices[^1]); //Velcro. See http://www.box2d.org/forum/viewtopic.php?f=4&t=7973&p=35363
 
-            for (int i = 1; i < vertices.Count; ++i)
+            for (var i = 1; i < vertices.Count; ++i)
             {
                 // If the code crashes here, it means your vertices are too close together.
-                Vector2 current = vertices[i];
-                Vector2 prev = vertices[i - 1];
+                var current = vertices[i];
+                var prev = vertices[i - 1];
                 Debug.Assert(MathUtils.DistanceSquared(ref prev, ref current) > Settings.LinearSlop * Settings.LinearSlop);
             }
 
@@ -64,7 +64,7 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
             if (createLoop)
             {
                 _vertices.Add(vertices[0]);
-                _prevVertex = _vertices[_vertices.Count - 2];
+                _prevVertex = _vertices[^2];
                 _nextVertex = _vertices[1];
             }
 
@@ -120,7 +120,7 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
 
         public EdgeShape GetChildEdge(int index)
         {
-            EdgeShape edgeShape = new EdgeShape();
+            var edgeShape = new EdgeShape();
             GetChildEdge(edgeShape, index);
             return edgeShape;
         }
@@ -134,14 +134,13 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
         {
             Debug.Assert(childIndex < _vertices.Count);
 
-            int i1 = childIndex;
-            int i2 = childIndex + 1;
+            var i2 = childIndex + 1;
 
             if (i2 == _vertices.Count)
                 i2 = 0;
 
-            Vector2 v1 = _vertices[i1];
-            Vector2 v2 = _vertices[i2];
+            var v1 = _vertices[childIndex];
+            var v2 = _vertices[i2];
 
             return RayCastHelper.RayCastEdge(ref v1, ref v2, false, ref input, ref transform, out output);
         }
@@ -150,14 +149,13 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
         {
             Debug.Assert(childIndex < _vertices.Count);
 
-            int i1 = childIndex;
-            int i2 = childIndex + 1;
+            var i2 = childIndex + 1;
 
             if (i2 == _vertices.Count)
                 i2 = 0;
 
-            Vector2 v1 = _vertices[i1];
-            Vector2 v2 = _vertices[i2];
+            var v1 = _vertices[childIndex];
+            var v2 = _vertices[i2];
 
             AABBHelper.ComputeEdgeAABB(ref v1, ref v2, ref transform, out aabb);
         }
@@ -169,13 +167,15 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
 
         public override Shape Clone()
         {
-            ChainShape clone = new ChainShape();
-            clone._shapeType = _shapeType;
-            clone._density = _density;
-            clone._radius = _radius;
-            clone._prevVertex = _prevVertex;
-            clone._nextVertex = _nextVertex;
-            clone._vertices = new Vertices(_vertices);
+            var clone = new ChainShape
+            {
+                _shapeType = _shapeType,
+                _density = _density,
+                _radius = _radius,
+                _prevVertex = _prevVertex,
+                _nextVertex = _nextVertex,
+                _vertices = new Vertices(_vertices)
+            };
             return clone;
         }
     }

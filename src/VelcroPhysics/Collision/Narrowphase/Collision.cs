@@ -20,15 +20,15 @@
 * 3. This notice may not be removed or altered from any source distribution. 
 */
 
-using Genbox.VelcroPhysics.Collision.ContactSystem;
-using Genbox.VelcroPhysics.Collision.Distance;
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Shared.Optimization;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.ContactSystem;
+using VelcroPhysics.Collision.Distance;
+using VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Shared.Optimization;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Collision.Narrowphase
+namespace VelcroPhysics.Collision.Narrowphase
 {
     /// <summary>Collision methods</summary>
     public static class Collision
@@ -42,14 +42,16 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
         /// <param name="xfB">The transform for the seconds shape.</param>
         public static bool TestOverlap(Shape shapeA, int indexA, Shape shapeB, int indexB, ref Transform xfA, ref Transform xfB)
         {
-            DistanceInput input = new DistanceInput();
-            input.ProxyA = new DistanceProxy(shapeA, indexA);
-            input.ProxyB = new DistanceProxy(shapeB, indexB);
-            input.TransformA = xfA;
-            input.TransformB = xfB;
-            input.UseRadii = true;
+            var input = new DistanceInput
+            {
+                ProxyA = new DistanceProxy(shapeA, indexA),
+                ProxyB = new DistanceProxy(shapeB, indexB),
+                TransformA = xfA,
+                TransformB = xfB,
+                UseRadii = true
+            };
 
-            DistanceGJK.ComputeDistance(ref input, out DistanceOutput output, out _);
+            DistanceGJK.ComputeDistance(ref input, out var output, out _);
 
             return output.Distance < 10.0f * MathConstants.Epsilon;
         }
@@ -59,20 +61,20 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
             state1 = new FixedArray2<PointState>();
             state2 = new FixedArray2<PointState>();
 
-            for (int i = 0; i < Settings.MaxManifoldPoints; ++i)
+            for (var i = 0; i < Settings.MaxManifoldPoints; ++i)
             {
                 state1[i] = PointState.Null;
                 state2[i] = PointState.Null;
             }
 
             // Detect persists and removes.
-            for (int i = 0; i < manifold1.PointCount; ++i)
+            for (var i = 0; i < manifold1.PointCount; ++i)
             {
-                ContactId id = manifold1.Points[i].Id;
+                var id = manifold1.Points[i].Id;
 
                 state1[i] = PointState.Remove;
 
-                for (int j = 0; j < manifold2.PointCount; ++j)
+                for (var j = 0; j < manifold2.PointCount; ++j)
                 {
                     if (manifold2.Points[j].Id.Key == id.Key)
                     {
@@ -83,13 +85,13 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
             }
 
             // Detect persists and adds.
-            for (int i = 0; i < manifold2.PointCount; ++i)
+            for (var i = 0; i < manifold2.PointCount; ++i)
             {
-                ContactId id = manifold2.Points[i].Id;
+                var id = manifold2.Points[i].Id;
 
                 state2[i] = PointState.Add;
 
-                for (int j = 0; j < manifold1.PointCount; ++j)
+                for (var j = 0; j < manifold1.PointCount; ++j)
                 {
                     if (manifold1.Points[j].Id.Key == id.Key)
                     {
@@ -112,11 +114,11 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
             vOut = new FixedArray2<ClipVertex>();
 
             // Start with no output points
-            int count = 0;
+            var count = 0;
 
             // Calculate the distance of end points to the line
-            float distance0 = Vector2.Dot(normal, vIn.Value0.V) - offset;
-            float distance1 = Vector2.Dot(normal, vIn.Value1.V) - offset;
+            var distance0 = Vector2.Dot(normal, vIn.Value0.V) - offset;
+            var distance1 = Vector2.Dot(normal, vIn.Value1.V) - offset;
 
             // If the points are behind the plane
             if (distance0 <= 0.0f) vOut[count++] = vIn.Value0;
@@ -126,9 +128,9 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
             if (distance0 * distance1 < 0.0f)
             {
                 // Find intersection point of edge and plane
-                float interp = distance0 / (distance0 - distance1);
+                var interp = distance0 / (distance0 - distance1);
 
-                ClipVertex cv = vOut[count];
+                var cv = vOut[count];
                 cv.V = vIn.Value0.V + interp * (vIn.Value1.V - vIn.Value0.V);
 
                 // VertexA is hitting edgeB.

@@ -1,8 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Genbox.VelcroPhysics.Benchmarks.Code;
-using Genbox.VelcroPhysics.Benchmarks.Code.TestClasses;
+using VelcroPhysics.Benchmarks.Code;
+using VelcroPhysics.Benchmarks.Code.TestClasses;
 
-namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
+namespace VelcroPhysics.Benchmarks.Tests.CLR
 {
     public class ClassBenchmarks : UnmeasuredBenchmark
     {
@@ -29,11 +29,13 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
         [Benchmark]
         public void ClassSize8()
         {
-            for (int i = 0; i < _class8.Length; i++)
+            for (var i = 0; i < _class8.Length; i++)
             {
-                Class8 s = new Class8();
-                s.Value1 = i;
-                s.Value2 = i;
+                var s = new Class8
+                {
+                    Value1 = i,
+                    Value2 = i
+                };
                 _class8[i] = s;
             }
         }
@@ -41,13 +43,15 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
         [Benchmark]
         public void ClassSize32()
         {
-            for (int i = 0; i < _class32.Length; i++)
+            for (var i = 0; i < _class32.Length; i++)
             {
-                Class32 s = new Class32();
-                s.Value1 = new Class8();
-                s.Value2 = new Class8();
-                s.Value3 = new Class8();
-                s.Value4 = new Class8();
+                var s = new Class32
+                {
+                    Value1 = new Class8(),
+                    Value2 = new Class8(),
+                    Value3 = new Class8(),
+                    Value4 = new Class8()
+                };
                 s.Value1.Value1 = i;
                 s.Value1.Value2 = i;
                 s.Value2.Value1 = i;
@@ -63,11 +67,13 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
         [Benchmark]
         public void ClassSize64()
         {
-            for (int i = 0; i < _class64.Length; i++)
+            for (var i = 0; i < _class64.Length; i++)
             {
-                Class64 s = new Class64();
-                s.Value1 = new Class32();
-                s.Value2 = new Class32();
+                var s = new Class64
+                {
+                    Value1 = new Class32(),
+                    Value2 = new Class32()
+                };
                 s.Value1.Value1 = new Class8();
                 s.Value1.Value2 = new Class8();
                 s.Value1.Value3 = new Class8();
@@ -103,9 +109,11 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
         [Benchmark]
         public Class64 CopyClass64()
         {
-            Class64 s = new Class64();
-            s.Value1 = new Class32();
-            s.Value2 = new Class32();
+            var s = new Class64
+            {
+                Value1 = new Class32(),
+                Value2 = new Class32()
+            };
             s.Value1.Value1 = new Class8();
             s.Value1.Value2 = new Class8();
             s.Value1.Value3 = new Class8();
@@ -134,7 +142,7 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
             s.Value2.Value4.Value1 = 15;
             s.Value2.Value4.Value2 = 16;
 
-            for (int i = 0; i < 100.000; i++)
+            for (var i = 0; i < 100.000; i++)
             {
                 s = CopyBack(s);
             }
@@ -150,9 +158,9 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
         [Benchmark]
         public void StructSize8()
         {
-            for (int i = 0; i < _struct8.Length; i++)
+            for (var i = 0; i < _struct8.Length; i++)
             {
-                Struct8 s = _struct8[i];
+                var s = _struct8[i];
                 s.Value1 = i;
                 s.Value2 = i;
                 _struct8[i] = s;
@@ -162,9 +170,9 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
         [Benchmark]
         public void StructSize32()
         {
-            for (int i = 0; i < _struct32.Length; i++)
+            for (var i = 0; i < _struct32.Length; i++)
             {
-                Struct32 s = _struct32[i];
+                var s = _struct32[i];
                 s.Value1 = new Struct8();
                 s.Value2 = new Struct8();
                 s.Value3 = new Struct8();
@@ -184,9 +192,9 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
         [Benchmark]
         public void StructSize64()
         {
-            for (int i = 0; i < _struct64.Length; i++)
+            for (var i = 0; i < _struct64.Length; i++)
             {
-                Struct64 s = _struct64[i];
+                var s = _struct64[i];
                 s.Value1 = new Struct32();
                 s.Value2 = new Struct32();
                 s.Value1.Value1 = new Struct8();
@@ -224,9 +232,11 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
         [Benchmark]
         public Struct64 CopyStruct64()
         {
-            Struct64 s = new Struct64();
-            s.Value1 = new Struct32();
-            s.Value2 = new Struct32();
+            var s = new Struct64
+            {
+                Value1 = new Struct32(),
+                Value2 = new Struct32()
+            };
             s.Value1.Value1 = new Struct8();
             s.Value1.Value2 = new Struct8();
             s.Value1.Value3 = new Struct8();
@@ -255,7 +265,7 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
             s.Value2.Value4.Value1 = 15;
             s.Value2.Value4.Value2 = 16;
 
-            for (int i = 0; i < 100.000; i++)
+            for (var i = 0; i < 100.000; i++)
             {
                 s = CopyBack(s);
             }
@@ -271,9 +281,11 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
         [Benchmark]
         public Struct64 CopyStruct64Ref()
         {
-            Struct64 s = new Struct64();
-            s.Value1 = new Struct32();
-            s.Value2 = new Struct32();
+            var s = new Struct64
+            {
+                Value1 = new Struct32(),
+                Value2 = new Struct32()
+            };
             s.Value1.Value1 = new Struct8();
             s.Value1.Value2 = new Struct8();
             s.Value1.Value3 = new Struct8();
@@ -302,7 +314,7 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
             s.Value2.Value4.Value1 = 15;
             s.Value2.Value4.Value2 = 16;
 
-            for (int i = 0; i < 100.000; i++)
+            for (var i = 0; i < 100.000; i++)
             {
                 s = CopyStructBackRef(ref s);
             }
@@ -318,9 +330,11 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
         [Benchmark]
         public Struct64 CopyStruct64RefOut()
         {
-            Struct64 s = new Struct64();
-            s.Value1 = new Struct32();
-            s.Value2 = new Struct32();
+            var s = new Struct64
+            {
+                Value1 = new Struct32(),
+                Value2 = new Struct32()
+            };
             s.Value1.Value1 = new Struct8();
             s.Value1.Value2 = new Struct8();
             s.Value1.Value3 = new Struct8();
@@ -349,7 +363,7 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
             s.Value2.Value4.Value1 = 15;
             s.Value2.Value4.Value2 = 16;
 
-            for (int i = 0; i < 100.000; i++)
+            for (var i = 0; i < 100.000; i++)
             {
                 CopyBackRefOut(ref s, out s);
             }

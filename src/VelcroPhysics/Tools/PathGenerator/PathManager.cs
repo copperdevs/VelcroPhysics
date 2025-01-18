@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Dynamics.Joints;
-using Genbox.VelcroPhysics.Factories;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Tools.Triangulation.TriangulationBase;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Dynamics.Joints;
+using VelcroPhysics.Factories;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Tools.Triangulation.TriangulationBase;
 
-namespace Genbox.VelcroPhysics.Tools.PathGenerator
+namespace VelcroPhysics.Tools.PathGenerator
 {
     /// <summary>An easy to use manager for creating paths.</summary>
     public static class PathManager
@@ -21,16 +21,16 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
         /// <param name="subdivisions">The subdivisions.</param>
         public static void ConvertPathToEdges(Path path, Body body, int subdivisions)
         {
-            Vertices verts = path.GetVertices(subdivisions);
+            var verts = path.GetVertices(subdivisions);
 
             if (path.Closed)
             {
-                ChainShape chain = new ChainShape(verts, true);
+                var chain = new ChainShape(verts, true);
                 body.AddFixture(chain);
             }
             else
             {
-                for (int i = 1; i < verts.Count; i++)
+                for (var i = 1; i < verts.Count; i++)
                 {
                     body.AddFixture(new EdgeShape(verts[i], verts[i - 1]));
                 }
@@ -49,9 +49,9 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
 
             List<Vector2> verts = path.GetVertices(subdivisions);
 
-            List<Vertices> decomposedVerts = Triangulate.ConvexPartition(new Vertices(verts), TriangulationAlgorithm.Bayazit);
+            var decomposedVerts = Triangulate.ConvexPartition(new Vertices(verts), TriangulationAlgorithm.Bayazit);
 
-            foreach (Vertices item in decomposedVerts)
+            foreach (var item in decomposedVerts)
             {
                 body.AddFixture(new PolygonShape(item, density));
             }
@@ -67,15 +67,15 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
         /// <returns></returns>
         public static List<Body> EvenlyDistributeShapesAlongPath(World world, Path path, IEnumerable<Shape> shapes, BodyType type, int copies, object? userData = null)
         {
-            List<Vector3> centers = path.SubdivideEvenly(copies);
-            List<Body> bodyList = new List<Body>();
+            var centers = path.SubdivideEvenly(copies);
+            var bodyList = new List<Body>();
 
-            for (int i = 0; i < centers.Count; i++)
+            for (var i = 0; i < centers.Count; i++)
             {
                 // copy the type from original body
-                Body b = BodyFactory.CreateBody(world, new Vector2(centers[i].X, centers[i].Y), centers[i].Z, type, userData);
+                var b = BodyFactory.CreateBody(world, new Vector2(centers[i].X, centers[i].Y), centers[i].Z, type, userData);
 
-                foreach (Shape shape in shapes)
+                foreach (var shape in shapes)
                 {
                     b.AddFixture(shape);
                 }
@@ -95,7 +95,7 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
         /// <param name="userData">The user data.</param>
         public static List<Body> EvenlyDistributeShapesAlongPath(World world, Path path, Shape shape, BodyType type, int copies, object? userData = null)
         {
-            List<Shape> shapes = new List<Shape>(1);
+            var shapes = new List<Shape>(1);
             shapes.Add(shape);
 
             return EvenlyDistributeShapesAlongPath(world, path, shapes, type, copies, userData);
@@ -109,9 +109,9 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
         /// <param name="timeStep">The time step.</param>
         public static void MoveBodyOnPath(Path path, Body body, float time, float strength, float timeStep)
         {
-            Vector2 destination = path.GetPosition(time);
-            Vector2 positionDelta = body.Position - destination;
-            Vector2 velocity = (positionDelta / timeStep) * strength;
+            var destination = path.GetPosition(time);
+            var positionDelta = body.Position - destination;
+            var velocity = positionDelta / timeStep * strength;
 
             body.LinearVelocity = -velocity;
         }
@@ -125,20 +125,24 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
         /// <param name="collideConnected">if set to <c>true</c> [collide connected].</param>
         public static List<RevoluteJoint> AttachBodiesWithRevoluteJoint(World world, List<Body> bodies, Vector2 localAnchorA, Vector2 localAnchorB, bool connectFirstAndLast, bool collideConnected)
         {
-            List<RevoluteJoint> joints = new List<RevoluteJoint>(bodies.Count + 1);
+            var joints = new List<RevoluteJoint>(bodies.Count + 1);
 
-            for (int i = 1; i < bodies.Count; i++)
+            for (var i = 1; i < bodies.Count; i++)
             {
-                RevoluteJoint joint = new RevoluteJoint(bodies[i], bodies[i - 1], localAnchorA, localAnchorB);
-                joint.CollideConnected = collideConnected;
+                var joint = new RevoluteJoint(bodies[i], bodies[i - 1], localAnchorA, localAnchorB)
+                {
+                    CollideConnected = collideConnected
+                };
                 world.AddJoint(joint);
                 joints.Add(joint);
             }
 
             if (connectFirstAndLast)
             {
-                RevoluteJoint lastjoint = new RevoluteJoint(bodies[0], bodies[bodies.Count - 1], localAnchorA, localAnchorB);
-                lastjoint.CollideConnected = collideConnected;
+                var lastjoint = new RevoluteJoint(bodies[0], bodies[^1], localAnchorA, localAnchorB)
+                {
+                    CollideConnected = collideConnected
+                };
                 world.AddJoint(lastjoint);
                 joints.Add(lastjoint);
             }

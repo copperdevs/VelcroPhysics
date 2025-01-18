@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
+namespace VelcroPhysics.Tools.Triangulation.Seidel
 {
     internal class MonotoneMountain
     {
@@ -30,9 +30,9 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
             _tail = null;
             _head = null;
             _positive = false;
-            _convexPoints = new HashSet<Point>();
-            _monoPoly = new List<Point>();
-            Triangles = new List<List<Point>>();
+            _convexPoints = [];
+            _monoPoly = [];
+            Triangles = [];
         }
 
         // Append a point to the list
@@ -64,8 +64,8 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
         // Remove a point from the list
         public void Remove(Point point)
         {
-            Point next = point.Next;
-            Point prev = point.Prev;
+            var next = point.Next;
+            var prev = point.Prev;
             point.Prev.Next = next;
             point.Next.Prev = prev;
             _size -= 1;
@@ -83,10 +83,10 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
 
             // Initialize internal angles at each nonbase vertex
             // Link strictly convex vertices into a list, ignore reflex vertices
-            Point p = _head.Next;
+            var p = _head.Next;
             while (p.Neq(_tail))
             {
-                float a = Angle(p);
+                var a = Angle(p);
 
                 // If the point is almost colinear with it's neighbor, remove it!
                 if (a >= PiSlop || a <= -PiSlop || a == 0.0f)
@@ -106,15 +106,14 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
                 using (IEnumerator<Point> e = _convexPoints.GetEnumerator())
                 {
                     e.MoveNext();
-                    Point ear = e.Current;
+                    var ear = e.Current;
 
                     _convexPoints.Remove(ear);
-                    Point a = ear.Prev;
-                    Point b = ear;
-                    Point c = ear.Next;
-                    List<Point> triangle = new List<Point>(3);
+                    var a = ear.Prev;
+                    var c = ear.Next;
+                    var triangle = new List<Point>(3);
                     triangle.Add(a);
-                    triangle.Add(b);
+                    triangle.Add(ear);
                     triangle.Add(c);
 
                     Triangles.Add(triangle);
@@ -139,7 +138,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
         // Create the monotone polygon
         private void GenMonoPoly()
         {
-            Point p = _head;
+            var p = _head;
             while (p != null)
             {
                 _monoPoly.Add(p);
@@ -149,15 +148,15 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
 
         private float Angle(Point p)
         {
-            Point a = p.Next - p;
-            Point b = p.Prev - p;
+            var a = p.Next - p;
+            var b = p.Prev - p;
             return (float)Math.Atan2(a.Cross(b), a.Dot(b));
         }
 
         private bool AngleSign()
         {
-            Point a = _head.Next - _head;
-            Point b = _tail - _head;
+            var a = _head.Next - _head;
+            var b = _tail - _head;
             return Math.Atan2(a.Cross(b), a.Dot(b)) >= 0;
         }
 

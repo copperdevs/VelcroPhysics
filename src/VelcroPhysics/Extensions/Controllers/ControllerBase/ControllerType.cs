@@ -1,6 +1,6 @@
 using System;
 
-namespace Genbox.VelcroPhysics.Extensions.Controllers.ControllerBase
+namespace VelcroPhysics.Extensions.Controllers.ControllerBase
 {
     [Flags]
     public enum ControllerType

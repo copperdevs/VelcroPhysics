@@ -22,12 +22,12 @@
 
 using System;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Definitions.Joints;
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
-using Genbox.VelcroPhysics.Dynamics.Solver;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Definitions.Joints;
+using VelcroPhysics.Dynamics.Joints.Misc;
+using VelcroPhysics.Dynamics.Solver;
 
-namespace Genbox.VelcroPhysics.Dynamics.Joints
+namespace VelcroPhysics.Dynamics.Joints
 {
     public abstract class Joint
     {
@@ -39,8 +39,8 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
         internal bool _enabled;
         internal bool _islandFlag;
 
-        internal JointEdge _edgeA = new JointEdge();
-        internal JointEdge _edgeB = new JointEdge();
+        internal JointEdge _edgeA = new();
+        internal JointEdge _edgeB = new();
 
         /// <summary>Indicate if this join is enabled or not. Disabling a joint means it is still in the simulation, but inactive.</summary>
         protected Body _bodyA;
@@ -180,7 +180,7 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             if (!_enabled)
                 return;
 
-            float jointErrorSquared = GetReactionForce(invDt).LengthSquared();
+            var jointErrorSquared = GetReactionForce(invDt).LengthSquared();
 
             if (Math.Abs(jointErrorSquared) <= _breakpoint * _breakpoint)
                 return;

@@ -1,4 +1,4 @@
-namespace Genbox.VelcroPhysics.Collision.ContactSystem
+namespace VelcroPhysics.Collision.ContactSystem
 {
     public enum ContactType : byte
     {

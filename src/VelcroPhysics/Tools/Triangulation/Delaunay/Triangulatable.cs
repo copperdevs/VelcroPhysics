@@ -30,9 +30,9 @@
  */
 
 using System.Collections.Generic;
-using Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay;
+using VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay
+namespace VelcroPhysics.Tools.Triangulation.Delaunay
 {
     internal interface Triangulatable
     {

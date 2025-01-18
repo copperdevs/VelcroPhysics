@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Tools.TextureTools
+namespace VelcroPhysics.Tools.TextureTools
 {
     // Ported by Matthew Bettcher - Feb 2011
 
@@ -48,35 +48,35 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         /// <returns></returns>
         public static List<Vertices> DetectSquares(AABB domain, float cellWidth, float cellHeight, sbyte[,] f, int lerpCount, bool combine)
         {
-            CxFastList<GeomPoly> ret = new CxFastList<GeomPoly>();
+            var ret = new CxFastList<GeomPoly>();
 
-            List<Vertices> verticesList = new List<Vertices>();
+            var verticesList = new List<Vertices>();
 
             //NOTE: removed assignments as they were not used.
             List<GeomPoly> polyList;
             GeomPoly gp;
 
-            int xn = (int)(domain.Extents.X * 2 / cellWidth);
-            bool xp = xn == (domain.Extents.X * 2 / cellWidth);
-            int yn = (int)(domain.Extents.Y * 2 / cellHeight);
-            bool yp = yn == (domain.Extents.Y * 2 / cellHeight);
+            var xn = (int)(domain.Extents.X * 2 / cellWidth);
+            var xp = xn == domain.Extents.X * 2 / cellWidth;
+            var yn = (int)(domain.Extents.Y * 2 / cellHeight);
+            var yp = yn == domain.Extents.Y * 2 / cellHeight;
             if (!xp)
                 xn++;
             if (!yp)
                 yn++;
 
-            sbyte[,] fs = new sbyte[xn + 1, yn + 1];
-            GeomPolyVal[,] ps = new GeomPolyVal[xn + 1, yn + 1];
+            var fs = new sbyte[xn + 1, yn + 1];
+            var ps = new GeomPolyVal[xn + 1, yn + 1];
 
             //populate shared function lookups.
-            for (int x = 0; x < xn + 1; x++)
+            for (var x = 0; x < xn + 1; x++)
             {
                 int x0;
                 if (x == xn)
                     x0 = (int)domain.UpperBound.X;
                 else
                     x0 = (int)(x * cellWidth + domain.LowerBound.X);
-                for (int y = 0; y < yn + 1; y++)
+                for (var y = 0; y < yn + 1; y++)
                 {
                     int y0;
                     if (y == yn)
@@ -88,18 +88,18 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             }
 
             //generate sub-polys and combine to scan lines
-            for (int y = 0; y < yn; y++)
+            for (var y = 0; y < yn; y++)
             {
-                float y0 = y * cellHeight + domain.LowerBound.Y;
+                var y0 = y * cellHeight + domain.LowerBound.Y;
                 float y1;
                 if (y == yn - 1)
                     y1 = domain.UpperBound.Y;
                 else
                     y1 = y0 + cellHeight;
                 GeomPoly pre = null;
-                for (int x = 0; x < xn; x++)
+                for (var x = 0; x < xn; x++)
                 {
-                    float x0 = x * cellWidth + domain.LowerBound.X;
+                    var x0 = x * cellWidth + domain.LowerBound.X;
                     float x1;
                     if (x == xn - 1)
                         x1 = domain.UpperBound.X;
@@ -108,7 +108,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
                     gp = new GeomPoly();
 
-                    int key = MarchSquare(f, fs, ref gp, x, y, x0, y0, x1, y1, lerpCount);
+                    var key = MarchSquare(f, fs, ref gp, x, y, x0, y0, x1, y1, lerpCount);
                     if (gp.Length != 0)
                     {
                         if (combine && pre != null && (key & 9) != 0)
@@ -129,7 +129,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             {
                 polyList = ret.GetListOfElements();
 
-                foreach (GeomPoly poly in polyList)
+                foreach (var poly in polyList)
                 {
                     verticesList.Add(new Vertices(poly.Points.GetListOfElements()));
                 }
@@ -138,12 +138,12 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             }
 
             //combine scan lines together
-            for (int y = 1; y < yn; y++)
+            for (var y = 1; y < yn; y++)
             {
-                int x = 0;
+                var x = 0;
                 while (x < xn)
                 {
-                    GeomPolyVal p = ps[x, y];
+                    var p = ps[x, y];
 
                     //skip along scan line if no polygon exists at this point
                     if (p == null)
@@ -160,7 +160,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                     }
 
                     //skip along if no polygon exists above.
-                    GeomPolyVal u = ps[x, y - 1];
+                    var u = ps[x, y - 1];
                     if (u == null)
                     {
                         x++;
@@ -174,11 +174,11 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                         continue;
                     }
 
-                    float ax = x * cellWidth + domain.LowerBound.X;
-                    float ay = y * cellHeight + domain.LowerBound.Y;
+                    var ax = x * cellWidth + domain.LowerBound.X;
+                    var ay = y * cellHeight + domain.LowerBound.Y;
 
-                    CxFastList<Vector2> bp = p.GeomP.Points;
-                    CxFastList<Vector2> ap = u.GeomP.Points;
+                    var bp = p.GeomP.Points;
+                    var ap = u.GeomP.Points;
 
                     //skip if it's already been combined with above polygon
                     if (u.GeomP == p.GeomP)
@@ -188,7 +188,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                     }
 
                     //combine above (but disallow the hole thingies
-                    CxFastListNode<Vector2> bi = bp.Begin();
+                    var bi = bp.Begin();
                     while (Square(bi.Elem().Y - ay) > MathConstants.Epsilon || bi.Elem().X < ax)
                     {
                         bi = bi.Next();
@@ -196,15 +196,15 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
                     //NOTE: Unused
                     //Vector2 b0 = bi.elem();
-                    Vector2 b1 = bi.Next().Elem();
+                    var b1 = bi.Next().Elem();
                     if (Square(b1.Y - ay) > MathConstants.Epsilon)
                     {
                         x++;
                         continue;
                     }
 
-                    bool brk = true;
-                    CxFastListNode<Vector2> ai = ap.Begin();
+                    var brk = true;
+                    var ai = ap.Begin();
                     while (ai != ap.End())
                     {
                         if (VecDsq(ai.Elem(), b1) < MathConstants.Epsilon)
@@ -220,7 +220,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                         continue;
                     }
 
-                    CxFastListNode<Vector2> bj = bi.Next().Next();
+                    var bj = bi.Next().Next();
                     if (bj == bp.End())
                         bj = bp.Begin();
                     while (bj != bi)
@@ -237,7 +237,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                     ax = x + 1;
                     while (ax < xn)
                     {
-                        GeomPolyVal p2 = ps[(int)ax, y];
+                        var p2 = ps[(int)ax, y];
                         if (p2 == null || p2.GeomP != p.GeomP)
                         {
                             ax++;
@@ -249,7 +249,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                     ax = x - 1;
                     while (ax >= 0)
                     {
-                        GeomPolyVal p2 = ps[(int)ax, y];
+                        var p2 = ps[(int)ax, y];
                         if (p2 == null || p2.GeomP != p.GeomP)
                         {
                             ax--;
@@ -269,7 +269,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
             polyList = ret.GetListOfElements();
 
-            foreach (GeomPoly poly in polyList)
+            foreach (var poly in polyList)
             {
                 verticesList.Add(new Vertices(poly.Points.GetListOfElements()));
             }
@@ -282,14 +282,14 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         /// value(return) = 0
         /// </summary>
         private static int[] _lookMarch =
-        {
+        [
             0x00, 0xE0, 0x38, 0xD8, 0x0E, 0xEE, 0x36, 0xD6, 0x83, 0x63, 0xBB, 0x5B, 0x8D,
             0x6D, 0xB5, 0x55
-        };
+        ];
 
         private static float Lerp(float x0, float x1, float v0, float v1)
         {
-            float dv = v0 - v1;
+            var dv = v0 - v1;
             float t;
             if (dv * dv < MathConstants.Epsilon)
                 t = 0.5f;
@@ -301,11 +301,11 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         /// <summary>Recursive linear interpolation for use in marching squares</summary>
         private static float Xlerp(float x0, float x1, float y, float v0, float v1, sbyte[,] f, int c)
         {
-            float xm = Lerp(x0, x1, v0, v1);
+            var xm = Lerp(x0, x1, v0, v1);
             if (c == 0)
                 return xm;
 
-            sbyte vm = f[(int)xm, (int)y];
+            var vm = f[(int)xm, (int)y];
 
             if (v0 * vm < 0)
                 return Xlerp(x0, xm, y, v0, vm, f, c - 1);
@@ -316,11 +316,11 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         /// <summary>Recursive linear interpolation for use in marching squares</summary>
         private static float Ylerp(float y0, float y1, float x, float v0, float v1, sbyte[,] f, int c)
         {
-            float ym = Lerp(y0, y1, v0, v1);
+            var ym = Lerp(y0, y1, v0, v1);
             if (c == 0)
                 return ym;
 
-            sbyte vm = f[(int)x, (int)ym];
+            var vm = f[(int)x, (int)ym];
 
             if (v0 * vm < 0)
                 return Ylerp(y0, ym, x, v0, vm, f, c - 1);
@@ -336,7 +336,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         private static float VecDsq(Vector2 a, Vector2 b)
         {
-            Vector2 d = a - b;
+            var d = a - b;
             return d.X * d.X + d.Y * d.Y;
         }
 
@@ -354,25 +354,25 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         private static int MarchSquare(sbyte[,] f, sbyte[,] fs, ref GeomPoly poly, int ax, int ay, float x0, float y0, float x1, float y1, int bin)
         {
             //key lookup
-            int key = 0;
-            sbyte v0 = fs[ax, ay];
+            var key = 0;
+            var v0 = fs[ax, ay];
             if (v0 < 0)
                 key |= 8;
-            sbyte v1 = fs[ax + 1, ay];
+            var v1 = fs[ax + 1, ay];
             if (v1 < 0)
                 key |= 4;
-            sbyte v2 = fs[ax + 1, ay + 1];
+            var v2 = fs[ax + 1, ay + 1];
             if (v2 < 0)
                 key |= 2;
-            sbyte v3 = fs[ax, ay + 1];
+            var v3 = fs[ax, ay + 1];
             if (v3 < 0)
                 key |= 1;
 
-            int val = _lookMarch[key];
+            var val = _lookMarch[key];
             if (val != 0)
             {
                 CxFastListNode<Vector2> pi = null;
-                for (int i = 0; i < 8; i++)
+                for (var i = 0; i < 8; i++)
                 {
                     Vector2 p;
                     if ((val & (1 << i)) != 0)
@@ -417,31 +417,31 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         /// </summary>
         private static void combLeft(ref GeomPoly polya, ref GeomPoly polyb)
         {
-            CxFastList<Vector2> ap = polya.Points;
-            CxFastList<Vector2> bp = polyb.Points;
-            CxFastListNode<Vector2> ai = ap.Begin();
-            CxFastListNode<Vector2> bi = bp.Begin();
+            var ap = polya.Points;
+            var bp = polyb.Points;
+            var ai = ap.Begin();
+            var bi = bp.Begin();
 
-            Vector2 b = bi.Elem();
+            var b = bi.Elem();
             CxFastListNode<Vector2> prea = null;
             while (ai != ap.End())
             {
-                Vector2 a = ai.Elem();
+                var a = ai.Elem();
                 if (VecDsq(a, b) < MathConstants.Epsilon)
                 {
                     //ignore shared vertex if parallel
                     if (prea != null)
                     {
-                        Vector2 a0 = prea.Elem();
+                        var a0 = prea.Elem();
                         b = bi.Next().Elem();
 
-                        Vector2 u = a - a0;
+                        var u = a - a0;
 
                         //vec_new(u); vec_sub(a.p.p, a0.p.p, u);
-                        Vector2 v = b - a;
+                        var v = b - a;
 
                         //vec_new(v); vec_sub(b.p.p, a.p.p, v);
-                        float dot = VecCross(u, v);
+                        var dot = VecCross(u, v);
                         if (dot * dot < MathConstants.Epsilon)
                         {
                             ap.Erase(prea, ai);
@@ -451,11 +451,11 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                     }
 
                     //insert polyb into polya
-                    bool fst = true;
+                    var fst = true;
                     CxFastListNode<Vector2> preb = null;
                     while (!bp.Empty())
                     {
-                        Vector2 bb = bp.Front();
+                        var bb = bp.Front();
                         bp.Pop();
                         if (!fst && !bp.Empty())
                         {
@@ -468,19 +468,19 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
                     //ignore shared vertex if parallel
                     ai = ai.Next();
-                    Vector2 a1 = ai.Elem();
+                    var a1 = ai.Elem();
                     ai = ai.Next();
                     if (ai == ap.End())
                         ai = ap.Begin();
-                    Vector2 a2 = ai.Elem();
-                    Vector2 a00 = preb.Elem();
-                    Vector2 uu = a1 - a00;
+                    var a2 = ai.Elem();
+                    var a00 = preb.Elem();
+                    var uu = a1 - a00;
 
                     //vec_new(u); vec_sub(a1.p, a0.p, u);
-                    Vector2 vv = a2 - a1;
+                    var vv = a2 - a1;
 
                     //vec_new(v); vec_sub(a2.p, a1.p, v);
-                    float dot1 = VecCross(uu, vv);
+                    var dot1 = VecCross(uu, vv);
                     if (dot1 * dot1 < MathConstants.Epsilon)
                     {
                         ap.Erase(preb, preb.Next());
@@ -521,7 +521,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             /// <summary>add object to list (O(1))</summary>
             public CxFastListNode<T> Add(T value)
             {
-                CxFastListNode<T> newNode = new CxFastListNode<T>(value);
+                var newNode = new CxFastListNode<T>(value);
                 if (_head == null)
                 {
                     newNode._next = null;
@@ -537,10 +537,10 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             /// <summary>remove object from list, returns true if an element was removed (O(n))</summary>
             public bool Remove(T value)
             {
-                CxFastListNode<T> head = _head;
-                CxFastListNode<T> prev = _head;
+                var head = _head;
+                var prev = _head;
 
-                EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+                var comparer = EqualityComparer<T>.Default;
 
                 if (head != null)
                 {
@@ -589,8 +589,8 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             {
                 if (node == null)
                     return Add(value);
-                CxFastListNode<T> newNode = new CxFastListNode<T>(value);
-                CxFastListNode<T> nextNode = node._next;
+                var newNode = new CxFastListNode<T>(value);
+                var nextNode = node._next;
                 newNode._next = nextNode;
                 node._next = newNode;
 
@@ -604,7 +604,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             public CxFastListNode<T> Erase(CxFastListNode<T> prev, CxFastListNode<T> node)
             {
                 // cache the node after the node to be removed
-                CxFastListNode<T> nextNode = node._next;
+                var nextNode = node._next;
                 if (prev != null)
                     prev._next = nextNode;
                 else if (_head != null)
@@ -626,8 +626,8 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             /// <summary>computes size of list (O(n))</summary>
             public int Size()
             {
-                CxFastListNode<T> i = Begin();
-                int count = 0;
+                var i = Begin();
+                var count = 0;
 
                 do
                 {
@@ -640,10 +640,10 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             /// <summary>empty the list (O(1) if CxMixList, O(n) otherwise)</summary>
             public void Clear()
             {
-                CxFastListNode<T> head = _head;
+                var head = _head;
                 while (head != null)
                 {
-                    CxFastListNode<T> node2 = head;
+                    var node2 = head;
                     head = head._next;
                     node2._next = null;
                 }
@@ -660,8 +660,8 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             public CxFastListNode<T> Find(T value)
             {
                 // start at head
-                CxFastListNode<T> head = _head;
-                EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+                var head = _head;
+                var comparer = EqualityComparer<T>.Default;
                 if (head != null)
                 {
                     if (value != null)
@@ -688,9 +688,9 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
             public List<T> GetListOfElements()
             {
-                List<T> list = new List<T>();
+                var list = new List<T>();
 
-                CxFastListNode<T> iter = Begin();
+                var iter = Begin();
 
                 if (iter != null)
                 {

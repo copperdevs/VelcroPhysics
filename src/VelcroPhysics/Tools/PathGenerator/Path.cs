@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
-using Genbox.VelcroPhysics.Shared;
 using Microsoft.Xna.Framework;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Tools.PathGenerator
+namespace VelcroPhysics.Tools.PathGenerator
 {
     //Contributed by Matthew Bettcher
 
@@ -22,7 +23,7 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
         /// <summary>Initializes a new instance of the <see cref="Path" /> class.</summary>
         public Path()
         {
-            ControlPoints = new List<Vector2>();
+            ControlPoints = [];
         }
 
         /// <summary>Initializes a new instance of the <see cref="Path" /> class.</summary>
@@ -31,7 +32,7 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
         {
             ControlPoints = new List<Vector2>(vertices.Length);
 
-            for (int i = 0; i < vertices.Length; i++)
+            for (var i = 0; i < vertices.Length; i++)
             {
                 Add(vertices[i]);
             }
@@ -42,7 +43,7 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
         public Path(IList<Vector2> vertices)
         {
             ControlPoints = new List<Vector2>(vertices.Count);
-            for (int i = 0; i < vertices.Count; i++)
+            for (var i = 0; i < vertices.Count; i++)
             {
                 Add(vertices[i]);
             }
@@ -76,7 +77,7 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
         /// <param name="vector">The vector.</param>
         public void Translate(ref Vector2 vector)
         {
-            for (int i = 0; i < ControlPoints.Count; i++)
+            for (var i = 0; i < ControlPoints.Count; i++)
             {
                 ControlPoints[i] = Vector2.Add(ControlPoints[i], vector);
             }
@@ -86,7 +87,7 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
         /// <param name="value">The Value.</param>
         public void Scale(ref Vector2 value)
         {
-            for (int i = 0; i < ControlPoints.Count; i++)
+            for (var i = 0; i < ControlPoints.Count; i++)
             {
                 ControlPoints[i] = Vector2.Multiply(ControlPoints[i], value);
             }
@@ -96,9 +97,9 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
         /// <param name="value">The amount to rotate by in radians.</param>
         public void Rotate(float value)
         {
-            Matrix.CreateRotationZ(value, out Matrix rotationMatrix);
+            var rotationMatrix = Matrix4x4.CreateRotationZ(value);
 
-            for (int i = 0; i < ControlPoints.Count; i++)
+            for (var i = 0; i < ControlPoints.Count; i++)
             {
                 ControlPoints[i] = Vector2.Transform(ControlPoints[i], rotationMatrix);
             }
@@ -106,13 +107,14 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < ControlPoints.Count; i++)
+            var builder = new StringBuilder();
+            for (var i = 0; i < ControlPoints.Count; i++)
             {
                 builder.Append(ControlPoints[i]);
                 if (i < ControlPoints.Count - 1)
-                    builder.Append(" ");
+                    builder.Append(' ');
             }
+
             return builder.ToString();
         }
 
@@ -121,9 +123,9 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
         /// <returns></returns>
         public Vertices GetVertices(int divisions)
         {
-            Vertices verts = new Vertices();
+            var verts = new Vertices();
 
-            float timeStep = 1f / divisions;
+            var timeStep = 1f / divisions;
 
             for (float i = 0; i < 1f; i += timeStep)
             {
@@ -146,51 +148,55 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
 
                 _deltaT = 1f / (ControlPoints.Count - 1);
 
-                int p = (int)(time / _deltaT);
+                var p = (int)(time / _deltaT);
 
                 // use a circular indexing system
-                int p0 = p - 1;
-                if (p0 < 0) p0 += (ControlPoints.Count - 1);
-                else if (p0 >= ControlPoints.Count - 1) p0 -= (ControlPoints.Count - 1);
-                int p1 = p;
-                if (p1 < 0) p1 += (ControlPoints.Count - 1);
-                else if (p1 >= ControlPoints.Count - 1) p1 -= (ControlPoints.Count - 1);
-                int p2 = p + 1;
-                if (p2 < 0) p2 += (ControlPoints.Count - 1);
-                else if (p2 >= ControlPoints.Count - 1) p2 -= (ControlPoints.Count - 1);
-                int p3 = p + 2;
-                if (p3 < 0) p3 += (ControlPoints.Count - 1);
-                else if (p3 >= ControlPoints.Count - 1) p3 -= (ControlPoints.Count - 1);
+                var p0 = p - 1;
+                if (p0 < 0) p0 += ControlPoints.Count - 1;
+                else if (p0 >= ControlPoints.Count - 1) p0 -= ControlPoints.Count - 1;
+                var p1 = p;
+                if (p1 < 0) p1 += ControlPoints.Count - 1;
+                else if (p1 >= ControlPoints.Count - 1) p1 -= ControlPoints.Count - 1;
+                var p2 = p + 1;
+                if (p2 < 0) p2 += ControlPoints.Count - 1;
+                else if (p2 >= ControlPoints.Count - 1) p2 -= ControlPoints.Count - 1;
+                var p3 = p + 2;
+                if (p3 < 0) p3 += ControlPoints.Count - 1;
+                else if (p3 >= ControlPoints.Count - 1) p3 -= ControlPoints.Count - 1;
 
                 // relative time
-                float lt = (time - _deltaT * p) / _deltaT;
+                var lt = (time - _deltaT * p) / _deltaT;
 
-                temp = Vector2.CatmullRom(ControlPoints[p0], ControlPoints[p1], ControlPoints[p2], ControlPoints[p3], lt);
+                temp = new Vector2(
+                    MathHelper.CatmullRom(ControlPoints[p0].X, ControlPoints[p1].X, ControlPoints[p2].X, ControlPoints[p3].X, lt),
+                    MathHelper.CatmullRom(ControlPoints[p0].Y, ControlPoints[p1].Y, ControlPoints[p2].Y, ControlPoints[p3].Y, lt));
 
                 RemoveAt(ControlPoints.Count - 1);
             }
             else
             {
-                int p = (int)(time / _deltaT);
+                var p = (int)(time / _deltaT);
 
                 // 
-                int p0 = p - 1;
+                var p0 = p - 1;
                 if (p0 < 0) p0 = 0;
                 else if (p0 >= ControlPoints.Count - 1) p0 = ControlPoints.Count - 1;
-                int p1 = p;
+                var p1 = p;
                 if (p1 < 0) p1 = 0;
                 else if (p1 >= ControlPoints.Count - 1) p1 = ControlPoints.Count - 1;
-                int p2 = p + 1;
+                var p2 = p + 1;
                 if (p2 < 0) p2 = 0;
                 else if (p2 >= ControlPoints.Count - 1) p2 = ControlPoints.Count - 1;
-                int p3 = p + 2;
+                var p3 = p + 2;
                 if (p3 < 0) p3 = 0;
                 else if (p3 >= ControlPoints.Count - 1) p3 = ControlPoints.Count - 1;
 
                 // relative time
-                float lt = (time - _deltaT * p) / _deltaT;
+                var lt = (time - _deltaT * p) / _deltaT;
 
-                temp = Vector2.CatmullRom(ControlPoints[p0], ControlPoints[p1], ControlPoints[p2], ControlPoints[p3], lt);
+                temp = new Vector2(
+                    MathHelper.CatmullRom(ControlPoints[p0].X, ControlPoints[p1].X, ControlPoints[p2].X, ControlPoints[p3].X, lt),
+                    MathHelper.CatmullRom(ControlPoints[p0].Y, ControlPoints[p1].Y, ControlPoints[p2].Y, ControlPoints[p3].Y, lt));
             }
 
             return temp;
@@ -201,19 +207,21 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
         /// <returns>The normal.</returns>
         public Vector2 GetPositionNormal(float time)
         {
-            float offsetTime = time + 0.0001f;
+            var offsetTime = time + 0.0001f;
 
-            Vector2 a = GetPosition(time);
-            Vector2 b = GetPosition(offsetTime);
+            var a = GetPosition(time);
+            var b = GetPosition(offsetTime);
 
 
-            Vector2.Subtract(ref a, ref b, out Vector2 temp);
+            var temp = a - b;
 
-            Vector2 output = new Vector2();
-            output.X = -temp.Y;
-            output.Y = temp.X;
+            var output = new Vector2
+            {
+                X = -temp.Y,
+                Y = temp.X
+            };
 
-            Vector2.Normalize(ref output, out output);
+            output = Vector2.Normalize(output);
 
             return output;
         }
@@ -241,7 +249,7 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
             List<Vector2> verts = GetVertices(ControlPoints.Count * 25);
             float length = 0;
 
-            for (int i = 1; i < verts.Count; i++)
+            for (var i = 1; i < verts.Count; i++)
             {
                 length += Vector2.Distance(verts[i - 1], verts[i]);
             }
@@ -254,16 +262,16 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
 
         public List<Vector3> SubdivideEvenly(int divisions)
         {
-            List<Vector3> verts = new List<Vector3>();
+            var verts = new List<Vector3>();
 
-            float length = GetLength();
+            var length = GetLength();
 
-            float deltaLength = length / divisions + 0.001f;
-            float t = 0.000f;
+            var deltaLength = length / divisions + 0.001f;
+            var t = 0.000f;
 
             // we always start at the first control point
-            Vector2 start = ControlPoints[0];
-            Vector2 end = GetPosition(t);
+            var start = ControlPoints[0];
+            var end = GetPosition(t);
 
             // increment t until we are at half the distance
             while (deltaLength * 0.5f >= Vector2.Distance(start, end))
@@ -278,10 +286,10 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
             start = end;
 
             // for each box
-            for (int i = 1; i < divisions; i++)
+            for (var i = 1; i < divisions; i++)
             {
-                Vector2 normal = GetPositionNormal(t);
-                float angle = (float)Math.Atan2(normal.Y, normal.X);
+                var normal = GetPositionNormal(t);
+                var angle = (float)Math.Atan2(normal.Y, normal.X);
 
                 verts.Add(new Vector3(end, angle));
 
@@ -294,11 +302,13 @@ namespace Genbox.VelcroPhysics.Tools.PathGenerator
                     if (t >= 1f)
                         break;
                 }
+
                 if (t >= 1f)
                     break;
 
                 start = end;
             }
+
             return verts;
         }
     }

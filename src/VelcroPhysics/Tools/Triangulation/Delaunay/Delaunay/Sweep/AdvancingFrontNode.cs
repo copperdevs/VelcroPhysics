@@ -35,7 +35,7 @@
 // Future possibilities
 //   Comments!
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
+namespace VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
 {
     internal class AdvancingFrontNode
     {

@@ -26,13 +26,12 @@
 
 using System;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.Narrowphase;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Shared.Optimization;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.Narrowphase;
+using VelcroPhysics.Shared.Optimization;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Collision.Distance
+namespace VelcroPhysics.Collision.Distance
 {
     /// <summary>
     /// The Gilbert–Johnson–Keerthi distance algorithm that provides the distance between shapes. Using Voronoi
@@ -68,23 +67,23 @@ namespace Genbox.VelcroPhysics.Collision.Distance
             ++GJKCalls;
 
             // Initialize the simplex.
-            Simplex simplex = new Simplex();
+            var simplex = new Simplex();
             simplex.ReadCache(ref cache, ref input.ProxyA, ref input.TransformA, ref input.ProxyB, ref input.TransformB);
 
             // These store the vertices of the last simplex so that we
             // can check for duplicates and prevent cycling.
-            FixedArray3<int> saveA = new FixedArray3<int>();
-            FixedArray3<int> saveB = new FixedArray3<int>();
+            var saveA = new FixedArray3<int>();
+            var saveB = new FixedArray3<int>();
 
             // Main iteration loop.
-            int iter = 0;
+            var iter = 0;
 
             //Velcro: Moved the max iterations to settings
             while (iter < Settings.MaxGJKIterations)
             {
                 // Copy simplex so we can identify duplicates.
-                int saveCount = simplex.Count;
-                for (int i = 0; i < saveCount; ++i)
+                var saveCount = simplex.Count;
+                for (var i = 0; i < saveCount; ++i)
                 {
                     saveA[i] = simplex.V[i].IndexA;
                     saveB[i] = simplex.V[i].IndexB;
@@ -110,7 +109,7 @@ namespace Genbox.VelcroPhysics.Collision.Distance
                     break;
 
                 // Get search direction.
-                Vector2 d = simplex.GetSearchDirection();
+                var d = simplex.GetSearchDirection();
 
                 // Ensure the search direction is numerically fit.
                 if (d.LengthSquared() < MathConstants.Epsilon * MathConstants.Epsilon)
@@ -125,7 +124,7 @@ namespace Genbox.VelcroPhysics.Collision.Distance
                 }
 
                 // Compute a tentative new simplex vertex using support points.
-                SimplexVertex vertex = simplex.V[simplex.Count];
+                var vertex = simplex.V[simplex.Count];
                 vertex.IndexA = input.ProxyA.GetSupport(MathUtils.MulT(input.TransformA.q, -d));
                 vertex.WA = MathUtils.Mul(ref input.TransformA, input.ProxyA._vertices[vertex.IndexA]);
 
@@ -140,8 +139,8 @@ namespace Genbox.VelcroPhysics.Collision.Distance
                 ++GJKIters;
 
                 // Check for duplicate support points. This is the main termination criteria.
-                bool duplicate = false;
-                for (int i = 0; i < saveCount; ++i)
+                var duplicate = false;
+                for (var i = 0; i < saveCount; ++i)
                 {
                     if (vertex.IndexA == saveA[i] && vertex.IndexB == saveB[i])
                     {
@@ -171,16 +170,15 @@ namespace Genbox.VelcroPhysics.Collision.Distance
             // Apply radii if requested.
             if (input.UseRadii)
             {
-                float rA = input.ProxyA._radius;
-                float rB = input.ProxyB._radius;
+                var rA = input.ProxyA._radius;
+                var rB = input.ProxyB._radius;
 
                 if (output.Distance > rA + rB && output.Distance > MathConstants.Epsilon)
                 {
                     // Shapes are still no overlapped.
                     // Move the witness points to the outer surface.
                     output.Distance -= rA + rB;
-                    Vector2 normal = output.PointB - output.PointA;
-                    normal.Normalize();
+                    var normal = Vector2.Normalize(output.PointB - output.PointA);
                     output.PointA += rA * normal;
                     output.PointB -= rB * normal;
                 }
@@ -188,7 +186,7 @@ namespace Genbox.VelcroPhysics.Collision.Distance
                 {
                     // Shapes are overlapped when radii are considered.
                     // Move the witness points to the middle.
-                    Vector2 p = 0.5f * (output.PointA + output.PointB);
+                    var p = 0.5f * (output.PointA + output.PointB);
                     output.PointA = p;
                     output.PointB = p;
                     output.Distance = 0.0f;
@@ -207,46 +205,50 @@ namespace Genbox.VelcroPhysics.Collision.Distance
         /// <returns>true if hit, false if there is no hit or an initial overlap</returns>
         public static bool ShapeCast(ref ShapeCastInput input, out ShapeCastOutput output)
         {
-            output = new ShapeCastOutput();
-            output.Iterations = 0;
-            output.Lambda = 1.0f;
-            output.Normal = Vector2.Zero;
-            output.Point = Vector2.Zero;
+            output = new ShapeCastOutput
+            {
+                Iterations = 0,
+                Lambda = 1.0f,
+                Normal = Vector2.Zero,
+                Point = Vector2.Zero
+            };
 
-            DistanceProxy proxyA = input.ProxyA;
-            DistanceProxy proxyB = input.ProxyB;
+            var proxyA = input.ProxyA;
+            var proxyB = input.ProxyB;
 
-            float radiusA = MathUtils.Max(proxyA._radius, Settings.PolygonRadius);
-            float radiusB = MathUtils.Max(proxyB._radius, Settings.PolygonRadius);
-            float radius = radiusA + radiusB;
+            var radiusA = MathUtils.Max(proxyA._radius, Settings.PolygonRadius);
+            var radiusB = MathUtils.Max(proxyB._radius, Settings.PolygonRadius);
+            var radius = radiusA + radiusB;
 
-            Transform xfA = input.TransformA;
-            Transform xfB = input.TransformB;
+            var xfA = input.TransformA;
+            var xfB = input.TransformB;
 
-            Vector2 r = input.TranslationB;
-            Vector2 n = new Vector2(0.0f, 0.0f);
-            float lambda = 0.0f;
+            var r = input.TranslationB;
+            var n = new Vector2(0.0f, 0.0f);
+            var lambda = 0.0f;
 
             // Initial simplex
-            Simplex simplex = new Simplex();
-            simplex.Count = 0;
+            var simplex = new Simplex
+            {
+                Count = 0
+            };
 
             // Get simplex vertices as an array.
             //SimplexVertex vertices = simplex.V.Value0; //Velcro: we don't need this as we have an indexer instead
 
             // Get support point in -r direction
-            int indexA = proxyA.GetSupport(MathUtils.MulT(xfA.q, -r));
-            Vector2 wA = MathUtils.Mul(ref xfA, proxyA.GetVertex(indexA));
-            int indexB = proxyB.GetSupport(MathUtils.MulT(xfB.q, r));
-            Vector2 wB = MathUtils.Mul(ref xfB, proxyB.GetVertex(indexB));
-            Vector2 v = wA - wB;
+            var indexA = proxyA.GetSupport(MathUtils.MulT(xfA.q, -r));
+            var wA = MathUtils.Mul(ref xfA, proxyA.GetVertex(indexA));
+            var indexB = proxyB.GetSupport(MathUtils.MulT(xfB.q, r));
+            var wB = MathUtils.Mul(ref xfB, proxyB.GetVertex(indexB));
+            var v = wA - wB;
 
             // Sigma is the target distance between polygons
-            float sigma = MathUtils.Max(Settings.PolygonRadius, radius - Settings.PolygonRadius);
-            float tolerance = 0.5f * Settings.LinearSlop;
+            var sigma = MathUtils.Max(Settings.PolygonRadius, radius - Settings.PolygonRadius);
+            var tolerance = 0.5f * Settings.LinearSlop;
 
             // Main iteration loop.
-            int iter = 0;
+            var iter = 0;
 
             //Velcro: We have moved the max iterations into settings
             while (iter < Settings.MaxGJKIterations && v.Length() - sigma > tolerance)
@@ -260,14 +262,14 @@ namespace Genbox.VelcroPhysics.Collision.Distance
                 wA = MathUtils.Mul(ref xfA, proxyA.GetVertex(indexA));
                 indexB = proxyB.GetSupport(MathUtils.MulT(xfB.q, v));
                 wB = MathUtils.Mul(ref xfB, proxyB.GetVertex(indexB));
-                Vector2 p = wA - wB;
+                var p = wA - wB;
 
                 // -v is a normal at p
-                v.Normalize();
+                v = Vector2.Normalize(v);
 
                 // Intersect ray with plane
-                float vp = MathUtils.Dot(ref v, ref p);
-                float vr = MathUtils.Dot(ref v, ref r);
+                var vp = MathUtils.Dot(ref v, ref p);
+                var vr = MathUtils.Dot(ref v, ref r);
                 if (vp - sigma > lambda * vr)
                 {
                     if (vr <= 0.0f)
@@ -285,7 +287,7 @@ namespace Genbox.VelcroPhysics.Collision.Distance
                 // Shift by lambda * r because we want the closest point to the current clip point.
                 // Note that the support point p is not shifted because we want the plane equation
                 // to be formed in unshifted space.
-                SimplexVertex vertex = simplex.V[simplex.Count];
+                var vertex = simplex.V[simplex.Count];
                 vertex.IndexA = indexB;
                 vertex.WA = wB + lambda * r;
                 vertex.IndexB = indexA;
@@ -334,12 +336,12 @@ namespace Genbox.VelcroPhysics.Collision.Distance
             }
 
             // Prepare output.
-            simplex.GetWitnessPoints(out _, out Vector2 pointB);
+            simplex.GetWitnessPoints(out _, out var pointB);
 
             if (v.LengthSquared() > 0.0f)
             {
                 n = -v;
-                n.Normalize();
+                n = Vector2.Normalize(n);
             }
 
             output.Point = pointB + radiusA * n;

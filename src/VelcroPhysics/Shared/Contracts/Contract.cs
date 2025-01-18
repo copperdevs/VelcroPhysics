@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Genbox.VelcroPhysics.Shared.Contracts
+namespace VelcroPhysics.Shared.Contracts
 {
     public static class Contract
     {
@@ -47,7 +47,7 @@ namespace Genbox.VelcroPhysics.Shared.Contracts
         [Conditional("DEBUG")]
         public static void RequireForAll<T>(IEnumerable<T> value, Predicate<T> check)
         {
-            foreach (T item in value)
+            foreach (var item in value)
             {
                 Requires(check(item), "Failed on: " + item);
             }
@@ -62,7 +62,7 @@ namespace Genbox.VelcroPhysics.Shared.Contracts
 
         private static string BuildMessage(string type, string message)
         {
-            string stackTrace = string.Join(Environment.NewLine, Environment.StackTrace.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Skip(3));
+            var stackTrace = string.Join(Environment.NewLine, Environment.StackTrace.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Skip(3));
             return message == null ? string.Empty : type + ": " + message + Environment.NewLine + stackTrace;
         }
     }

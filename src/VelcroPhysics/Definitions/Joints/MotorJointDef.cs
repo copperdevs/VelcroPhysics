@@ -1,8 +1,8 @@
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Dynamics.Joints.Misc;
 
-namespace Genbox.VelcroPhysics.Definitions.Joints
+namespace VelcroPhysics.Definitions.Joints
 {
     public sealed class MotorJointDef : JointDef
     {
@@ -30,11 +30,11 @@ namespace Genbox.VelcroPhysics.Definitions.Joints
         {
             BodyA = bA;
             BodyB = bB;
-            Vector2 xB = BodyB.Position;
+            var xB = BodyB.Position;
             LinearOffset = BodyA.GetLocalPoint(xB);
 
-            float angleA = BodyA.Rotation;
-            float angleB = BodyB.Rotation;
+            var angleA = BodyA.Rotation;
+            var angleB = BodyB.Rotation;
             AngularOffset = angleB - angleA;
         }
 

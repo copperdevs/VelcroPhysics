@@ -1,10 +1,10 @@
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.Narrowphase;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.Narrowphase;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Dynamics.Solver
+namespace VelcroPhysics.Dynamics.Solver
 {
     public static class PositionSolverManifold
     {
@@ -16,13 +16,14 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
             {
                 case ManifoldType.Circles:
                 {
-                    Vector2 pointA = MathUtils.Mul(ref xfA, pc.LocalPoint);
-                    Vector2 pointB = MathUtils.Mul(ref xfB, pc.LocalPoints[0]);
+                    var pointA = MathUtils.Mul(ref xfA, pc.LocalPoint);
+                    var pointB = MathUtils.Mul(ref xfB, pc.LocalPoints[0]);
                     normal = pointB - pointA;
 
                     //Velcro: Fix to handle zero normalization
                     if (normal != Vector2.Zero)
-                        normal.Normalize();
+                        normal = Vector2.Normalize(normal);
+
 
                     point = 0.5f * (pointA + pointB);
                     separation = Vector2.Dot(pointB - pointA, normal) - pc.RadiusA - pc.RadiusB;
@@ -32,9 +33,9 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
                 case ManifoldType.FaceA:
                 {
                     normal = MathUtils.Mul(xfA.q, pc.LocalNormal);
-                    Vector2 planePoint = MathUtils.Mul(ref xfA, pc.LocalPoint);
+                    var planePoint = MathUtils.Mul(ref xfA, pc.LocalPoint);
 
-                    Vector2 clipPoint = MathUtils.Mul(ref xfB, pc.LocalPoints[index]);
+                    var clipPoint = MathUtils.Mul(ref xfB, pc.LocalPoints[index]);
                     separation = Vector2.Dot(clipPoint - planePoint, normal) - pc.RadiusA - pc.RadiusB;
                     point = clipPoint;
                 }
@@ -43,9 +44,9 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
                 case ManifoldType.FaceB:
                 {
                     normal = MathUtils.Mul(xfB.q, pc.LocalNormal);
-                    Vector2 planePoint = MathUtils.Mul(ref xfB, pc.LocalPoint);
+                    var planePoint = MathUtils.Mul(ref xfB, pc.LocalPoint);
 
-                    Vector2 clipPoint = MathUtils.Mul(ref xfA, pc.LocalPoints[index]);
+                    var clipPoint = MathUtils.Mul(ref xfA, pc.LocalPoints[index]);
                     separation = Vector2.Dot(clipPoint - planePoint, normal) - pc.RadiusA - pc.RadiusB;
                     point = clipPoint;
 

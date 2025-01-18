@@ -1,7 +1,7 @@
-using Genbox.VelcroPhysics.Shared;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Dynamics.Solver
+namespace VelcroPhysics.Dynamics.Solver
 {
     public sealed class ContactVelocityConstraint
     {
@@ -22,7 +22,7 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
 
         public ContactVelocityConstraint()
         {
-            for (int i = 0; i < Settings.MaxManifoldPoints; i++)
+            for (var i = 0; i < Settings.MaxManifoldPoints; i++)
             {
                 Points[i] = new VelocityConstraintPoint();
             }

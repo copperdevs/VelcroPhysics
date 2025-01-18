@@ -1,9 +1,9 @@
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Genbox.VelcroPhysics.Dynamics.Joints;
-using Genbox.VelcroPhysics.Shared;
-using Microsoft.Xna.Framework;
+using VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Dynamics.Joints;
+using VelcroPhysics.Primitives;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Interfaces
+namespace VelcroPhysics.Interfaces
 {
     public interface IDebugView
     {

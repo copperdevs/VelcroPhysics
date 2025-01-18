@@ -1,6 +1,6 @@
-using Microsoft.Xna.Framework;
+using System.Numerics;
 
-namespace Genbox.VelcroPhysics.Shared
+namespace VelcroPhysics.Shared
 {
     /// <summary>A 2-by-2 matrix. Stored in column-major order.</summary>
     public struct Mat22
@@ -32,11 +32,11 @@ namespace Genbox.VelcroPhysics.Shared
             get
             {
                 float a = ex.X, b = ey.X, c = ex.Y, d = ey.Y;
-                float det = a * d - b * c;
+                var det = a * d - b * c;
                 if (det != 0.0f)
                     det = 1.0f / det;
 
-                Mat22 result = new Mat22();
+                var result = new Mat22();
                 result.ex.X = det * d;
                 result.ex.Y = -det * c;
 
@@ -83,7 +83,7 @@ namespace Genbox.VelcroPhysics.Shared
         public Vector2 Solve(Vector2 b)
         {
             float a11 = ex.X, a12 = ey.X, a21 = ex.Y, a22 = ey.Y;
-            float det = a11 * a22 - a12 * a21;
+            var det = a11 * a22 - a12 * a21;
             if (det != 0.0f)
                 det = 1.0f / det;
 

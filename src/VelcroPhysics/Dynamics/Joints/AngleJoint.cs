@@ -4,12 +4,12 @@
 */
 
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
-using Genbox.VelcroPhysics.Dynamics.Solver;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Dynamics.Joints.Misc;
+using VelcroPhysics.Dynamics.Solver;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Dynamics.Joints
+namespace VelcroPhysics.Dynamics.Joints
 {
     /// <summary>Maintains a fixed angle between two bodies</summary>
     public class AngleJoint : Joint
@@ -88,11 +88,11 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
 
         internal override void InitVelocityConstraints(ref SolverData data)
         {
-            int indexA = _bodyA.IslandIndex;
-            int indexB = _bodyB.IslandIndex;
+            var indexA = _bodyA.IslandIndex;
+            var indexB = _bodyB.IslandIndex;
 
-            float aW = data.Positions[indexA].A;
-            float bW = data.Positions[indexB].A;
+            var aW = data.Positions[indexA].A;
+            var bW = data.Positions[indexB].A;
 
             _jointError = bW - aW - _targetAngle;
             _bias = -_biasFactor * data.Step.InvertedDeltaTime * _jointError;
@@ -101,10 +101,10 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
 
         internal override void SolveVelocityConstraints(ref SolverData data)
         {
-            int indexA = _bodyA.IslandIndex;
-            int indexB = _bodyB.IslandIndex;
+            var indexA = _bodyA.IslandIndex;
+            var indexB = _bodyB.IslandIndex;
 
-            float p = (_bias - data.Velocities[indexB].W + data.Velocities[indexA].W) * _massFactor;
+            var p = (_bias - data.Velocities[indexB].W + data.Velocities[indexA].W) * _massFactor;
 
             data.Velocities[indexA].W -= _bodyA._invI * MathUtils.Sign(p) * MathUtils.Min(MathUtils.Abs(p), _maxImpulse);
             data.Velocities[indexB].W += _bodyB._invI * MathUtils.Sign(p) * MathUtils.Min(MathUtils.Abs(p), _maxImpulse);

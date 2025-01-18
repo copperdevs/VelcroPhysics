@@ -1,12 +1,12 @@
-﻿using BenchmarkDotNet.Attributes;
-using Genbox.VelcroPhysics.Benchmarks.Code;
-using Genbox.VelcroPhysics.Collision.Distance;
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+﻿using System.Numerics;
+using BenchmarkDotNet.Attributes;
+using VelcroPhysics.Benchmarks.Code;
+using VelcroPhysics.Collision.Distance;
+using VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Benchmarks.Tests.Collision
+namespace VelcroPhysics.Benchmarks.Tests.Collision
 {
     public class DistanceBenchmark : MeasuredBenchmark
     {
@@ -29,12 +29,14 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Collision
         [Benchmark]
         public void Distance()
         {
-            DistanceInput input = new DistanceInput();
-            input.ProxyA = new DistanceProxy(_polygonA, 0);
-            input.ProxyB = new DistanceProxy(_polygonB, 0);
-            input.TransformA = _transformA;
-            input.TransformB = _transformB;
-            input.UseRadii = true;
+            var input = new DistanceInput
+            {
+                ProxyA = new DistanceProxy(_polygonA, 0),
+                ProxyB = new DistanceProxy(_polygonB, 0),
+                TransformA = _transformA,
+                TransformB = _transformB,
+                UseRadii = true
+            };
             DistanceGJK.ComputeDistance(ref input, out _, out _);
         }
     }

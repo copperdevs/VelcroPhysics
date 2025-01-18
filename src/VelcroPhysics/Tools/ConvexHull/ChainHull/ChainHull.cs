@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Tools.ConvexHull.ChainHull
+namespace VelcroPhysics.Tools.ConvexHull.ChainHull
 {
     /// <summary>
     /// Andrew's Monotone Chain Convex Hull algorithm. Used to get the convex hull of a point cloud. Source:
@@ -13,7 +13,7 @@ namespace Genbox.VelcroPhysics.Tools.ConvexHull.ChainHull
     {
         //Copyright 2001, softSurfer (www.softsurfer.com)
 
-        private static PointComparer _pointComparer = new PointComparer();
+        private static PointComparer _pointComparer = new();
 
         /// <summary>Returns the convex hull from the given vertices..</summary>
         public static Vertices GetConvexHull(Vertices vertices)
@@ -21,20 +21,20 @@ namespace Genbox.VelcroPhysics.Tools.ConvexHull.ChainHull
             if (vertices.Count <= 3)
                 return vertices;
 
-            Vertices pointSet = new Vertices(vertices);
+            var pointSet = new Vertices(vertices);
 
             //Sort by X-axis
             pointSet.Sort(_pointComparer);
 
-            Vector2[] h = new Vector2[pointSet.Count];
+            var h = new Vector2[pointSet.Count];
             Vertices res;
 
-            int top = -1; // indices for bottom and top of the stack
+            var top = -1; // indices for bottom and top of the stack
             int i; // array scan index
 
             // Get the indices of points with min x-coord and min|max y-coord
             const int minmin = 0;
-            float xmin = pointSet[0].X;
+            var xmin = pointSet[0].X;
             for (i = 1; i < pointSet.Count; i++)
             {
                 if (pointSet[i].X != xmin)
@@ -42,7 +42,7 @@ namespace Genbox.VelcroPhysics.Tools.ConvexHull.ChainHull
             }
 
             // degenerate case: all x-coords == xmin
-            int minmax = i - 1;
+            var minmax = i - 1;
             if (minmax == pointSet.Count - 1)
             {
                 h[++top] = pointSet[minmin];
@@ -53,7 +53,7 @@ namespace Genbox.VelcroPhysics.Tools.ConvexHull.ChainHull
                 h[++top] = pointSet[minmin]; // add polygon endpoint
 
                 res = new Vertices(top + 1);
-                for (int j = 0; j < top + 1; j++)
+                for (var j = 0; j < top + 1; j++)
                 {
                     res.Add(h[j]);
                 }
@@ -64,14 +64,14 @@ namespace Genbox.VelcroPhysics.Tools.ConvexHull.ChainHull
             top = -1;
 
             // Get the indices of points with max x-coord and min|max y-coord
-            int maxmax = pointSet.Count - 1;
-            float xmax = pointSet[pointSet.Count - 1].X;
+            var maxmax = pointSet.Count - 1;
+            var xmax = pointSet[^1].X;
             for (i = pointSet.Count - 2; i >= 0; i--)
             {
                 if (pointSet[i].X != xmax)
                     break;
             }
-            int maxmin = i + 1;
+            var maxmin = i + 1;
 
             // Compute the lower hull on the stack H
             h[++top] = pointSet[minmin]; // push minmin point onto stack
@@ -96,7 +96,7 @@ namespace Genbox.VelcroPhysics.Tools.ConvexHull.ChainHull
             // Next, compute the upper hull on the stack H above the bottom hull
             if (maxmax != maxmin) // if distinct xmax points
                 h[++top] = pointSet[maxmax]; // push maxmax point onto stack
-            int bot = top;
+            var bot = top;
             i = maxmin;
             while (--i >= minmax)
             {
@@ -121,7 +121,7 @@ namespace Genbox.VelcroPhysics.Tools.ConvexHull.ChainHull
 
             res = new Vertices(top + 1);
 
-            for (int j = 0; j < top + 1; j++)
+            for (var j = 0; j < top + 1; j++)
             {
                 res.Add(h[j]);
             }
@@ -133,7 +133,7 @@ namespace Genbox.VelcroPhysics.Tools.ConvexHull.ChainHull
         {
             public override int Compare(Vector2 a, Vector2 b)
             {
-                int f = a.X.CompareTo(b.X);
+                var f = a.X.CompareTo(b.X);
                 return f != 0 ? f : a.Y.CompareTo(b.Y);
             }
         }

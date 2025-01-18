@@ -37,7 +37,7 @@
  * @author Thomas Åhlén, thahlen@gmail.com
  */
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay
+namespace VelcroPhysics.Tools.Triangulation.Delaunay
 {
     internal class TriangulationConstraint
     {

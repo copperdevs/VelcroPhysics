@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics;
 using BenchmarkDotNet.Attributes;
-using Genbox.VelcroPhysics.Benchmarks.Code;
+using VelcroPhysics.Benchmarks.Code;
 
-namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
+namespace VelcroPhysics.Benchmarks.Tests.CLR
 {
     public class StopWatchBenchmark : UnmeasuredBenchmark
     {
-        private Stopwatch _stopWatch = new Stopwatch();
-        private DummyStopWatch _dummy = new DummyStopWatch();
+        private Stopwatch _stopWatch = new();
+        private DummyStopWatch _dummy = new();
         public static bool Enabled = true;
 
         [Benchmark]

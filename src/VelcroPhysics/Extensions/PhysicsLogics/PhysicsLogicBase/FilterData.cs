@@ -1,7 +1,7 @@
-using Genbox.VelcroPhysics.Collision.Filtering;
-using Genbox.VelcroPhysics.Dynamics;
+using VelcroPhysics.Collision.Filtering;
+using VelcroPhysics.Dynamics;
 
-namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase
+namespace VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase
 {
     /// <summary>Contains filter data that can determine whether an object should be processed or not.</summary>
     public abstract class FilterData
@@ -29,10 +29,10 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase
             if (body.FixtureList == null)
                 return false;
 
-            foreach (Fixture fixture in body.FixtureList)
+            foreach (var fixture in body.FixtureList)
             {
                 //Disable
-                if ((fixture.CollisionGroup == DisabledOnGroup) && fixture.CollisionGroup != 0 && DisabledOnGroup != 0)
+                if (fixture.CollisionGroup == DisabledOnGroup && fixture.CollisionGroup != 0 && DisabledOnGroup != 0)
                     return false;
 
                 if ((fixture.CollisionCategories & DisabledOnCategories) != Category.None)
@@ -41,7 +41,7 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase
                 if (EnabledOnGroup != 0 || EnabledOnCategories != Category.All)
                 {
                     //Enable
-                    if ((fixture.CollisionGroup == EnabledOnGroup) && fixture.CollisionGroup != 0 && EnabledOnGroup != 0)
+                    if (fixture.CollisionGroup == EnabledOnGroup && fixture.CollisionGroup != 0 && EnabledOnGroup != 0)
                         return true;
 
                     if ((fixture.CollisionCategories & EnabledOnCategories) != Category.None &&

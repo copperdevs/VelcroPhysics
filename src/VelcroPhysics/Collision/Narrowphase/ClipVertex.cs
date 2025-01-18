@@ -1,7 +1,7 @@
-using Genbox.VelcroPhysics.Collision.ContactSystem;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.ContactSystem;
 
-namespace Genbox.VelcroPhysics.Collision.Narrowphase
+namespace VelcroPhysics.Collision.Narrowphase
 {
     /// <summary>Used for computing contact manifolds.</summary>
     internal struct ClipVertex

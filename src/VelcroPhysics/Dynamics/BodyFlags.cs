@@ -1,6 +1,6 @@
 using System;
 
-namespace Genbox.VelcroPhysics.Dynamics
+namespace VelcroPhysics.Dynamics
 {
     [Flags]
     public enum BodyFlags : byte

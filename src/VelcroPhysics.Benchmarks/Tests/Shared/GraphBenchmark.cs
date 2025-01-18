@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
-using Genbox.VelcroPhysics.Benchmarks.Code;
-using Genbox.VelcroPhysics.Benchmarks.Code.TestClasses;
-using Genbox.VelcroPhysics.Shared;
+using VelcroPhysics.Benchmarks.Code;
+using VelcroPhysics.Benchmarks.Code.TestClasses;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Benchmarks.Tests.Shared
+namespace VelcroPhysics.Benchmarks.Tests.Shared
 {
     public class GraphBenchmark : UnmeasuredBenchmark
     {
@@ -21,9 +21,9 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Shared
         [Benchmark]
         public List<Dummy> ConstructList()
         {
-            List<Dummy> list = new List<Dummy>(1000);
+            var list = new List<Dummy>(1000);
 
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
                 list.Add(new Dummy());
             }
@@ -34,9 +34,9 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Shared
         [Benchmark]
         public Graph<Dummy> ConstructGraph()
         {
-            Graph<Dummy> graph = new Graph<Dummy>();
+            var graph = new Graph<Dummy>();
 
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
                 graph.Add(new Dummy());
             }
@@ -47,8 +47,8 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Shared
         [Benchmark]
         public int IterateList()
         {
-            int i = 0;
-            foreach (Dummy d in _list)
+            var i = 0;
+            foreach (var d in _list)
             {
                 i++;
             }
@@ -59,8 +59,8 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Shared
         [Benchmark]
         public int IterateGraph()
         {
-            int i = 0;
-            foreach (Dummy d in _graph)
+            var i = 0;
+            foreach (var d in _graph)
             {
                 i++;
             }
@@ -71,7 +71,7 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Shared
         [Benchmark]
         public void RemoveFromList()
         {
-            Dummy d = new Dummy();
+            var d = new Dummy();
             _list.Add(d);
             _list.Remove(d);
         }
@@ -79,7 +79,7 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Shared
         [Benchmark]
         public void RemoveFromGraph()
         {
-            Dummy d = new Dummy();
+            var d = new Dummy();
             _graph.Add(d);
             _graph.Remove(d);
         }
@@ -87,8 +87,8 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Shared
         [Benchmark]
         public void RemoveFromGraphFast()
         {
-            Dummy d = new Dummy();
-            GraphNode<Dummy> node = _graph.Add(d);
+            var d = new Dummy();
+            var node = _graph.Add(d);
             _graph.Remove(node);
         }
     }

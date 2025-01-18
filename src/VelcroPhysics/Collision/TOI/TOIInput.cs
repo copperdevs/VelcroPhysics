@@ -1,6 +1,6 @@
-using Genbox.VelcroPhysics.Collision.Distance;
+using VelcroPhysics.Collision.Distance;
 
-namespace Genbox.VelcroPhysics.Collision.TOI
+namespace VelcroPhysics.Collision.TOI
 {
     /// <summary>Input parameters for CalculateTimeOfImpact</summary>
     public struct TOIInput

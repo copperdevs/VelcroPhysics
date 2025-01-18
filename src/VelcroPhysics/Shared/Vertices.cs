@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Numerics;
 using System.Text;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Shared
+namespace VelcroPhysics.Shared
 {
     [DebuggerDisplay("Count = {Count} Vertices = {ToString()}")]
     public class Vertices : List<Vector2>
     {
-        public Vertices() { }
+        public Vertices()
+        {
+        }
 
-        public Vertices(int capacity) : base(capacity) { }
+        public Vertices(int capacity) : base(capacity)
+        {
+        }
 
         public Vertices(IEnumerable<Vector2> vertices)
         {
@@ -68,14 +72,15 @@ namespace Genbox.VelcroPhysics.Shared
 
             for (i = 0; i < Count; i++)
             {
-                int j = (i + 1) % Count;
+                var j = (i + 1) % Count;
 
-                Vector2 vi = this[i];
-                Vector2 vj = this[j];
+                var vi = this[i];
+                var vj = this[j];
 
                 area += vi.X * vj.Y;
                 area -= vi.Y * vj.X;
             }
+
             area /= 2.0f;
             return area;
         }
@@ -84,7 +89,7 @@ namespace Genbox.VelcroPhysics.Shared
         /// <returns></returns>
         public float GetArea()
         {
-            float area = GetSignedArea();
+            var area = GetSignedArea();
             return area < 0 ? -area : area;
         }
 
@@ -97,17 +102,17 @@ namespace Genbox.VelcroPhysics.Shared
                 return new Vector2(float.NaN, float.NaN);
 
             // Same algorithm is used by Box2D
-            Vector2 c = Vector2.Zero;
-            float area = 0.0f;
+            var c = Vector2.Zero;
+            var area = 0.0f;
             const float inv3 = 1.0f / 3.0f;
 
-            for (int i = 0; i < Count; ++i)
+            for (var i = 0; i < Count; ++i)
             {
                 // Triangle vertices.
-                Vector2 current = this[i];
-                Vector2 next = i + 1 < Count ? this[i + 1] : this[0];
+                var current = this[i];
+                var next = i + 1 < Count ? this[i + 1] : this[0];
 
-                float triangleArea = 0.5f * (current.X * next.Y - current.Y * next.X);
+                var triangleArea = 0.5f * (current.X * next.Y - current.Y * next.X);
                 area += triangleArea;
 
                 // Area weighted centroid
@@ -123,10 +128,10 @@ namespace Genbox.VelcroPhysics.Shared
         public AABB GetAABB()
         {
             AABB aabb;
-            Vector2 lowerBound = new Vector2(float.MaxValue, float.MaxValue);
-            Vector2 upperBound = new Vector2(float.MinValue, float.MinValue);
+            var lowerBound = new Vector2(float.MaxValue, float.MaxValue);
+            var upperBound = new Vector2(float.MinValue, float.MinValue);
 
-            for (int i = 0; i < Count; ++i)
+            for (var i = 0; i < Count; ++i)
             {
                 if (this[i].X < lowerBound.X)
                     lowerBound.X = this[i].X;
@@ -158,14 +163,14 @@ namespace Genbox.VelcroPhysics.Shared
         {
             Debug.Assert(!AttachedToBody, "Translating vertices that are used by a Body can result in unstable behavior. Use Body.Position instead.");
 
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
                 this[i] = Vector2.Add(this[i], value);
             }
 
             if (Holes != null && Holes.Count > 0)
             {
-                foreach (Vertices hole in Holes)
+                foreach (var hole in Holes)
                 {
                     hole.Translate(ref value);
                 }
@@ -185,14 +190,14 @@ namespace Genbox.VelcroPhysics.Shared
         {
             Debug.Assert(!AttachedToBody, "Scaling vertices that are used by a Body can result in unstable behavior.");
 
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
                 this[i] = Vector2.Multiply(this[i], value);
             }
 
             if (Holes != null && Holes.Count > 0)
             {
-                foreach (Vertices hole in Holes)
+                foreach (var hole in Holes)
                 {
                     hole.Scale(ref value);
                 }
@@ -208,18 +213,18 @@ namespace Genbox.VelcroPhysics.Shared
         {
             Debug.Assert(!AttachedToBody, "Rotating vertices that are used by a Body can result in unstable behavior.");
 
-            float num1 = (float)Math.Cos(value);
-            float num2 = (float)Math.Sin(value);
+            var num1 = (float)Math.Cos(value);
+            var num2 = (float)Math.Sin(value);
 
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
-                Vector2 position = this[i];
+                var position = this[i];
                 this[i] = new Vector2(position.X * num1 + position.Y * -num2, position.X * num2 + position.Y * num1);
             }
 
             if (Holes != null && Holes.Count > 0)
             {
-                foreach (Vertices hole in Holes)
+                foreach (var hole in Holes)
                 {
                     hole.Rotate(value);
                 }
@@ -242,25 +247,26 @@ namespace Genbox.VelcroPhysics.Shared
                 return true;
 
             // Checks the polygon is convex and the interior is to the left of each edge.
-            for (int i = 0; i < Count; ++i)
+            for (var i = 0; i < Count; ++i)
             {
-                int next = i + 1 < Count ? i + 1 : 0;
-                Vector2 edge = this[next] - this[i];
+                var next = i + 1 < Count ? i + 1 : 0;
+                var edge = this[next] - this[i];
 
-                for (int j = 0; j < Count; ++j)
+                for (var j = 0; j < Count; ++j)
                 {
                     // Don't check vertices on the current edge.
                     if (j == i || j == next)
                         continue;
 
-                    Vector2 r = this[j] - this[i];
+                    var r = this[j] - this[i];
 
-                    float s = edge.X * r.Y - edge.Y * r.X;
+                    var s = edge.X * r.Y - edge.Y * r.X;
 
                     if (s <= 0.0f)
                         return false;
                 }
             }
+
             return true;
         }
 
@@ -295,19 +301,20 @@ namespace Genbox.VelcroPhysics.Shared
             if (Count < 3)
                 return false;
 
-            for (int i = 0; i < Count; ++i)
+            for (var i = 0; i < Count; ++i)
             {
-                Vector2 a1 = this[i];
-                Vector2 a2 = NextVertex(i);
-                for (int j = i + 1; j < Count; ++j)
+                var a1 = this[i];
+                var a2 = NextVertex(i);
+                for (var j = i + 1; j < Count; ++j)
                 {
-                    Vector2 b1 = this[j];
-                    Vector2 b2 = NextVertex(j);
+                    var b1 = this[j];
+                    var b2 = NextVertex(j);
 
                     if (LineUtils.LineIntersect2(ref a1, ref a2, ref b1, ref b2, out _))
                         return false;
                 }
             }
+
             return true;
         }
 
@@ -332,10 +339,10 @@ namespace Genbox.VelcroPhysics.Shared
                 return PolygonError.NotConvex;
 
             //Check if the sides are of adequate length.
-            for (int i = 0; i < Count; ++i)
+            for (var i = 0; i < Count; ++i)
             {
-                int next = i + 1 < Count ? i + 1 : 0;
-                Vector2 edge = this[next] - this[i];
+                var next = i + 1 < Count ? i + 1 : 0;
+                var edge = this[next] - this[i];
                 if (edge.LengthSquared() <= float.Epsilon * float.Epsilon)
                     return PolygonError.SideTooSmall;
             }
@@ -353,11 +360,11 @@ namespace Genbox.VelcroPhysics.Shared
         public void ProjectToAxis(ref Vector2 axis, out float min, out float max)
         {
             // To project a point on an axis use the dot product
-            float dotProduct = Vector2.Dot(axis, this[0]);
+            var dotProduct = Vector2.Dot(axis, this[0]);
             min = dotProduct;
             max = dotProduct;
 
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
                 dotProduct = Vector2.Dot(this[i], axis);
                 if (dotProduct < min)
@@ -380,18 +387,18 @@ namespace Genbox.VelcroPhysics.Shared
         public int PointInPolygon(ref Vector2 point)
         {
             // Winding number
-            int wn = 0;
+            var wn = 0;
 
             // Iterate through polygon's edges
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
                 // Get points
-                Vector2 p1 = this[i];
-                Vector2 p2 = this[NextIndex(i)];
+                var p1 = this[i];
+                var p2 = this[NextIndex(i)];
 
                 // Test if a point is directly on the edge
-                Vector2 edge = p2 - p1;
-                float area = MathUtils.Area(ref p1, ref p2, ref point);
+                var edge = p2 - p1;
+                var area = MathUtils.Area(ref p1, ref p2, ref point);
                 if (area == 0f && Vector2.Dot(point - p1, edge) >= 0f && Vector2.Dot(point - p2, edge) <= 0f)
                     return 0;
 
@@ -407,6 +414,7 @@ namespace Genbox.VelcroPhysics.Shared
                         --wn;
                 }
             }
+
             return wn == 0 ? -1 : 1;
         }
 
@@ -420,11 +428,11 @@ namespace Genbox.VelcroPhysics.Shared
             double angle = 0;
 
             // Iterate through polygon's edges
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
                 // Get points
-                Vector2 p1 = this[i] - point;
-                Vector2 p2 = this[NextIndex(i)] - point;
+                var p1 = this[i] - point;
+                var p2 = this[NextIndex(i)] - point;
 
                 angle += MathUtils.VectorAngle(ref p1, ref p2);
             }
@@ -437,30 +445,36 @@ namespace Genbox.VelcroPhysics.Shared
 
         /// <summary>Transforms the polygon using the defined matrix.</summary>
         /// <param name="transform">The matrix to use as transformation.</param>
-        public void Transform(ref Matrix transform)
+        public void Transform(ref Matrix4x4 transform)
         {
             // Transform main polygon
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
                 this[i] = Vector2.Transform(this[i], transform);
             }
 
             // Transform holes
-            if (Holes != null && Holes.Count > 0)
-            {
-                for (int i = 0; i < Holes.Count; i++)
-                {
-                    Vector2[] temp = Holes[i].ToArray();
-                    Vector2.Transform(temp, ref transform, temp);
+            if (Holes is not { Count: > 0 })
+                return;
 
-                    Holes[i] = new Vertices(temp);
+            for (var i = 0; i < Holes.Count; i++)
+            {
+                var temp = Holes[i].ToArray();
+
+                for (var j = 0; j < temp.Length; j++)
+                {
+                    var normal = temp[j];
+
+                    temp[j] = new Vector2(normal.X * transform.M11 + normal.Y * transform.M21, normal.X * transform.M12 + normal.Y * transform.M22);
                 }
+
+                Holes[i] = new Vertices(temp);
             }
         }
 
         public void FlipHorizontally()
         {
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
                 this[i] = new Vector2(-1 * this[i].X, this[i].Y);
             }
@@ -468,7 +482,7 @@ namespace Genbox.VelcroPhysics.Shared
 
         public void FlipVertically()
         {
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
                 this[i] = new Vector2(this[i].X, -1 * this[i].Y);
             }
@@ -476,13 +490,14 @@ namespace Genbox.VelcroPhysics.Shared
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < Count; i++)
+            var builder = new StringBuilder();
+            for (var i = 0; i < Count; i++)
             {
                 builder.Append(this[i]);
                 if (i < Count - 1)
                     builder.Append(" ");
             }
+
             return builder.ToString();
         }
     }

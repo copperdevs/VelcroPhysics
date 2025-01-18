@@ -1,9 +1,9 @@
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Shared.Optimization;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Shared.Optimization;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Collision.Narrowphase
+namespace VelcroPhysics.Collision.Narrowphase
 {
     public static class WorldManifold
     {
@@ -25,16 +25,15 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
                 case ManifoldType.Circles:
                 {
                     normal = new Vector2(1.0f, 0.0f);
-                    Vector2 pointA = MathUtils.Mul(ref xfA, manifold.LocalPoint);
-                    Vector2 pointB = MathUtils.Mul(ref xfB, manifold.Points.Value0.LocalPoint);
+                    var pointA = MathUtils.Mul(ref xfA, manifold.LocalPoint);
+                    var pointB = MathUtils.Mul(ref xfB, manifold.Points.Value0.LocalPoint);
                     if (Vector2.DistanceSquared(pointA, pointB) > MathConstants.Epsilon * MathConstants.Epsilon)
                     {
-                        normal = pointB - pointA;
-                        normal.Normalize();
+                        normal = Vector2.Normalize(pointB - pointA);
                     }
 
-                    Vector2 cA = pointA + radiusA * normal;
-                    Vector2 cB = pointB - radiusB * normal;
+                    var cA = pointA + radiusA * normal;
+                    var cB = pointB - radiusB * normal;
                     points.Value0 = 0.5f * (cA + cB);
                     separations.Value0 = Vector2.Dot(cB - cA, normal);
                 }
@@ -43,13 +42,13 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
                 case ManifoldType.FaceA:
                 {
                     normal = MathUtils.Mul(xfA.q, manifold.LocalNormal);
-                    Vector2 planePoint = MathUtils.Mul(ref xfA, manifold.LocalPoint);
+                    var planePoint = MathUtils.Mul(ref xfA, manifold.LocalPoint);
 
-                    for (int i = 0; i < manifold.PointCount; ++i)
+                    for (var i = 0; i < manifold.PointCount; ++i)
                     {
-                        Vector2 clipPoint = MathUtils.Mul(ref xfB, manifold.Points[i].LocalPoint);
-                        Vector2 cA = clipPoint + (radiusA - Vector2.Dot(clipPoint - planePoint, normal)) * normal;
-                        Vector2 cB = clipPoint - radiusB * normal;
+                        var clipPoint = MathUtils.Mul(ref xfB, manifold.Points[i].LocalPoint);
+                        var cA = clipPoint + (radiusA - Vector2.Dot(clipPoint - planePoint, normal)) * normal;
+                        var cB = clipPoint - radiusB * normal;
                         points[i] = 0.5f * (cA + cB);
                         separations[i] = Vector2.Dot(cB - cA, normal);
                     }
@@ -59,13 +58,13 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
                 case ManifoldType.FaceB:
                 {
                     normal = MathUtils.Mul(xfB.q, manifold.LocalNormal);
-                    Vector2 planePoint = MathUtils.Mul(ref xfB, manifold.LocalPoint);
+                    var planePoint = MathUtils.Mul(ref xfB, manifold.LocalPoint);
 
-                    for (int i = 0; i < manifold.PointCount; ++i)
+                    for (var i = 0; i < manifold.PointCount; ++i)
                     {
-                        Vector2 clipPoint = MathUtils.Mul(ref xfA, manifold.Points[i].LocalPoint);
-                        Vector2 cB = clipPoint + (radiusB - Vector2.Dot(clipPoint - planePoint, normal)) * normal;
-                        Vector2 cA = clipPoint - radiusA * normal;
+                        var clipPoint = MathUtils.Mul(ref xfA, manifold.Points[i].LocalPoint);
+                        var cB = clipPoint + (radiusB - Vector2.Dot(clipPoint - planePoint, normal)) * normal;
+                        var cA = clipPoint - radiusA * normal;
                         points[i] = 0.5f * (cA + cB);
                         separations[i] = Vector2.Dot(cA - cB, normal);
                     }

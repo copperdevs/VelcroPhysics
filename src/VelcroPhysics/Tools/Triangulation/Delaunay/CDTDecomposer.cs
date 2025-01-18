@@ -5,12 +5,11 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay;
-using Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay
+namespace VelcroPhysics.Tools.Triangulation.Delaunay
 {
     /// <summary>
     /// 2D constrained Delaunay triangulation algorithm.
@@ -32,20 +31,20 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay
         {
             Debug.Assert(vertices.Count > 3);
 
-            Polygon.Polygon poly = new Polygon.Polygon();
+            var poly = new Polygon.Polygon();
 
-            foreach (Vector2 vertex in vertices)
+            foreach (var vertex in vertices)
             {
                 poly.Points.Add(new TriangulationPoint(vertex.X, vertex.Y));
             }
 
             if (vertices.Holes != null)
             {
-                foreach (Vertices holeVertices in vertices.Holes)
+                foreach (var holeVertices in vertices.Holes)
                 {
-                    Polygon.Polygon hole = new Polygon.Polygon();
+                    var hole = new Polygon.Polygon();
 
-                    foreach (Vector2 vertex in holeVertices)
+                    foreach (var vertex in holeVertices)
                     {
                         hole.Points.Add(new TriangulationPoint(vertex.X, vertex.Y));
                     }
@@ -54,16 +53,16 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay
                 }
             }
 
-            DTSweepContext tcx = new DTSweepContext();
+            var tcx = new DTSweepContext();
             tcx.PrepareTriangulation(poly);
             DTSweep.Triangulate(tcx);
 
-            List<Vertices> results = new List<Vertices>();
+            var results = new List<Vertices>();
 
-            foreach (DelaunayTriangle triangle in poly.Triangles)
+            foreach (var triangle in poly.Triangles)
             {
-                Vertices v = new Vertices();
-                foreach (TriangulationPoint p in triangle.Points)
+                var v = new Vertices();
+                foreach (var p in triangle.Points)
                 {
                     v.Add(new Vector2((float)p.X, (float)p.Y));
                 }

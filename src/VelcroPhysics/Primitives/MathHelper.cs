@@ -1,6 +1,4 @@
-﻿#if STANDARD_IMPLEMENTATION
-
-// MIT License - Copyright (C) The Mono.Xna Team
+﻿// MIT License - Copyright (C) The Mono.Xna Team
 // This file is subject to the terms and conditions defined in
 // file 'MONOGAME LICENSE.txt', which is part of this source code package.
 
@@ -69,7 +67,7 @@ namespace Microsoft.Xna.Framework
             // Using formula from http://www.mvps.org/directx/articles/catmull/
             // Internally using doubles not to lose precission
             double amountSquared = amount * amount;
-            double amountCubed = amountSquared * amount;
+            var amountCubed = amountSquared * amount;
             return (float)(0.5 * (2.0 * value2 +
                                   (value3 - value1) * amount +
                                   (2.0 * value1 - 5.0 * value2 + 4.0 * value3 - value4) * amountSquared +
@@ -126,8 +124,8 @@ namespace Microsoft.Xna.Framework
             // All transformed to double not to lose precission
             // Otherwise, for high numbers of param:amount the result is NaN instead of Infinity
             double v1 = value1, v2 = value2, t1 = tangent1, t2 = tangent2, s = amount, result;
-            double sCubed = s * s * s;
-            double sSquared = s * s;
+            var sCubed = s * s * s;
+            var sSquared = s * s;
 
             if (amount == 0f)
                 result = value1;
@@ -140,6 +138,7 @@ namespace Microsoft.Xna.Framework
                          t1 * s +
                          v1;
             }
+
             return (float)result;
         }
 
@@ -229,7 +228,7 @@ namespace Microsoft.Xna.Framework
             // It is expected that 0 < amount < 1
             // If amount < 0, return value1
             // If amount > 1, return value2
-            float result = Clamp(amount, 0f, 1f);
+            var result = Clamp(amount, 0f, 1f);
             result = Hermite(value1, 0f, value2, 0f, result);
 
             return result;
@@ -277,4 +276,3 @@ namespace Microsoft.Xna.Framework
         }
     }
 }
-#endif

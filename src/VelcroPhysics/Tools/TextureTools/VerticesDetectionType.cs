@@ -1,4 +1,4 @@
-namespace Genbox.VelcroPhysics.Tools.TextureTools
+namespace VelcroPhysics.Tools.TextureTools
 {
     /// <summary>The detection type affects the resulting polygon data.</summary>
     public enum VerticesDetectionType

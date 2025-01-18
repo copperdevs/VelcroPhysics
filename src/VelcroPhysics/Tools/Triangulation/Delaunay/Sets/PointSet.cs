@@ -30,9 +30,9 @@
  */
 
 using System.Collections.Generic;
-using Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay;
+using VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Sets
+namespace VelcroPhysics.Tools.Triangulation.Delaunay.Sets
 {
     internal class PointSet : Triangulatable
     {
@@ -53,7 +53,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Sets
 
         public void AddTriangles(IEnumerable<DelaunayTriangle> list)
         {
-            foreach (DelaunayTriangle tri in list)
+            foreach (var tri in list)
             {
                 Triangles.Add(tri);
             }

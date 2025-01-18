@@ -1,4 +1,4 @@
-namespace Genbox.VelcroPhysics.Collision.Narrowphase
+namespace VelcroPhysics.Collision.Narrowphase
 {
     public enum ManifoldType
     {

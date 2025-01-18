@@ -20,12 +20,12 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-using Genbox.VelcroPhysics.Collision.RayCast;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.RayCast;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Collision.Shapes
+namespace VelcroPhysics.Collision.Shapes
 {
     /// <summary>A circle shape.</summary>
     public class CircleShape : Shape
@@ -89,7 +89,7 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
         private void ComputeMass()
         {
             //Velcro: We calculate area for later consumption
-            float area = MathConstants.Pi * _radius * _radius;
+            var area = MathConstants.Pi * _radius * _radius;
             _massData._area = area;
             _massData._mass = _density * area;
         }
@@ -104,12 +104,14 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
 
         public override Shape Clone()
         {
-            CircleShape clone = new CircleShape();
-            clone._shapeType = _shapeType;
-            clone._radius = _radius;
-            clone._density = _density;
-            clone._position = _position;
-            clone._massData = _massData;
+            var clone = new CircleShape
+            {
+                _shapeType = _shapeType,
+                _radius = _radius,
+                _density = _density,
+                _position = _position,
+                _massData = _massData
+            };
             return clone;
         }
     }

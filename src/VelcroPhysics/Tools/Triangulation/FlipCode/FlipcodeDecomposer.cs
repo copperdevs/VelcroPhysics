@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.FlipCode
+namespace VelcroPhysics.Tools.Triangulation.FlipCode
 {
     /// <summary>
     /// Convex decomposition algorithm created by unknown
@@ -32,37 +32,37 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.FlipCode
             Debug.Assert(vertices.Count > 3);
             Debug.Assert(vertices.IsCounterClockWise());
 
-            int[] polygon = new int[vertices.Count];
+            var polygon = new int[vertices.Count];
 
-            for (int v = 0; v < vertices.Count; v++)
+            for (var v = 0; v < vertices.Count; v++)
             {
                 polygon[v] = v;
             }
 
-            int nv = vertices.Count;
+            var nv = vertices.Count;
 
             // Remove nv-2 Vertices, creating 1 triangle every time
-            int count = 2 * nv; /* error detection */
+            var count = 2 * nv; /* error detection */
 
-            List<Vertices> result = new List<Vertices>();
+            var result = new List<Vertices>();
 
-            for (int v = nv - 1; nv > 2;)
+            for (var v = nv - 1; nv > 2;)
             {
                 // If we loop, it is probably a non-simple polygon 
                 if (0 >= count--)
                 {
                     // Triangulate: ERROR - probable bad polygon!
-                    return new List<Vertices>();
+                    return [];
                 }
 
                 // Three consecutive vertices in current polygon, <u,v,w>
-                int u = v;
+                var u = v;
                 if (nv <= u)
                     u = 0; // Previous 
                 v = u + 1;
                 if (nv <= v)
                     v = 0; // New v   
-                int w = v + 1;
+                var w = v + 1;
                 if (nv <= w)
                     w = 0; // Next 
 
@@ -75,7 +75,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.FlipCode
                     int s, t;
 
                     // Output Triangle
-                    Vertices triangle = new Vertices(3);
+                    var triangle = new Vertices(3);
                     triangle.Add(_tmpA);
                     triangle.Add(_tmpB);
                     triangle.Add(_tmpC);
@@ -105,13 +105,13 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.FlipCode
         private static bool InsideTriangle(ref Vector2 a, ref Vector2 b, ref Vector2 c, ref Vector2 p)
         {
             //A cross bp
-            float abp = (c.X - b.X) * (p.Y - b.Y) - (c.Y - b.Y) * (p.X - b.X);
+            var abp = (c.X - b.X) * (p.Y - b.Y) - (c.Y - b.Y) * (p.X - b.X);
 
             //A cross ap
-            float aap = (b.X - a.X) * (p.Y - a.Y) - (b.Y - a.Y) * (p.X - a.X);
+            var aap = (b.X - a.X) * (p.Y - a.Y) - (b.Y - a.Y) * (p.X - a.X);
 
             //b cross cp
-            float bcp = (a.X - c.X) * (p.Y - c.Y) - (a.Y - c.Y) * (p.X - c.X);
+            var bcp = (a.X - c.X) * (p.Y - c.Y) - (a.Y - c.Y) * (p.X - c.X);
 
             return abp >= 0.0f && bcp >= 0.0f && aap >= 0.0f;
         }
@@ -129,12 +129,12 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.FlipCode
             if (MathConstants.Epsilon > MathUtils.Area(ref _tmpA, ref _tmpB, ref _tmpC))
                 return false;
 
-            for (int p = 0; p < n; p++)
+            for (var p = 0; p < n; p++)
             {
                 if (p == u || p == v || p == w)
                     continue;
 
-                Vector2 point = contour[V[p]];
+                var point = contour[V[p]];
 
                 if (InsideTriangle(ref _tmpA, ref _tmpB, ref _tmpC, ref point))
                     return false;

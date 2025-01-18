@@ -1,10 +1,10 @@
 using System;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Collision.TOI
+namespace VelcroPhysics.Collision.TOI
 {
     /// <summary>
     /// This describes the motion of a body/shape for TOI computation. Shapes are defined with respect to the body
@@ -37,7 +37,7 @@ namespace Genbox.VelcroPhysics.Collision.TOI
             xfb = new Transform();
             xfb.p.X = (1.0f - beta) * C0.X + beta * C.X;
             xfb.p.Y = (1.0f - beta) * C0.Y + beta * C.Y;
-            float angle = (1.0f - beta) * A0 + beta * A;
+            var angle = (1.0f - beta) * A0 + beta * A;
             xfb.q.Set(angle);
 
             // Shift to origin
@@ -49,7 +49,7 @@ namespace Genbox.VelcroPhysics.Collision.TOI
         public void Advance(float alpha)
         {
             Debug.Assert(Alpha0 < 1.0f);
-            float beta = (alpha - Alpha0) / (1.0f - Alpha0);
+            var beta = (alpha - Alpha0) / (1.0f - Alpha0);
             C0 += beta * (C - C0);
             A0 += beta * (A - A0);
             Alpha0 = alpha;
@@ -58,7 +58,7 @@ namespace Genbox.VelcroPhysics.Collision.TOI
         /// <summary>Normalize the angles.</summary>
         public void Normalize()
         {
-            float d = MathConstants.TwoPi * (float)Math.Floor(A0 / MathConstants.TwoPi);
+            var d = MathConstants.TwoPi * (float)Math.Floor(A0 / MathConstants.TwoPi);
             A0 -= d;
             A -= d;
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Genbox.VelcroPhysics.Collision.ContactSystem
+namespace VelcroPhysics.Collision.ContactSystem
 {
     [Flags]
     internal enum ContactFlags : byte

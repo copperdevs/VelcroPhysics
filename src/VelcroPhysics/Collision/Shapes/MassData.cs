@@ -1,7 +1,7 @@
 using System;
-using Microsoft.Xna.Framework;
+using System.Numerics;
 
-namespace Genbox.VelcroPhysics.Collision.Shapes
+namespace VelcroPhysics.Collision.Shapes
 {
     /// <summary>This holds the mass data computed for a shape.</summary>
     public struct MassData : IEquatable<MassData>
@@ -76,7 +76,7 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
         {
             unchecked
             {
-                int result = _area.GetHashCode();
+                var result = _area.GetHashCode();
                 result = (result * 397) ^ _centroid.GetHashCode();
                 result = (result * 397) ^ _inertia.GetHashCode();
                 result = (result * 397) ^ _mass.GetHashCode();

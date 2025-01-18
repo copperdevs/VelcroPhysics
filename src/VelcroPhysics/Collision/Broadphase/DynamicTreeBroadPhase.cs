@@ -21,13 +21,13 @@
 */
 
 using System;
-using Genbox.VelcroPhysics.Collision.Handlers;
-using Genbox.VelcroPhysics.Collision.RayCast;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Shared;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.Handlers;
+using VelcroPhysics.Collision.RayCast;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Collision.Broadphase
+namespace VelcroPhysics.Collision.Broadphase
 {
     /// <summary>
     /// The broad-phase is used for computing pairs and performing volume queries and ray casts. This broad-phase does
@@ -47,7 +47,7 @@ namespace Genbox.VelcroPhysics.Collision.Broadphase
         private int _proxyCount;
         private Func<int, bool> _queryCallback;
         private int _queryProxyId;
-        private DynamicTree<FixtureProxy> _tree = new DynamicTree<FixtureProxy>();
+        private DynamicTree<FixtureProxy> _tree = new();
 
         /// <summary>Constructs a new broad phase based on the dynamic tree implementation</summary>
         public DynamicTreeBroadPhase()
@@ -79,7 +79,7 @@ namespace Genbox.VelcroPhysics.Collision.Broadphase
         /// <returns></returns>
         public int AddProxy(ref FixtureProxy proxy)
         {
-            int proxyId = _tree.CreateProxy(ref proxy.AABB, proxy);
+            var proxyId = _tree.CreateProxy(ref proxy.AABB, proxy);
             ++_proxyCount;
             BufferMove(proxyId);
             return proxyId;
@@ -100,7 +100,7 @@ namespace Genbox.VelcroPhysics.Collision.Broadphase
         /// </summary>
         public void MoveProxy(int proxyId, ref AABB aabb, Vector2 displacement)
         {
-            bool buffer = _tree.MoveProxy(proxyId, ref aabb, displacement);
+            var buffer = _tree.MoveProxy(proxyId, ref aabb, displacement);
             if (buffer)
                 BufferMove(proxyId);
         }
@@ -133,8 +133,8 @@ namespace Genbox.VelcroPhysics.Collision.Broadphase
         /// <returns></returns>
         public bool TestOverlap(int proxyIdA, int proxyIdB)
         {
-            _tree.GetFatAABB(proxyIdA, out AABB aabbA);
-            _tree.GetFatAABB(proxyIdB, out AABB aabbB);
+            _tree.GetFatAABB(proxyIdA, out var aabbA);
+            _tree.GetFatAABB(proxyIdB, out var aabbB);
             return AABB.TestOverlap(ref aabbA, ref aabbB);
         }
 
@@ -146,7 +146,7 @@ namespace Genbox.VelcroPhysics.Collision.Broadphase
             _pairCount = 0;
 
             // Perform tree queries for all moving proxies.
-            for (int i = 0; i < _moveCount; ++i)
+            for (var i = 0; i < _moveCount; ++i)
             {
                 _queryProxyId = _moveBuffer[i];
                 if (_queryProxyId == NullProxy)
@@ -154,25 +154,25 @@ namespace Genbox.VelcroPhysics.Collision.Broadphase
 
                 // We have to query the tree with the fat AABB so that
                 // we don't fail to create a pair that may touch later.
-                _tree.GetFatAABB(_queryProxyId, out AABB fatAABB);
+                _tree.GetFatAABB(_queryProxyId, out var fatAABB);
 
                 // Query tree, create pairs and add them pair buffer.
                 _tree.Query(_queryCallback, ref fatAABB);
             }
 
-            for (int i = 0; i < _pairCount; ++i)
+            for (var i = 0; i < _pairCount; ++i)
             {
-                Pair primaryPair = _pairBuffer[i];
-                FixtureProxy userDataA = _tree.GetUserData(primaryPair.ProxyIdA);
-                FixtureProxy userDataB = _tree.GetUserData(primaryPair.ProxyIdB);
+                var primaryPair = _pairBuffer[i];
+                var userDataA = _tree.GetUserData(primaryPair.ProxyIdA);
+                var userDataB = _tree.GetUserData(primaryPair.ProxyIdB);
 
                 callback(ref userDataA, ref userDataB);
             }
 
             // Clear move flags
-            for (int i = 0; i < _moveCount; ++i)
+            for (var i = 0; i < _moveCount; ++i)
             {
-                int proxyId = _moveBuffer[i];
+                var proxyId = _moveBuffer[i];
                 if (proxyId == NullProxy)
                     continue;
 
@@ -216,7 +216,7 @@ namespace Genbox.VelcroPhysics.Collision.Broadphase
         {
             if (_moveCount == _moveCapacity)
             {
-                int[] oldBuffer = _moveBuffer;
+                var oldBuffer = _moveBuffer;
                 _moveCapacity *= 2;
                 _moveBuffer = new int[_moveCapacity];
                 Array.Copy(oldBuffer, _moveBuffer, _moveCount);
@@ -228,7 +228,7 @@ namespace Genbox.VelcroPhysics.Collision.Broadphase
 
         private void UnBufferMove(int proxyId)
         {
-            for (int i = 0; i < _moveCount; ++i)
+            for (var i = 0; i < _moveCount; ++i)
             {
                 if (_moveBuffer[i] == proxyId)
                     _moveBuffer[i] = NullProxy;
@@ -242,7 +242,7 @@ namespace Genbox.VelcroPhysics.Collision.Broadphase
             if (proxyId == _queryProxyId)
                 return true;
 
-            bool moved = _tree.WasMoved(proxyId);
+            var moved = _tree.WasMoved(proxyId);
             if (moved && proxyId > _queryProxyId)
             {
                 // Both proxies are moving. Avoid duplicate pairs.
@@ -252,8 +252,8 @@ namespace Genbox.VelcroPhysics.Collision.Broadphase
             // Grow the pair buffer as needed.
             if (_pairCount == _pairCapacity)
             {
-                Pair[] oldBuffer = _pairBuffer;
-                _pairCapacity += (_pairCapacity >> 1);
+                var oldBuffer = _pairBuffer;
+                _pairCapacity += _pairCapacity >> 1;
                 _pairBuffer = new Pair[_pairCapacity];
                 Array.Copy(oldBuffer, _pairBuffer, _pairCount);
             }

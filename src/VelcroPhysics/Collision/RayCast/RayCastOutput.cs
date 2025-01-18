@@ -1,6 +1,6 @@
-using Microsoft.Xna.Framework;
+using System.Numerics;
 
-namespace Genbox.VelcroPhysics.Collision.RayCast
+namespace VelcroPhysics.Collision.RayCast
 {
     /// <summary>Ray-cast output data.</summary>
     public struct RayCastOutput

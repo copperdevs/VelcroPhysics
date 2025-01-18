@@ -21,16 +21,15 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.Narrowphase;
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Shared.Optimization;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.Narrowphase;
+using VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Shared.Optimization;
 
-namespace Genbox.VelcroPhysics.Collision.ContactSystem
+namespace VelcroPhysics.Collision.ContactSystem
 {
     /// <summary>
     /// The class manages contact between two shapes. A contact exists for each overlapping AABB in the broad-phase
@@ -38,7 +37,7 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
     /// </summary>
     public class Contact
     {
-        private static EdgeShape _edge = new EdgeShape();
+        private static EdgeShape _edge = new();
         private static ContactType[,] _registers =
         {
             {
@@ -84,8 +83,8 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
         internal Contact _next;
 
         // Nodes for connecting bodies.
-        internal ContactEdge _nodeA = new ContactEdge();
-        internal ContactEdge _nodeB = new ContactEdge();
+        internal ContactEdge _nodeA = new();
+        internal ContactEdge _nodeB = new();
 
         internal Fixture _fixtureA;
         internal Fixture _fixtureB;
@@ -192,10 +191,10 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
         /// <summary>Gets the world manifold.</summary>
         public void GetWorldManifold(out Vector2 normal, out FixedArray2<Vector2> points)
         {
-            Body bodyA = _fixtureA.Body;
-            Body bodyB = _fixtureB.Body;
-            Shape shapeA = _fixtureA.Shape;
-            Shape shapeB = _fixtureB.Shape;
+            var bodyA = _fixtureA.Body;
+            var bodyB = _fixtureB.Body;
+            var shapeA = _fixtureA.Shape;
+            var shapeB = _fixtureB.Shape;
 
             WorldManifold.Initialize(ref _manifold, ref bodyA._xf, shapeA._radius, ref bodyB._xf, shapeB._radius, out normal, out points, out _);
         }
@@ -249,27 +248,27 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
             if (_fixtureA == null || _fixtureB == null)
                 return;
 
-            Manifold oldManifold = _manifold;
+            var oldManifold = _manifold;
 
             // Re-enable this contact.
             _flags |= ContactFlags.EnabledFlag;
 
             bool touching;
-            bool wasTouching = IsTouching;
+            var wasTouching = IsTouching;
 
-            bool sensor = _fixtureA.IsSensor || _fixtureB.IsSensor;
+            var sensor = _fixtureA.IsSensor || _fixtureB.IsSensor;
 
-            Body bodyA = _fixtureA.Body;
-            Body bodyB = _fixtureB.Body;
+            var bodyA = _fixtureA.Body;
+            var bodyB = _fixtureB.Body;
 
-            Transform xfA = bodyA._xf;
-            Transform xfB = bodyB._xf;
+            var xfA = bodyA._xf;
+            var xfB = bodyB._xf;
 
             // Is this contact a sensor?
             if (sensor)
             {
-                Shape shapeA = _fixtureA.Shape;
-                Shape shapeB = _fixtureB.Shape;
+                var shapeA = _fixtureA.Shape;
+                var shapeB = _fixtureB.Shape;
                 touching = Narrowphase.Collision.TestOverlap(shapeA, _indexA, shapeB, _indexB, ref xfA, ref xfB);
 
                 // Sensors don't generate manifolds.
@@ -282,16 +281,16 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
 
                 // Match old contact ids to new contact ids and copy the
                 // stored impulses to warm start the solver.
-                for (int i = 0; i < _manifold.PointCount; ++i)
+                for (var i = 0; i < _manifold.PointCount; ++i)
                 {
-                    ManifoldPoint mp2 = _manifold.Points[i];
+                    var mp2 = _manifold.Points[i];
                     mp2.NormalImpulse = 0.0f;
                     mp2.TangentImpulse = 0.0f;
-                    ContactId id2 = mp2.Id;
+                    var id2 = mp2.Id;
 
-                    for (int j = 0; j < oldManifold.PointCount; ++j)
+                    for (var j = 0; j < oldManifold.PointCount; ++j)
                     {
-                        ManifoldPoint mp1 = oldManifold.Points[j];
+                        var mp1 = oldManifold.Points[j];
 
                         if (mp1.Id.Key == id2.Key)
                         {
@@ -374,12 +373,12 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
                     CollideEdge.CollideEdgeAndPolygon(ref manifold, (EdgeShape)_fixtureA.Shape, ref transformA, (PolygonShape)_fixtureB.Shape, ref transformB);
                     break;
                 case ContactType.ChainAndCircle:
-                    ChainShape chain = (ChainShape)_fixtureA.Shape;
+                    var chain = (ChainShape)_fixtureA.Shape;
                     chain.GetChildEdge(_edge, ChildIndexA);
                     CollideEdge.CollideEdgeAndCircle(ref manifold, _edge, ref transformA, (CircleShape)_fixtureB.Shape, ref transformB);
                     break;
                 case ContactType.ChainAndPolygon:
-                    ChainShape loop2 = (ChainShape)_fixtureA.Shape;
+                    var loop2 = (ChainShape)_fixtureA.Shape;
                     loop2.GetChildEdge(_edge, ChildIndexA);
                     CollideEdge.CollideEdgeAndPolygon(ref manifold, _edge, ref transformA, (PolygonShape)_fixtureB.Shape, ref transformB);
                     break;
@@ -393,14 +392,14 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
 
         internal static Contact Create(Fixture fixtureA, int indexA, Fixture fixtureB, int indexB)
         {
-            ShapeType type1 = fixtureA.Shape.ShapeType;
-            ShapeType type2 = fixtureB.Shape.ShapeType;
+            var type1 = fixtureA.Shape.ShapeType;
+            var type2 = fixtureB.Shape.ShapeType;
 
             Debug.Assert(ShapeType.Unknown < type1 && type1 < ShapeType.TypeCount);
             Debug.Assert(ShapeType.Unknown < type2 && type2 < ShapeType.TypeCount);
 
             Contact c;
-            Queue<Contact> pool = fixtureA.Body._world._contactPool;
+            var pool = fixtureA.Body._world._contactPool;
             if (pool.Count > 0)
             {
                 c = pool.Dequeue();

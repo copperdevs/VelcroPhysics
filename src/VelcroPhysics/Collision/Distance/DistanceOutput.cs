@@ -1,6 +1,6 @@
-using Microsoft.Xna.Framework;
+using System.Numerics;
 
-namespace Genbox.VelcroPhysics.Collision.Distance
+namespace VelcroPhysics.Collision.Distance
 {
     /// <summary>Output for Distance.ComputeDistance().</summary>
     public struct DistanceOutput

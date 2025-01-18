@@ -20,13 +20,13 @@
 * 3. This notice may not be removed or altered from any source distribution. 
 */
 
-using Genbox.VelcroPhysics.Collision.Broadphase;
-using Genbox.VelcroPhysics.Collision.Filtering;
-using Genbox.VelcroPhysics.Collision.Handlers;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Dynamics.Handlers;
+using VelcroPhysics.Collision.Broadphase;
+using VelcroPhysics.Collision.Filtering;
+using VelcroPhysics.Collision.Handlers;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Dynamics.Handlers;
 
-namespace Genbox.VelcroPhysics.Collision.ContactSystem
+namespace VelcroPhysics.Collision.ContactSystem
 {
     public class ContactManager
     {
@@ -64,14 +64,14 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
         // Broad-phase callback.
         private void AddPair(ref FixtureProxy proxyA, ref FixtureProxy proxyB)
         {
-            Fixture fixtureA = proxyA.Fixture;
-            Fixture fixtureB = proxyB.Fixture;
+            var fixtureA = proxyA.Fixture;
+            var fixtureB = proxyB.Fixture;
 
-            int indexA = proxyA.ChildIndex;
-            int indexB = proxyB.ChildIndex;
+            var indexA = proxyA.ChildIndex;
+            var indexB = proxyB.ChildIndex;
 
-            Body bodyA = fixtureA.Body;
-            Body bodyB = fixtureB.Body;
+            var bodyA = fixtureA.Body;
+            var bodyB = fixtureB.Body;
 
             // Are the fixtures on the same body?
             if (bodyA == bodyB)
@@ -80,15 +80,15 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
             // TODO_ERIN use a hash table to remove a potential bottleneck when both
             // bodies have a lot of contacts.
             // Does a contact already exist?
-            ContactEdge edge = bodyB._contactList;
+            var edge = bodyB._contactList;
             while (edge != null)
             {
                 if (edge.Other == bodyA)
                 {
-                    Fixture fA = edge.Contact._fixtureA;
-                    Fixture fB = edge.Contact._fixtureB;
-                    int iA = edge.Contact.ChildIndexA;
-                    int iB = edge.Contact.ChildIndexB;
+                    var fA = edge.Contact._fixtureA;
+                    var fB = edge.Contact._fixtureB;
+                    var iA = edge.Contact.ChildIndexA;
+                    var iB = edge.Contact.ChildIndexB;
 
                     if (fA == fixtureA && fB == fixtureB && iA == indexA && iB == indexB)
                     {
@@ -126,7 +126,7 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
                 return;
 
             // Call the factory.
-            Contact c = Contact.Create(fixtureA, indexA, fixtureB, indexB);
+            var c = Contact.Create(fixtureA, indexA, fixtureB, indexB);
             if (c == null)
                 return;
 
@@ -180,8 +180,8 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
             if (c._fixtureA == null || c._fixtureB == null)
                 return;
 
-            Fixture fixtureA = c._fixtureA;
-            Fixture fixtureB = c._fixtureB;
+            var fixtureA = c._fixtureA;
+            var fixtureB = c._fixtureB;
 
             //Velcro: When contacts are removed, we invoke OnSeparation
             if (c.IsTouching)
@@ -196,8 +196,8 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
                 EndContact?.Invoke(c);
             }
 
-            Body bodyA = fixtureA._body;
-            Body bodyB = fixtureB._body;
+            var bodyA = fixtureA._body;
+            var bodyB = fixtureB._body;
 
             // Remove from the world.
             if (c._prev != null)
@@ -241,16 +241,16 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
         {
             // Update awake contacts.
 
-            Contact c = _contactList;
+            var c = _contactList;
 
             while (c != null)
             {
-                Fixture fixtureA = c._fixtureA;
-                Fixture fixtureB = c._fixtureB;
-                int indexA = c.ChildIndexA;
-                int indexB = c.ChildIndexB;
-                Body bodyA = fixtureA._body;
-                Body bodyB = fixtureB._body;
+                var fixtureA = c._fixtureA;
+                var fixtureB = c._fixtureB;
+                var indexA = c.ChildIndexA;
+                var indexB = c.ChildIndexB;
+                var bodyA = fixtureA._body;
+                var bodyB = fixtureB._body;
 
                 //Velcro: Do no try to collide disabled bodies
                 if (!bodyA.Enabled || !bodyB.Enabled)
@@ -265,7 +265,7 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
                     // Should these bodies collide?
                     if (!bodyB.ShouldCollide(bodyA))
                     {
-                        Contact cNuke = c;
+                        var cNuke = c;
                         c = cNuke._next;
                         Remove(cNuke);
                         continue;
@@ -274,7 +274,7 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
                     // Check default filtering
                     if (!ShouldCollide(fixtureA, fixtureB))
                     {
-                        Contact cNuke = c;
+                        var cNuke = c;
                         c = cNuke._next;
                         Remove(cNuke);
                         continue;
@@ -283,7 +283,7 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
                     // Check user filtering.
                     if (ContactFilter != null && !ContactFilter(fixtureA, fixtureB))
                     {
-                        Contact cNuke = c;
+                        var cNuke = c;
                         c = cNuke._next;
                         Remove(cNuke);
                         continue;
@@ -293,8 +293,8 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
                     c._flags &= ~ContactFlags.FilterFlag;
                 }
 
-                bool activeA = bodyA.Awake && bodyA.BodyType != BodyType.Static;
-                bool activeB = bodyB.Awake && bodyB.BodyType != BodyType.Static;
+                var activeA = bodyA.Awake && bodyA.BodyType != BodyType.Static;
+                var activeB = bodyB.Awake && bodyB.BodyType != BodyType.Static;
 
                 // At least one body must be awake and it must be dynamic or kinematic.
                 if (!activeA && !activeB)
@@ -303,14 +303,14 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
                     continue;
                 }
 
-                int proxyIdA = fixtureA.Proxies[indexA].ProxyId;
-                int proxyIdB = fixtureB.Proxies[indexB].ProxyId;
-                bool overlap = BroadPhase.TestOverlap(proxyIdA, proxyIdB);
+                var proxyIdA = fixtureA.Proxies[indexA].ProxyId;
+                var proxyIdB = fixtureB.Proxies[indexB].ProxyId;
+                var overlap = BroadPhase.TestOverlap(proxyIdA, proxyIdB);
 
                 // Here we destroy contacts that cease to overlap in the broad-phase.
                 if (!overlap)
                 {
-                    Contact cNuke = c;
+                    var cNuke = c;
                     c = cNuke._next;
                     Remove(cNuke);
                     continue;
@@ -343,8 +343,8 @@ namespace Genbox.VelcroPhysics.Collision.ContactSystem
                 fixtureA.CollisionGroup != 0)
                 return fixtureA.CollisionGroup > 0;
 
-            bool collide = (fixtureA.CollidesWith & fixtureB.CollisionCategories) != 0 &&
-                           (fixtureA.CollisionCategories & fixtureB.CollidesWith) != 0;
+            var collide = (fixtureA.CollidesWith & fixtureB.CollisionCategories) != 0 &&
+                          (fixtureA.CollisionCategories & fixtureB.CollidesWith) != 0;
 
             return collide;
         }

@@ -3,7 +3,14 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>default</LangVersion>
-        <DefineConstants>$(DefineConstants);STANDARD_IMPLEMENTATION</DefineConstants>
     </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DocumentationFile>bin\Release\VelcroPhysics.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CopperDevs.Core" Version="1.1.10" />
+    </ItemGroup>
 
 </Project>

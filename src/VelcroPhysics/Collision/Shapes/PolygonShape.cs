@@ -22,12 +22,12 @@
 
 using System;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.RayCast;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.RayCast;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Collision.Shapes
+namespace VelcroPhysics.Collision.Shapes
 {
     /// <summary>Represents a simple non-self intersecting convex polygon. Create a convex hull from the given array of points.</summary>
     public class PolygonShape : Shape
@@ -59,20 +59,20 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
             if (vertices.Count < 3)
                 throw new InvalidOperationException("You can't create a polygon with less than 3 vertices");
 
-            int n = MathUtils.Min(vertices.Count, Settings.MaxPolygonVertices);
+            var n = MathUtils.Min(vertices.Count, Settings.MaxPolygonVertices);
 
             // Perform welding and copy vertices into local buffer.
-            Vector2[] ps = new Vector2[n]; //Velcro: The temp buffer is n long instead of Settings.MaxPolygonVertices
-            int tempCount = 0;
-            for (int i = 0; i < n; ++i)
+            var ps = new Vector2[n]; //Velcro: The temp buffer is n long instead of Settings.MaxPolygonVertices
+            var tempCount = 0;
+            for (var i = 0; i < n; ++i)
             {
-                Vector2 v = vertices[i];
+                var v = vertices[i];
 
-                bool unique = true;
-                for (int j = 0; j < tempCount; ++j)
+                var unique = true;
+                for (var j = 0; j < tempCount; ++j)
                 {
-                    Vector2 temp = ps[j];
-                    if (MathUtils.DistanceSquared(ref v, ref temp) < (0.5f * Settings.LinearSlop) * (0.5f * Settings.LinearSlop))
+                    var temp = ps[j];
+                    if (MathUtils.DistanceSquared(ref v, ref temp) < 0.5f * Settings.LinearSlop * (0.5f * Settings.LinearSlop))
                     {
                         unique = false;
                         break;
@@ -96,11 +96,11 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
             // http://en.wikipedia.org/wiki/Gift_wrapping_algorithm
 
             // Find the right most point on the hull
-            int i0 = 0;
-            float x0 = ps[0].X;
-            for (int i = 1; i < n; ++i)
+            var i0 = 0;
+            var x0 = ps[0].X;
+            for (var i = 1; i < n; ++i)
             {
-                float x = ps[i].X;
+                var x = ps[i].X;
                 if (x > x0 || (x == x0 && ps[i].Y < ps[i0].Y))
                 {
                     i0 = i;
@@ -108,17 +108,17 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
                 }
             }
 
-            int[] hull = new int[Settings.MaxPolygonVertices];
-            int m = 0;
-            int ih = i0;
+            var hull = new int[Settings.MaxPolygonVertices];
+            var m = 0;
+            var ih = i0;
 
             for (; ; )
             {
                 Debug.Assert(m < Settings.MaxPolygonVertices);
                 hull[m] = ih;
 
-                int ie = 0;
-                for (int j = 1; j < n; ++j)
+                var ie = 0;
+                for (var j = 1; j < n; ++j)
                 {
                     if (ie == ih)
                     {
@@ -126,9 +126,9 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
                         continue;
                     }
 
-                    Vector2 r = ps[ie] - ps[hull[m]];
-                    Vector2 v = ps[j] - ps[hull[m]];
-                    float c = MathUtils.Cross(r, v);
+                    var r = ps[ie] - ps[hull[m]];
+                    var v = ps[j] - ps[hull[m]];
+                    var c = MathUtils.Cross(r, v);
                     if (c < 0.0f)
                     {
                         ie = j;
@@ -159,7 +159,7 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
             _vertices = new Vertices(m);
 
             // Copy vertices.
-            for (int i = 0; i < m; ++i)
+            for (var i = 0; i < m; ++i)
             {
                 _vertices.Add(ps[hull[i]]);
             }
@@ -167,14 +167,12 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
             _normals = new Vertices(m);
 
             // Compute normals. Ensure the edges have non-zero length.
-            for (int i = 0; i < m; ++i)
+            for (var i = 0; i < m; ++i)
             {
-                int i1 = i;
-                int i2 = i + 1 < _vertices.Count ? i + 1 : 0;
-                Vector2 edge = _vertices[i2] - _vertices[i1];
+                var i2 = i + 1 < _vertices.Count ? i + 1 : 0;
+                var edge = _vertices[i2] - _vertices[i];
                 Debug.Assert(edge.LengthSquared() > MathConstants.Epsilon * MathConstants.Epsilon);
-                var temp = MathUtils.Cross(edge, 1.0f);
-                temp.Normalize();
+                var temp = Vector2.Normalize(MathUtils.Cross(edge, 1.0f));
                 _normals.Add(temp);
             }
 
@@ -222,12 +220,14 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
 
             _massData._centroid = center;
 
-            Transform xf = new Transform();
-            xf.p = center;
+            var xf = new Transform
+            {
+                p = center
+            };
             xf.q.Set(angle);
 
             // Transform vertices and normals.
-            for (int i = 0; i < 4; ++i)
+            for (var i = 0; i < 4; ++i)
             {
                 _vertices[i] = MathUtils.Mul(ref xf, _vertices[i]);
                 _normals[i] = MathUtils.Mul(ref xf.q, _normals[i]);
@@ -269,27 +269,27 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
                 return;
 
             //Velcro: Consolidated the calculate centroid and mass code to a single method.
-            Vector2 center = Vector2.Zero;
-            float area = 0.0f;
-            float I = 0.0f;
+            var center = Vector2.Zero;
+            var area = 0.0f;
+            var I = 0.0f;
 
             // Get a reference point for forming triangles.
             // Use the first vertex to reduce round-off errors.
-            Vector2 s = _vertices[0];
+            var s = _vertices[0];
 
             const float inv3 = 1.0f / 3.0f;
 
-            int count = _vertices.Count;
+            var count = _vertices.Count;
 
-            for (int i = 0; i < count; ++i)
+            for (var i = 0; i < count; ++i)
             {
                 // Triangle vertices.
-                Vector2 e1 = _vertices[i] - s;
-                Vector2 e2 = i + 1 < count ? _vertices[i + 1] - s : _vertices[0] - s;
+                var e1 = _vertices[i] - s;
+                var e2 = i + 1 < count ? _vertices[i + 1] - s : _vertices[0] - s;
 
-                float D = MathUtils.Cross(e1, e2);
+                var D = MathUtils.Cross(e1, e2);
 
-                float triangleArea = 0.5f * D;
+                var triangleArea = 0.5f * D;
                 area += triangleArea;
 
                 // Area weighted centroid
@@ -298,10 +298,10 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
                 float ex1 = e1.X, ey1 = e1.Y;
                 float ex2 = e2.X, ey2 = e2.Y;
 
-                float intx2 = ex1 * ex1 + ex2 * ex1 + ex2 * ex2;
-                float inty2 = ey1 * ey1 + ey2 * ey1 + ey2 * ey2;
+                var intx2 = ex1 * ex1 + ex2 * ex1 + ex2 * ex2;
+                var inty2 = ey1 * ey1 + ey2 * ey1 + ey2 * ey2;
 
-                I += (0.25f * inv3 * D) * (intx2 + inty2);
+                I += 0.25f * inv3 * D * (intx2 + inty2);
             }
 
             //The area is too small for the engine to handle.
@@ -345,13 +345,15 @@ namespace Genbox.VelcroPhysics.Collision.Shapes
 
         public override Shape Clone()
         {
-            PolygonShape clone = new PolygonShape();
-            clone._shapeType = _shapeType;
-            clone._radius = _radius;
-            clone._density = _density;
-            clone._vertices = new Vertices(_vertices);
-            clone._normals = new Vertices(_normals);
-            clone._massData = _massData;
+            var clone = new PolygonShape
+            {
+                _shapeType = _shapeType,
+                _radius = _radius,
+                _density = _density,
+                _vertices = new Vertices(_vertices),
+                _normals = new Vertices(_normals),
+                _massData = _massData
+            };
             return clone;
         }
     }

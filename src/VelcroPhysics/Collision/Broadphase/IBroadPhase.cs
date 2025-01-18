@@ -1,11 +1,11 @@
 ﻿using System;
-using Genbox.VelcroPhysics.Collision.Handlers;
-using Genbox.VelcroPhysics.Collision.RayCast;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Shared;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.Handlers;
+using VelcroPhysics.Collision.RayCast;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Collision.Broadphase
+namespace VelcroPhysics.Collision.Broadphase
 {
     public interface IBroadPhase
     {

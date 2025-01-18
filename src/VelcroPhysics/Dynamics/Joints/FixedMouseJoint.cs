@@ -20,14 +20,14 @@
 * 3. This notice may not be removed or altered from any source distribution. 
 */
 
-using Genbox.VelcroPhysics.Definitions.Joints;
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
-using Genbox.VelcroPhysics.Dynamics.Solver;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Definitions.Joints;
+using VelcroPhysics.Dynamics.Joints.Misc;
+using VelcroPhysics.Dynamics.Solver;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Dynamics.Joints
+namespace VelcroPhysics.Dynamics.Joints
 {
     // p = attached point, m = mouse point
     // C = p - m
@@ -153,20 +153,20 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             _invMassA = _bodyA._invMass;
             _invIA = _bodyA._invI;
 
-            Vector2 cA = data.Positions[_indexA].C;
-            float aA = data.Positions[_indexA].A;
-            Vector2 vA = data.Velocities[_indexA].V;
-            float wA = data.Velocities[_indexA].W;
+            var cA = data.Positions[_indexA].C;
+            var aA = data.Positions[_indexA].A;
+            var vA = data.Velocities[_indexA].V;
+            var wA = data.Velocities[_indexA].W;
 
-            Rot qA = new Rot(aA);
+            var qA = new Rot(aA);
 
-            float d = _damping;
-            float k = _stiffness;
+            var d = _damping;
+            var k = _stiffness;
 
             // magic formulas
             // gamma has units of inverse mass.
             // beta has units of inverse time.
-            float h = data.Step.DeltaTime;
+            var h = data.Step.DeltaTime;
             _gamma = h * (d + h * k);
             if (_gamma != 0.0f)
                 _gamma = 1.0f / _gamma;
@@ -179,7 +179,7 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             // K    = [(1/m1 + 1/m2) * eye(2) - skew(r1) * invI1 * skew(r1) - skew(r2) * invI2 * skew(r2)]
             //      = [1/m1+1/m2     0    ] + invI1 * [r1.y*r1.y -r1.x*r1.y] + invI2 * [r1.y*r1.y -r1.x*r1.y]
             //        [    0     1/m1+1/m2]           [-r1.x*r1.y r1.x*r1.x]           [-r1.x*r1.y r1.x*r1.x]
-            Mat22 K = new Mat22();
+            var K = new Mat22();
             K.ex.X = _invMassA + _invIA * _rA.Y * _rA.Y + _gamma;
             K.ex.Y = -_invIA * _rA.X * _rA.Y;
             K.ey.X = K.ex.Y;
@@ -208,16 +208,16 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
 
         internal override void SolveVelocityConstraints(ref SolverData data)
         {
-            Vector2 vA = data.Velocities[_indexA].V;
-            float wA = data.Velocities[_indexA].W;
+            var vA = data.Velocities[_indexA].V;
+            var wA = data.Velocities[_indexA].W;
 
             // Cdot = v + cross(w, r)
-            Vector2 Cdot = vA + MathUtils.Cross(wA, _rA);
-            Vector2 impulse = MathUtils.Mul(ref _mass, -(Cdot + _C + _gamma * _impulse));
+            var Cdot = vA + MathUtils.Cross(wA, _rA);
+            var impulse = MathUtils.Mul(ref _mass, -(Cdot + _C + _gamma * _impulse));
 
-            Vector2 oldImpulse = _impulse;
+            var oldImpulse = _impulse;
             _impulse += impulse;
-            float maxImpulse = data.Step.DeltaTime * _maxForce;
+            var maxImpulse = data.Step.DeltaTime * _maxForce;
             if (_impulse.LengthSquared() > maxImpulse * maxImpulse)
                 _impulse *= maxImpulse / _impulse.Length();
 

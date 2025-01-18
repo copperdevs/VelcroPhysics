@@ -1,6 +1,6 @@
-using Genbox.VelcroPhysics.Shared;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Collision.Broadphase
+namespace VelcroPhysics.Collision.Broadphase
 {
     /// <summary>A node in the dynamic tree. The client does not interact with this directly.</summary>
     internal class TreeNode<T>

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
+namespace VelcroPhysics.Tools.Triangulation.Seidel
 {
     // Node for a Directed Acyclic graph (DAG)
     internal abstract class Node
@@ -11,7 +11,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
 
         protected Node(Node left, Node right)
         {
-            ParentList = new List<Node>();
+            ParentList = [];
             LeftChild = left;
             RightChild = right;
 
@@ -27,7 +27,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
         // Make sure parent pointers are updated
         public void Replace(Node node)
         {
-            foreach (Node parent in node.ParentList)
+            foreach (var parent in node.ParentList)
             {
                 // Select the correct node to replace (left or right child)
                 if (parent.LeftChild == node)

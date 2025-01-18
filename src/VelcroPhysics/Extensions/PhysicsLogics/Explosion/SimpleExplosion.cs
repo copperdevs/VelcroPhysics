@@ -1,26 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase;
-using Genbox.VelcroPhysics.Shared;
+using System.Numerics;
 using Microsoft.Xna.Framework;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
+namespace VelcroPhysics.Extensions.PhysicsLogics.Explosion
 {
     /// <summary>Creates a simple explosion that ignores other bodies hiding behind static bodies.</summary>
-    public sealed class SimpleExplosion : PhysicsLogic
+    public sealed class SimpleExplosion(World world) : PhysicsLogic(world, PhysicsLogicType.Explosion)
     {
-        public SimpleExplosion(World world)
-            : base(world, PhysicsLogicType.Explosion)
-        {
-            Power = 1; //linear
-        }
-
         /// <summary>
         /// This is the power used in the power function. A value of 1 means the force applied to bodies in the explosion
         /// is linear. A value of 2 means it is exponential.
         /// </summary>
-        public float Power { get; set; }
+        public float Power { get; set; } = 1; //linear
 
         /// <summary>Activate the explosion at the specified position.</summary>
         /// <param name="pos">The position (center) of the explosion.</param>
@@ -30,7 +25,7 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
         /// <returns>A list of bodies and the amount of force that was applied to them.</returns>
         public Dictionary<Body, Vector2> Activate(Vector2 pos, float radius, float force, float maxForce = float.MaxValue)
         {
-            HashSet<Body> affectedBodies = new HashSet<Body>();
+            var affectedBodies = new HashSet<Body>();
 
             AABB aabb;
             aabb.LowerBound = pos - new Vector2(radius);
@@ -40,10 +35,7 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
             World.QueryAABB(fixture =>
             {
                 if (Vector2.Distance(fixture.Body.Position, pos) <= radius)
-                {
-                    if (!affectedBodies.Contains(fixture.Body))
-                        affectedBodies.Add(fixture.Body);
-                }
+                    affectedBodies.Add(fixture.Body);
 
                 return true;
             }, ref aabb);
@@ -53,23 +45,23 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
 
         private Dictionary<Body, Vector2> ApplyImpulse(Vector2 pos, float radius, float force, float maxForce, HashSet<Body> overlappingBodies)
         {
-            Dictionary<Body, Vector2> forces = new Dictionary<Body, Vector2>(overlappingBodies.Count);
+            var forces = new Dictionary<Body, Vector2>(overlappingBodies.Count);
 
-            foreach (Body overlappingBody in overlappingBodies)
+            foreach (var overlappingBody in overlappingBodies)
             {
-                if (IsActiveOn(overlappingBody))
-                {
-                    float distance = Vector2.Distance(pos, overlappingBody.Position);
-                    float forcePercent = GetPercent(distance, radius);
+                if (!IsActiveOn(overlappingBody))
+                    continue;
 
-                    Vector2 forceVector = pos - overlappingBody.Position;
-                    forceVector *= 1f / (float)Math.Sqrt(forceVector.X * forceVector.X + forceVector.Y * forceVector.Y);
-                    forceVector *= MathHelper.Min(force * forcePercent, maxForce);
-                    forceVector *= -1;
+                var distance = Vector2.Distance(pos, overlappingBody.Position);
+                var forcePercent = GetPercent(distance, radius);
 
-                    overlappingBody.ApplyLinearImpulse(forceVector);
-                    forces.Add(overlappingBody, forceVector);
-                }
+                var forceVector = pos - overlappingBody.Position;
+                forceVector *= 1f / (float)Math.Sqrt(forceVector.X * forceVector.X + forceVector.Y * forceVector.Y);
+                forceVector *= MathHelper.Min(force * forcePercent, maxForce);
+                forceVector *= -1;
+
+                overlappingBody.ApplyLinearImpulse(forceVector);
+                forces.Add(overlappingBody, forceVector);
             }
 
             return forces;
@@ -78,7 +70,7 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
         private float GetPercent(float distance, float radius)
         {
             //(1-(distance/radius))^power-1
-            float percent = (float)Math.Pow(1 - ((distance - radius) / radius), Power) - 1;
+            var percent = (float)Math.Pow(1 - (distance - radius) / radius, Power) - 1;
 
             if (float.IsNaN(percent))
                 return 0f;

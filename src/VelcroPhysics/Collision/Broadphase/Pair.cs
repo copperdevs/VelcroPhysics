@@ -1,4 +1,4 @@
-namespace Genbox.VelcroPhysics.Collision.Broadphase
+namespace VelcroPhysics.Collision.Broadphase
 {
     internal struct Pair
     {

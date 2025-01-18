@@ -22,12 +22,9 @@
 
 using System;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.Distance;
-using Genbox.VelcroPhysics.Collision.Narrowphase;
-using Genbox.VelcroPhysics.Shared;
-using Microsoft.Xna.Framework;
+using VelcroPhysics.Collision.Distance;
 
-namespace Genbox.VelcroPhysics.Collision.TOI
+namespace VelcroPhysics.Collision.TOI
 {
     public static class TimeOfImpact
     {
@@ -55,47 +52,51 @@ namespace Genbox.VelcroPhysics.Collision.TOI
         {
             ++TOICalls;
 
-            output = new TOIOutput();
-            output.State = TOIOutputState.Unknown;
-            output.T = input.TMax;
+            output = new TOIOutput
+            {
+                State = TOIOutputState.Unknown,
+                T = input.TMax
+            };
 
-            Sweep sweepA = input.SweepA;
-            Sweep sweepB = input.SweepB;
+            var sweepA = input.SweepA;
+            var sweepB = input.SweepB;
 
             // Large rotations can make the root finder fail, so we normalize the
             // sweep angles.
             sweepA.Normalize();
             sweepB.Normalize();
 
-            float tMax = input.TMax;
+            var tMax = input.TMax;
 
-            float totalRadius = input.ProxyA._radius + input.ProxyB._radius;
-            float target = Math.Max(Settings.LinearSlop, totalRadius - 3.0f * Settings.LinearSlop);
-            float tolerance = 0.25f * Settings.LinearSlop;
+            var totalRadius = input.ProxyA._radius + input.ProxyB._radius;
+            var target = Math.Max(Settings.LinearSlop, totalRadius - 3.0f * Settings.LinearSlop);
+            var tolerance = 0.25f * Settings.LinearSlop;
             Debug.Assert(target > tolerance);
 
-            float t1 = 0.0f;
+            var t1 = 0.0f;
             const int k_maxIterations = 20;
-            int iter = 0;
+            var iter = 0;
 
             // Prepare input for distance query.
-            DistanceInput distanceInput = new DistanceInput();
-            distanceInput.ProxyA = input.ProxyA;
-            distanceInput.ProxyB = input.ProxyB;
-            distanceInput.UseRadii = false;
+            var distanceInput = new DistanceInput
+            {
+                ProxyA = input.ProxyA,
+                ProxyB = input.ProxyB,
+                UseRadii = false
+            };
 
             // The outer loop progressively attempts to compute new separating axes.
             // This loop terminates when an axis is repeated (no progress is made).
             for (;;)
             {
-                sweepA.GetTransform(out Transform xfA, t1);
-                sweepB.GetTransform(out Transform xfB, t1);
+                sweepA.GetTransform(out var xfA, t1);
+                sweepB.GetTransform(out var xfB, t1);
 
                 // Get the distance between shapes. We can also use the results
                 // to get a separating axis.
                 distanceInput.TransformA = xfA;
                 distanceInput.TransformB = xfB;
-                DistanceGJK.ComputeDistance(ref distanceInput, out DistanceOutput distanceOutput, out SimplexCache cache);
+                DistanceGJK.ComputeDistance(ref distanceInput, out var distanceOutput, out var cache);
 
                 // If the shapes are overlapped, we give up on continuous collision.
                 if (distanceOutput.Distance <= 0.0f)
@@ -114,17 +115,17 @@ namespace Genbox.VelcroPhysics.Collision.TOI
                     break;
                 }
 
-                SeparationFunction.Initialize(ref cache, input.ProxyA, ref sweepA, input.ProxyB, ref sweepB, t1, out Vector2 axis, out Vector2 localPoint, out SeparationFunctionType type);
+                SeparationFunction.Initialize(ref cache, input.ProxyA, ref sweepA, input.ProxyB, ref sweepB, t1, out var axis, out var localPoint, out var type);
 
                 // Compute the TOI on the separating axis. We do this by successively
                 // resolving the deepest point. This loop is bounded by the number of vertices.
-                bool done = false;
-                float t2 = tMax;
-                int pushBackIter = 0;
+                var done = false;
+                var t2 = tMax;
+                var pushBackIter = 0;
                 for (;;)
                 {
                     // Find the deepest point at t2. Store the witness point indices.
-                    float s2 = SeparationFunction.FindMinSeparation(out int indexA, out int indexB, t2, input.ProxyA, ref sweepA, input.ProxyB, ref sweepB, ref axis, ref localPoint, type);
+                    var s2 = SeparationFunction.FindMinSeparation(out var indexA, out var indexB, t2, input.ProxyA, ref sweepA, input.ProxyB, ref sweepB, ref axis, ref localPoint, type);
 
                     // Is the final configuration separated?
                     if (s2 > target + tolerance)
@@ -145,7 +146,7 @@ namespace Genbox.VelcroPhysics.Collision.TOI
                     }
 
                     // Compute the initial separation of the witness points.
-                    float s1 = SeparationFunction.Evaluate(indexA, indexB, t1, input.ProxyA, ref sweepA, input.ProxyB, ref sweepB, ref axis, ref localPoint, type);
+                    var s1 = SeparationFunction.Evaluate(indexA, indexB, t1, input.ProxyA, ref sweepA, input.ProxyB, ref sweepB, ref axis, ref localPoint, type);
 
                     // Check for initial overlap. This might happen if the root finder
                     // runs out of iterations.
@@ -168,7 +169,7 @@ namespace Genbox.VelcroPhysics.Collision.TOI
                     }
 
                     // Compute 1D root of: f(x) - target = 0
-                    int rootIterCount = 0;
+                    var rootIterCount = 0;
                     float a1 = t1, a2 = t2;
                     for (;;)
                     {
@@ -188,7 +189,7 @@ namespace Genbox.VelcroPhysics.Collision.TOI
                         ++rootIterCount;
                             ++TOIRootIters;
 
-                        float s = SeparationFunction.Evaluate(indexA, indexB, t, input.ProxyA, ref sweepA, input.ProxyB, ref sweepB, ref axis, ref localPoint, type);
+                        var s = SeparationFunction.Evaluate(indexA, indexB, t, input.ProxyA, ref sweepA, input.ProxyB, ref sweepB, ref axis, ref localPoint, type);
 
                         if (Math.Abs(s - target) < tolerance)
                         {

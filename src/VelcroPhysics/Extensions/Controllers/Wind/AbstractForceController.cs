@@ -1,9 +1,10 @@
 ﻿using System;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Extensions.Controllers.ControllerBase;
+using System.Numerics;
 using Microsoft.Xna.Framework;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Extensions.Controllers.ControllerBase;
 
-namespace Genbox.VelcroPhysics.Extensions.Controllers.Wind
+namespace VelcroPhysics.Extensions.Controllers.Wind
 {
     public abstract class AbstractForceController : Controller
     {
@@ -141,7 +142,7 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Wind
         protected float GetDecayMultiplier(Body body)
         {
             //TODO: Consider ForceType in distance calculation!
-            float distance = (body.Position - Position).Length();
+            var distance = (body.Position - Position).Length();
             switch (DecayMode)
             {
                 case DecayModes.None:

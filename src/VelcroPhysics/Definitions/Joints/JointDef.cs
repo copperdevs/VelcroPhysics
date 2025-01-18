@@ -1,7 +1,7 @@
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Dynamics.Joints.Misc;
 
-namespace Genbox.VelcroPhysics.Definitions.Joints
+namespace VelcroPhysics.Definitions.Joints
 {
     public abstract class JointDef : IDef
     {

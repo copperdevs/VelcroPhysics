@@ -1,7 +1,6 @@
-using Genbox.VelcroPhysics.Collision.Broadphase;
-using Genbox.VelcroPhysics.Shared;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Dynamics
+namespace VelcroPhysics.Dynamics
 {
     /// <summary>This proxy is used internally to connect fixtures to the broad-phase.</summary>
     public struct FixtureProxy

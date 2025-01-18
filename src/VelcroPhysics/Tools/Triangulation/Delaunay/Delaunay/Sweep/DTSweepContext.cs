@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
+namespace VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
 {
     /**
      * @author Thomas Åhlén, thahlen@gmail.com
@@ -40,11 +40,11 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
         // PointSet width to both left and right.
         private const float ALPHA = 0.3f;
 
-        private DTSweepPointComparator _comparator = new DTSweepPointComparator();
+        private DTSweepPointComparator _comparator = new();
         public AdvancingFront aFront;
 
-        public DTSweepBasin Basin = new DTSweepBasin();
-        public DTSweepEdgeEvent EdgeEvent = new DTSweepEdgeEvent();
+        public DTSweepBasin Basin = new();
+        public DTSweepEdgeEvent EdgeEvent = new();
 
         public DTSweepContext()
         {
@@ -80,7 +80,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
             {
                 triangle.IsInterior = true;
                 Triangulatable.AddTriangle(triangle);
-                for (int i = 0; i < 3; i++)
+                for (var i = 0; i < 3; i++)
                 {
                     if (!triangle.EdgeIsConstrained[i])
                         MeshCleanReq(triangle.Neighbors[i]);
@@ -116,16 +116,20 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
         public void CreateAdvancingFront()
         {
             // Initial triangle
-            DelaunayTriangle iTriangle = new DelaunayTriangle(Points[0], Tail, Head);
+            var iTriangle = new DelaunayTriangle(Points[0], Tail, Head);
             Triangles.Add(iTriangle);
 
-            AdvancingFrontNode head = new AdvancingFrontNode(iTriangle.Points[1]);
-            head.Triangle = iTriangle;
+            var head = new AdvancingFrontNode(iTriangle.Points[1])
+            {
+                Triangle = iTriangle
+            };
 
-            AdvancingFrontNode middle = new AdvancingFrontNode(iTriangle.Points[0]);
-            middle.Triangle = iTriangle;
+            var middle = new AdvancingFrontNode(iTriangle.Points[0])
+            {
+                Triangle = iTriangle
+            };
 
-            AdvancingFrontNode tail = new AdvancingFrontNode(iTriangle.Points[2]);
+            var tail = new AdvancingFrontNode(iTriangle.Points[2]);
 
             aFront = new AdvancingFront(head, tail);
             aFront.AddNode(middle);
@@ -142,7 +146,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
         public void MapTriangleToNodes(DelaunayTriangle t)
         {
             AdvancingFrontNode n;
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 if (t.Neighbors[i] == null)
                 {
@@ -160,11 +164,11 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
             double xmin;
             double ymin;
 
-            double xmax = xmin = Points[0].X;
-            double ymax = ymin = Points[0].Y;
+            var xmax = xmin = Points[0].X;
+            var ymax = ymin = Points[0].Y;
 
             // Calculate bounds. Should be combined with the sorting
-            foreach (TriangulationPoint p in Points)
+            foreach (var p in Points)
             {
                 if (p.X > xmax)
                     xmax = p.X;
@@ -176,10 +180,10 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
                     ymin = p.Y;
             }
 
-            double deltaX = ALPHA * (xmax - xmin);
-            double deltaY = ALPHA * (ymax - ymin);
-            TriangulationPoint p1 = new TriangulationPoint(xmax + deltaX, ymin - deltaY);
-            TriangulationPoint p2 = new TriangulationPoint(xmin - deltaX, ymin - deltaY);
+            var deltaX = ALPHA * (xmax - xmin);
+            var deltaY = ALPHA * (ymax - ymin);
+            var p1 = new TriangulationPoint(xmax + deltaX, ymin - deltaY);
+            var p2 = new TriangulationPoint(xmin - deltaX, ymin - deltaY);
 
             Head = p1;
             Tail = p2;

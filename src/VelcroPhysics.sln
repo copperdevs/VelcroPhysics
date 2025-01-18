@@ -9,10 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VelcroPhysics.Tests", "Velc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repo", "Repo", "{A9C3E55C-843E-4109-B025-3A6135AFFB26}"
 	ProjectSection(SolutionItems) = preProject
-		Directory.Build.props = Directory.Build.props
 		Global.ruleset = Global.ruleset
 		..\README.md = ..\README.md
 		..\.gitignore = ..\.gitignore
+		..\LICENSE.txt = ..\LICENSE.txt
+		..\MONOGAME LICENSE.txt = ..\MONOGAME LICENSE.txt
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VelcroPhysics", "VelcroPhysics\VelcroPhysics.csproj", "{96F18912-9F6F-43C0-BFC5-AD8E155CC73C}"

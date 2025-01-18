@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Tools.TextureTools;
+using System.Numerics;
 using Microsoft.Xna.Framework;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Tools.TextureTools;
 
-namespace Genbox.VelcroPhysics.Utilities
+namespace VelcroPhysics.Utilities
 {
     public static class PolygonUtils
     {
@@ -14,7 +15,7 @@ namespace Genbox.VelcroPhysics.Utilities
         /// <param name="hy">the half-height.</param>
         public static Vertices CreateRectangle(float hx, float hy)
         {
-            Vertices vertices = new Vertices(4);
+            var vertices = new Vertices(4);
             vertices.Add(new Vector2(-hx, -hy));
             vertices.Add(new Vector2(hx, -hy));
             vertices.Add(new Vector2(hx, hy));
@@ -30,14 +31,16 @@ namespace Genbox.VelcroPhysics.Utilities
         /// <param name="angle">the rotation of the box in local coordinates.</param>
         public static Vertices CreateRectangle(float hx, float hy, Vector2 center, float angle)
         {
-            Vertices vertices = CreateRectangle(hx, hy);
+            var vertices = CreateRectangle(hx, hy);
 
-            Transform xf = new Transform();
-            xf.p = center;
+            var xf = new Transform
+            {
+                p = center
+            };
             xf.q.Set(angle);
 
             // Transform vertices
-            for (int i = 0; i < 4; ++i)
+            for (var i = 0; i < 4; ++i)
             {
                 vertices[i] = MathUtils.Mul(ref xf, vertices[i]);
             }
@@ -65,7 +68,7 @@ namespace Genbox.VelcroPhysics.Utilities
             //We need at least 8 vertices to create a rounded rectangle
             //Debug.Assert(Settings.MaxPolygonVertices >= 8);
 
-            Vertices vertices = new Vertices();
+            var vertices = new Vertices();
             if (segments == 0)
             {
                 vertices.Add(new Vector2(width * .5f - xRadius, -height * .5f));
@@ -82,15 +85,15 @@ namespace Genbox.VelcroPhysics.Utilities
             }
             else
             {
-                int numberOfEdges = segments * 4 + 8;
+                var numberOfEdges = segments * 4 + 8;
 
-                float stepSize = MathConstants.TwoPi / (numberOfEdges - 4);
-                int perPhase = numberOfEdges / 4;
+                var stepSize = MathConstants.TwoPi / (numberOfEdges - 4);
+                var perPhase = numberOfEdges / 4;
 
-                Vector2 posOffset = new Vector2(width / 2 - xRadius, height / 2 - yRadius);
+                var posOffset = new Vector2(width / 2 - xRadius, height / 2 - yRadius);
                 vertices.Add(posOffset + new Vector2(xRadius, -yRadius + yRadius));
                 short phase = 0;
-                for (int i = 1; i < numberOfEdges; i++)
+                for (var i = 1; i < numberOfEdges; i++)
                 {
                     if (i - perPhase == 0 || i - perPhase * 3 == 0)
                     {
@@ -116,7 +119,7 @@ namespace Genbox.VelcroPhysics.Utilities
         /// <param name="end">The second point.</param>
         public static Vertices CreateLine(Vector2 start, Vector2 end)
         {
-            Vertices vertices = new Vertices(2);
+            var vertices = new Vertices(2);
             vertices.Add(start);
             vertices.Add(end);
 
@@ -139,12 +142,12 @@ namespace Genbox.VelcroPhysics.Utilities
         /// <returns></returns>
         public static Vertices CreateEllipse(float xRadius, float yRadius, int numberOfEdges)
         {
-            Vertices vertices = new Vertices();
+            var vertices = new Vertices();
 
-            float stepSize = MathConstants.TwoPi / numberOfEdges;
+            var stepSize = MathConstants.TwoPi / numberOfEdges;
 
             vertices.Add(new Vector2(xRadius, 0));
-            for (int i = numberOfEdges - 1; i > 0; --i)
+            for (var i = numberOfEdges - 1; i > 0; --i)
             {
                 vertices.Add(new Vector2(xRadius * (float)Math.Cos(stepSize * i),
                     -yRadius * (float)Math.Sin(stepSize * i)));
@@ -159,10 +162,10 @@ namespace Genbox.VelcroPhysics.Utilities
             Debug.Assert(sides > 1, "The arc needs to have more than 1 sides");
             Debug.Assert(radius > 0, "The arc needs to have a radius larger than 0");
 
-            Vertices vertices = new Vertices();
+            var vertices = new Vertices();
 
-            float stepSize = radians / sides;
-            for (int i = sides - 1; i > 0; i--)
+            var stepSize = radians / sides;
+            for (var i = sides - 1; i > 0; i--)
             {
                 vertices.Add(new Vector2(radius * (float)Math.Cos(stepSize * i),
                     radius * (float)Math.Sin(stepSize * i)));
@@ -222,15 +225,15 @@ namespace Genbox.VelcroPhysics.Utilities
             if (bottomRadius >= height / 2)
                 throw new ArgumentException("The bottom radius must be lower than height / 2. Higher values of bottom radius would create a circle, and not a half circle.", nameof(bottomRadius));
 
-            Vertices vertices = new Vertices();
+            var vertices = new Vertices();
 
-            float newHeight = (height - topRadius - bottomRadius) * 0.5f;
+            var newHeight = (height - topRadius - bottomRadius) * 0.5f;
 
             // top
             vertices.Add(new Vector2(topRadius, newHeight));
 
-            float stepSize = MathConstants.Pi / topEdges;
-            for (int i = 1; i < topEdges; i++)
+            var stepSize = MathConstants.Pi / topEdges;
+            for (var i = 1; i < topEdges; i++)
             {
                 vertices.Add(new Vector2(topRadius * (float)Math.Cos(stepSize * i),
                     topRadius * (float)Math.Sin(stepSize * i) + newHeight));
@@ -242,7 +245,7 @@ namespace Genbox.VelcroPhysics.Utilities
             vertices.Add(new Vector2(-bottomRadius, -newHeight));
 
             stepSize = MathConstants.Pi / bottomEdges;
-            for (int i = 1; i < bottomEdges; i++)
+            for (var i = 1; i < bottomEdges; i++)
             {
                 vertices.Add(new Vector2(-bottomRadius * (float)Math.Cos(stepSize * i),
                     -bottomRadius * (float)Math.Sin(stepSize * i) - newHeight));
@@ -260,16 +263,16 @@ namespace Genbox.VelcroPhysics.Utilities
         /// <param name="toothHeight">Height of the tooth.</param>
         public static Vertices CreateGear(float radius, int numberOfTeeth, float tipPercentage, float toothHeight)
         {
-            Vertices vertices = new Vertices();
+            var vertices = new Vertices();
 
-            float stepSize = MathConstants.TwoPi / numberOfTeeth;
+            var stepSize = MathConstants.TwoPi / numberOfTeeth;
             tipPercentage /= 100f;
             MathHelper.Clamp(tipPercentage, 0f, 1f);
-            float toothTipStepSize = (stepSize / 2f) * tipPercentage;
+            var toothTipStepSize = stepSize / 2f * tipPercentage;
 
-            float toothAngleStepSize = (stepSize - (toothTipStepSize * 2f)) / 2f;
+            var toothAngleStepSize = (stepSize - toothTipStepSize * 2f) / 2f;
 
-            for (int i = numberOfTeeth - 1; i >= 0; --i)
+            for (var i = numberOfTeeth - 1; i >= 0; --i)
             {
                 if (toothTipStepSize > 0f)
                 {

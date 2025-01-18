@@ -1,6 +1,6 @@
-using Microsoft.Xna.Framework;
+using System.Numerics;
 
-namespace Genbox.VelcroPhysics.Dynamics.Solver
+namespace VelcroPhysics.Dynamics.Solver
 {
     /// This is an internal structure.
     public struct Velocity

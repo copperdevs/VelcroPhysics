@@ -1,4 +1,4 @@
-﻿namespace Genbox.VelcroPhysics.Dynamics
+﻿namespace VelcroPhysics.Dynamics
 {
     public struct Profile
     {

@@ -1,4 +1,4 @@
-﻿namespace Genbox.VelcroPhysics.Benchmarks.Code.TestClasses
+﻿namespace VelcroPhysics.Benchmarks.Code.TestClasses
 {
     public struct Struct32
     {

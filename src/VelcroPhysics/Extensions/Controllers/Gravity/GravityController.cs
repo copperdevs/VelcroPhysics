@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Extensions.Controllers.ControllerBase;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Extensions.Controllers.ControllerBase;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Extensions.Controllers.Gravity
+namespace VelcroPhysics.Extensions.Controllers.Gravity
 {
     public class GravityController : Controller
     {
@@ -15,8 +15,8 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Gravity
             Strength = strength;
             MaxRadius = float.MaxValue;
             GravityType = GravityType.DistanceSquared;
-            Points = new List<Vector2>();
-            Bodies = new List<Body>();
+            Points = [];
+            Bodies = [];
         }
 
         public GravityController(float strength, float maxRadius, float minRadius)
@@ -26,8 +26,8 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Gravity
             MaxRadius = maxRadius;
             Strength = strength;
             GravityType = GravityType.DistanceSquared;
-            Points = new List<Vector2>();
-            Bodies = new List<Body>();
+            Points = [];
+            Bodies = [];
         }
 
         public float MinRadius { get; set; }
@@ -39,20 +39,20 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Gravity
 
         public override void Update(float dt)
         {
-            Vector2 f = Vector2.Zero;
+            var f = Vector2.Zero;
 
-            foreach (Body worldBody in World.BodyList)
+            foreach (var worldBody in World.BodyList)
             {
                 if (!IsActiveOn(worldBody))
                     continue;
 
-                foreach (Body controllerBody in Bodies)
+                foreach (var controllerBody in Bodies)
                 {
                     if (worldBody == controllerBody || (worldBody.IsStatic && controllerBody.IsStatic) || !controllerBody.Enabled)
                         continue;
 
-                    Vector2 d = controllerBody.Position - worldBody.Position;
-                    float r2 = d.LengthSquared();
+                    var d = controllerBody.Position - worldBody.Position;
+                    var r2 = d.LengthSquared();
 
                     if (r2 <= MathConstants.Epsilon || r2 > MaxRadius * MaxRadius || r2 < MinRadius * MinRadius)
                         continue;
@@ -70,10 +70,10 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Gravity
                     worldBody.ApplyForce(ref f);
                 }
 
-                foreach (Vector2 point in Points)
+                foreach (var point in Points)
                 {
-                    Vector2 d = point - worldBody.Position;
-                    float r2 = d.LengthSquared();
+                    var d = point - worldBody.Position;
+                    var r2 = d.LengthSquared();
 
                     if (r2 <= MathConstants.Epsilon || r2 > MaxRadius * MaxRadius || r2 < MinRadius * MinRadius)
                         continue;

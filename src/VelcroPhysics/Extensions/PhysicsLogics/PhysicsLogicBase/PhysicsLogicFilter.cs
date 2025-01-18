@@ -1,4 +1,4 @@
-namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase
+namespace VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase
 {
     public struct PhysicsLogicFilter
     {

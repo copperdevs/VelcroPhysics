@@ -26,10 +26,10 @@
 */
 
 using System;
-using Genbox.VelcroPhysics.Collision.Filtering;
-using Genbox.VelcroPhysics.Utilities;
+using VelcroPhysics.Collision.Filtering;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics
+namespace VelcroPhysics
 {
     public static class Settings
     {

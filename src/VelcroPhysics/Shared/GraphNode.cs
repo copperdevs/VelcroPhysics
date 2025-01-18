@@ -1,4 +1,4 @@
-﻿namespace Genbox.VelcroPhysics.Shared
+﻿namespace VelcroPhysics.Shared
 {
     public class GraphNode<T>
     {

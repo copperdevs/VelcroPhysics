@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Genbox.VelcroPhysics.Shared.Optimization
+namespace VelcroPhysics.Shared.Optimization
 {
     public struct FixedArray3<T> : IEnumerable<T>
     {
@@ -55,7 +55,7 @@ namespace Genbox.VelcroPhysics.Shared.Optimization
 
         public int IndexOf(T value)
         {
-            for (int i = 0; i < 3; ++i)
+            for (var i = 0; i < 3; ++i)
             {
                 if (this[i].Equals(value))
                     return i;
@@ -70,7 +70,7 @@ namespace Genbox.VelcroPhysics.Shared.Optimization
 
         private IEnumerable<T> Enumerate()
         {
-            for (int i = 0; i < 3; ++i)
+            for (var i = 0; i < 3; ++i)
             {
                 yield return this[i];
             }

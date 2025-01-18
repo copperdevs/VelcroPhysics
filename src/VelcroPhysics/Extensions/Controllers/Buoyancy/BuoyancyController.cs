@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Extensions.Controllers.ControllerBase;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Extensions.Controllers.ControllerBase;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Extensions.Controllers.Buoyancy
+namespace VelcroPhysics.Extensions.Controllers.Buoyancy
 {
     public sealed class BuoyancyController : Controller
     {
@@ -16,7 +16,7 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Buoyancy
         private Vector2 _gravity;
         private Vector2 _normal;
         private float _offset;
-        private HashSet<Body> _uniqueBodies = new HashSet<Body>();
+        private HashSet<Body> _uniqueBodies = [];
 
         /// <summary>
         /// Controls the rotational drag that the fluid exerts on the bodies within it. Use higher values will simulate
@@ -77,23 +77,23 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Buoyancy
                 return true;
             }, ref _container);
 
-            foreach (Body body in _uniqueBodies)
+            foreach (var body in _uniqueBodies)
             {
-                Vector2 areac = Vector2.Zero;
-                Vector2 massc = Vector2.Zero;
+                var areac = Vector2.Zero;
+                var massc = Vector2.Zero;
                 float area = 0;
                 float mass = 0;
 
-                for (int j = 0; j < body.FixtureList.Count; j++)
+                for (var j = 0; j < body.FixtureList.Count; j++)
                 {
-                    Fixture fixture = body.FixtureList[j];
+                    var fixture = body.FixtureList[j];
 
                     if (fixture.Shape.ShapeType != ShapeType.Polygon && fixture.Shape.ShapeType != ShapeType.Circle)
                         continue;
 
-                    Shape shape = fixture.Shape;
+                    var shape = fixture.Shape;
 
-                    float sarea = ComputeSubmergedArea(shape, ref _normal, _offset, ref body._xf, out Vector2 sc);
+                    var sarea = ComputeSubmergedArea(shape, ref _normal, _offset, ref body._xf, out var sc);
                     area += sarea;
                     areac.X += sarea * sc.X;
                     areac.Y += sarea * sc.Y;
@@ -112,11 +112,11 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Buoyancy
                     continue;
 
                 //Buoyancy
-                Vector2 buoyancyForce = -Density * area * _gravity;
+                var buoyancyForce = -Density * area * _gravity;
                 body.ApplyForce(buoyancyForce, massc);
 
                 //Linear drag
-                Vector2 dragForce = body.GetLinearVelocityFromWorldPoint(areac) - Velocity;
+                var dragForce = body.GetLinearVelocityFromWorldPoint(areac) - Velocity;
                 dragForce *= -LinearDragCoefficient * area;
                 body.ApplyForce(dragForce, areac);
 
@@ -131,14 +131,14 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Buoyancy
             {
                 case ShapeType.Circle:
                 {
-                    CircleShape circleShape = (CircleShape)shape;
+                    var circleShape = (CircleShape)shape;
 
                     sc = Vector2.Zero;
 
-                    float radius2 = circleShape._radius * circleShape._radius;
+                    var radius2 = circleShape._radius * circleShape._radius;
 
-                    Vector2 p = MathUtils.Mul(ref xf, circleShape.Position);
-                    float l = -(Vector2.Dot(normal, p) - offset);
+                    var p = MathUtils.Mul(ref xf, circleShape.Position);
+                    var l = -(Vector2.Dot(normal, p) - offset);
                     if (l < -circleShape._radius + MathConstants.Epsilon)
 
                         //Completely dry
@@ -152,9 +152,9 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Buoyancy
                     }
 
                     //Magic
-                    float l2 = l * l;
-                    float area = radius2 * (float)(Math.Asin(l / circleShape._radius) + MathConstants.Pi / 2 + l * Math.Sqrt(radius2 - l2));
-                    float com = -2.0f / 3.0f * (float)Math.Pow(radius2 - l2, 1.5f) / area;
+                    var l2 = l * l;
+                    var area = radius2 * (float)(Math.Asin(l / circleShape._radius) + MathConstants.Pi / 2 + l * Math.Sqrt(radius2 - l2));
+                    var com = -2.0f / 3.0f * (float)Math.Pow(radius2 - l2, 1.5f) / area;
 
                     sc.X = p.X + normal.X * com;
                     sc.Y = p.Y + normal.Y * com;
@@ -168,23 +168,23 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Buoyancy
                 {
                     sc = Vector2.Zero;
 
-                    PolygonShape polygonShape = (PolygonShape)shape;
+                    var polygonShape = (PolygonShape)shape;
 
                     //Transform plane into shape co-ordinates
-                    Vector2 normalL = MathUtils.MulT(xf.q, normal);
-                    float offsetL = offset - Vector2.Dot(normal, xf.p);
+                    var normalL = MathUtils.MulT(xf.q, normal);
+                    var offsetL = offset - Vector2.Dot(normal, xf.p);
 
-                    float[] depths = new float[Settings.MaxPolygonVertices];
-                    int diveCount = 0;
-                    int intoIndex = -1;
-                    int outoIndex = -1;
+                    var depths = new float[Settings.MaxPolygonVertices];
+                    var diveCount = 0;
+                    var intoIndex = -1;
+                    var outoIndex = -1;
 
-                    bool lastSubmerged = false;
+                    var lastSubmerged = false;
                     int i;
                     for (i = 0; i < polygonShape._vertices.Count; i++)
                     {
                         depths[i] = Vector2.Dot(normalL, polygonShape._vertices[i]) - offsetL;
-                        bool isSubmerged = depths[i] < -MathConstants.Epsilon;
+                        var isSubmerged = depths[i] < -MathConstants.Epsilon;
                         if (i > 0)
                         {
                             if (isSubmerged)
@@ -228,19 +228,19 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Buoyancy
                             break;
                     }
 
-                    int intoIndex2 = (intoIndex + 1) % polygonShape._vertices.Count;
-                    int outoIndex2 = (outoIndex + 1) % polygonShape._vertices.Count;
+                    var intoIndex2 = (intoIndex + 1) % polygonShape._vertices.Count;
+                    var outoIndex2 = (outoIndex + 1) % polygonShape._vertices.Count;
 
-                    float intoLambda = (0 - depths[intoIndex]) / (depths[intoIndex2] - depths[intoIndex]);
-                    float outoLambda = (0 - depths[outoIndex]) / (depths[outoIndex2] - depths[outoIndex]);
+                    var intoLambda = (0 - depths[intoIndex]) / (depths[intoIndex2] - depths[intoIndex]);
+                    var outoLambda = (0 - depths[outoIndex]) / (depths[outoIndex2] - depths[outoIndex]);
 
-                    Vector2 intoVec = new Vector2(polygonShape._vertices[intoIndex].X * (1 - intoLambda) + polygonShape._vertices[intoIndex2].X * intoLambda, polygonShape._vertices[intoIndex].Y * (1 - intoLambda) + polygonShape._vertices[intoIndex2].Y * intoLambda);
-                    Vector2 outoVec = new Vector2(polygonShape._vertices[outoIndex].X * (1 - outoLambda) + polygonShape._vertices[outoIndex2].X * outoLambda, polygonShape._vertices[outoIndex].Y * (1 - outoLambda) + polygonShape._vertices[outoIndex2].Y * outoLambda);
+                    var intoVec = new Vector2(polygonShape._vertices[intoIndex].X * (1 - intoLambda) + polygonShape._vertices[intoIndex2].X * intoLambda, polygonShape._vertices[intoIndex].Y * (1 - intoLambda) + polygonShape._vertices[intoIndex2].Y * intoLambda);
+                    var outoVec = new Vector2(polygonShape._vertices[outoIndex].X * (1 - outoLambda) + polygonShape._vertices[outoIndex2].X * outoLambda, polygonShape._vertices[outoIndex].Y * (1 - outoLambda) + polygonShape._vertices[outoIndex2].Y * outoLambda);
 
                     //Initialize accumulator
                     float area = 0;
-                    Vector2 center = new Vector2(0, 0);
-                    Vector2 p2 = polygonShape._vertices[intoIndex2];
+                    var center = new Vector2(0, 0);
+                    var p2 = polygonShape._vertices[intoIndex2];
 
                     const float k_inv3 = 1.0f / 3.0f;
 
@@ -257,12 +257,12 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Buoyancy
 
                         //Add the triangle formed by intoVec,p2,p3
                         {
-                            Vector2 e1 = p2 - intoVec;
-                            Vector2 e2 = p3 - intoVec;
+                            var e1 = p2 - intoVec;
+                            var e2 = p3 - intoVec;
 
-                            float D = MathUtils.Cross(e1, e2);
+                            var D = MathUtils.Cross(e1, e2);
 
-                            float triangleArea = 0.5f * D;
+                            var triangleArea = 0.5f * D;
 
                             area += triangleArea;
 

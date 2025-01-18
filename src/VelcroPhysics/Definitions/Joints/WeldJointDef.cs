@@ -1,8 +1,8 @@
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Dynamics.Joints.Misc;
 
-namespace Genbox.VelcroPhysics.Definitions.Joints
+namespace VelcroPhysics.Definitions.Joints
 {
     /// <summary>Weld joint definition. You need to specify local anchor points where they are attached and the relative body
     /// angle. The position of the anchor points is important for computing the reaction torque.</summary>

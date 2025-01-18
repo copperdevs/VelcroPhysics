@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Tools.TextureTools
+namespace VelcroPhysics.Tools.TextureTools
 {
     // User contribution from Sickbattery aka David Reschke.
 
@@ -29,10 +29,10 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         private VerticesDetectionType _polygonDetectionType;
 
-        private Matrix _transform = Matrix.Identity;
+        private Matrix4x4 _transform = Matrix4x4.Identity;
         private int _width;
 
-        private void Initialize(uint[] data, int? width, byte? alphaTolerance, float? hullTolerance, bool? holeDetection, bool? multipartDetection, bool? pixelOffsetOptimization, Matrix? transform)
+        private void Initialize(uint[] data, int? width, byte? alphaTolerance, float? hullTolerance, bool? holeDetection, bool? multipartDetection, bool? pixelOffsetOptimization, Matrix4x4? transform)
         {
             if (data != null && !width.HasValue)
                 throw new ArgumentNullException(nameof(width), "'width' can't be null if 'data' is set.");
@@ -71,7 +71,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             if (transform.HasValue)
                 Transform = transform.Value;
             else
-                Transform = Matrix.Identity;
+                Transform = Matrix4x4.Identity;
         }
 
         private void SetTextureData(uint[] data, int width)
@@ -100,9 +100,9 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         /// <returns></returns>
         public static Vertices DetectVertices(uint[] data, int width)
         {
-            TextureConverter tc = new TextureConverter(data, width);
+            var tc = new TextureConverter(data, width);
 
-            List<Vertices> detectedVerticesList = tc.DetectVertices();
+            var detectedVerticesList = tc.DetectVertices();
 
             return detectedVerticesList[0];
         }
@@ -114,12 +114,12 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         /// <returns></returns>
         public static Vertices DetectVertices(uint[] data, int width, bool holeDetection)
         {
-            TextureConverter tc = new TextureConverter(data, width)
+            var tc = new TextureConverter(data, width)
             {
                 HoleDetection = holeDetection
             };
 
-            List<Vertices> detectedVerticesList = tc.DetectVertices();
+            var detectedVerticesList = tc.DetectVertices();
 
             return detectedVerticesList[0];
         }
@@ -134,7 +134,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         /// <returns></returns>
         public static List<Vertices> DetectVertices(uint[] data, int width, float hullTolerance, byte alphaTolerance, bool multiPartDetection, bool holeDetection)
         {
-            TextureConverter tc =
+            var tc =
                 new TextureConverter(data, width)
                 {
                     HullTolerance = hullTolerance,
@@ -143,10 +143,10 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                     HoleDetection = holeDetection
                 };
 
-            List<Vertices> detectedVerticesList = tc.DetectVertices();
-            List<Vertices> result = new List<Vertices>();
+            var detectedVerticesList = tc.DetectVertices();
+            var result = new List<Vertices>();
 
-            for (int i = 0; i < detectedVerticesList.Count; i++)
+            for (var i = 0; i < detectedVerticesList.Count; i++)
             {
                 result.Add(detectedVerticesList[i]);
             }
@@ -156,7 +156,6 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         public List<Vertices> DetectVertices()
         {
-
             if (_data == null)
                 throw new Exception("'_data' can't be null. You have to use SetTextureData(uint[] data, int width) before calling this method.");
 
@@ -171,12 +170,12 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             if (_data.Length % _width != 0)
                 throw new Exception("'_width' has an invalid value. You have to use SetTextureData(uint[] data, int width) before calling this method.");
 
-            List<Vertices> detectedPolygons = new List<Vertices>();
+            var detectedPolygons = new List<Vertices>();
 
             Vector2? holeEntrance = null;
             Vector2? polygonEntrance = null;
 
-            List<Vector2> blackList = new List<Vector2>();
+            var blackList = new List<Vector2>();
 
             bool searchOn;
             do
@@ -213,7 +212,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                                 if (!blackList.Contains(holeEntrance.Value))
                                 {
                                     blackList.Add(holeEntrance.Value);
-                                    Vertices holePolygon = CreateSimplePolygon(holeEntrance.Value,
+                                    var holePolygon = CreateSimplePolygon(holeEntrance.Value,
                                         new Vector2(holeEntrance.Value.X + 1, holeEntrance.Value.Y));
 
                                     if (holePolygon != null && holePolygon.Count > 2)
@@ -225,14 +224,14 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                                                 // Add first hole polygon vertex to close the hole polygon.
                                                 holePolygon.Add(holePolygon[0]);
 
-                                                if (SplitPolygonEdge(polygon, holeEntrance.Value, out _, out int vertex2Index))
+                                                if (SplitPolygonEdge(polygon, holeEntrance.Value, out _, out var vertex2Index))
                                                     polygon.InsertRange(vertex2Index, holePolygon);
 
                                                 break;
 
                                             case VerticesDetectionType.Separated:
                                                 if (polygon.Holes == null)
-                                                    polygon.Holes = new List<Vertices>();
+                                                    polygon.Holes = [];
 
                                                 polygon.Holes.Add(holePolygon);
                                                 break;
@@ -264,7 +263,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             if (PolygonDetectionType == VerticesDetectionType.Separated) // Only when VerticesDetectionType.Separated? -> Recheck.
                 ApplyTriangulationCompatibleWinding(ref detectedPolygons);
 
-            if (_transform != Matrix.Identity)
+            if (_transform != Matrix4x4.Identity)
                 ApplyTransform(ref detectedPolygons);
 
             return detectedPolygons;
@@ -272,13 +271,13 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         private void ApplyTriangulationCompatibleWinding(ref List<Vertices> detectedPolygons)
         {
-            for (int i = 0; i < detectedPolygons.Count; i++)
+            for (var i = 0; i < detectedPolygons.Count; i++)
             {
                 detectedPolygons[i].Reverse();
 
                 if (detectedPolygons[i].Holes != null && detectedPolygons[i].Holes.Count > 0)
                 {
-                    for (int j = 0; j < detectedPolygons[i].Holes.Count; j++)
+                    for (var j = 0; j < detectedPolygons[i].Holes.Count; j++)
                         detectedPolygons[i].Holes[j].Reverse();
                 }
             }
@@ -286,7 +285,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         private void ApplyTransform(ref List<Vertices> detectedPolygons)
         {
-            for (int i = 0; i < detectedPolygons.Count; i++)
+            for (var i = 0; i < detectedPolygons.Count; i++)
                 detectedPolygons[i].Transform(ref _transform);
         }
 
@@ -310,7 +309,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
             int startY;
 
-            int lastSolid = 0;
+            var lastSolid = 0;
             bool foundSolid;
             bool foundTransparent;
 
@@ -327,12 +326,12 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             }
 
             // Set the end y coordinate.
-            int endY = (int)GetBottomMostCoord(polygon);
+            var endY = (int)GetBottomMostCoord(polygon);
 
             if (startY > 0 && startY < _height && endY > 0 && endY < _height)
             {
                 // go from top to bottom of the polygon
-                for (int y = startY; y <= endY; y++)
+                for (var y = startY; y <= endY; y++)
                 {
                     // get x-coord of every polygon edge which crosses y
                     xCoords = SearchCrossingEdges(polygon, y);
@@ -347,13 +346,13 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                         // This part searches from left to right between the edges inside the polygon.
                         // The problem: We are using the polygon data to search in the texture data.
                         // That's simply not accurate, but necessary because of performance.
-                        for (int i = 0; i < xCoords.Count; i += 2)
+                        for (var i = 0; i < xCoords.Count; i += 2)
                         {
                             foundSolid = false;
                             foundTransparent = false;
 
                             // We search between the edges inside the polygon.
-                            for (int x = (int)xCoords[i]; x <= (int)xCoords[i + 1]; x++)
+                            for (var x = (int)xCoords[i]; x <= (int)xCoords[i + 1]; x++)
                             {
                                 // First pass: IsSolid might return false.
                                 // In that case the polygon edge doesn't lie on the texture's solid pixel, because of the hull tolerance.
@@ -417,7 +416,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             {
                 if (polygon.Holes != null)
                 {
-                    for (int i = 0; i < polygon.Holes.Count; i++)
+                    for (var i = 0; i < polygon.Holes.Count; i++)
                     {
                         // If there is one distance not acceptable then return false.
                         if (!DistanceToHullAcceptable(polygon.Holes[i], point, higherDetail))
@@ -441,12 +440,12 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             if (polygon.Count < 3)
                 throw new ArgumentException("'polygon.Count' can't be less then 3.");
 
-            Vector2 edgeVertex2 = polygon[polygon.Count - 1];
+            var edgeVertex2 = polygon[^1];
             Vector2 edgeVertex1;
 
             if (higherDetail)
             {
-                for (int i = 0; i < polygon.Count; i++)
+                for (var i = 0; i < polygon.Count; i++)
                 {
                     edgeVertex1 = polygon[i];
 
@@ -460,7 +459,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             }
             else
             {
-                for (int i = 0; i < polygon.Count; i++)
+                for (var i = 0; i < polygon.Count; i++)
                 {
                     edgeVertex1 = polygon[i];
 
@@ -476,15 +475,15 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         private bool InPolygon(Vertices polygon, Vector2 point)
         {
-            bool inPolygon = !DistanceToHullAcceptableHoles(polygon, point, true);
+            var inPolygon = !DistanceToHullAcceptableHoles(polygon, point, true);
 
             if (!inPolygon)
             {
-                List<float> xCoords = SearchCrossingEdgesHoles(polygon, (int)point.Y);
+                var xCoords = SearchCrossingEdgesHoles(polygon, (int)point.Y);
 
                 if (xCoords.Count > 0 && xCoords.Count % 2 == 0)
                 {
-                    for (int i = 0; i < xCoords.Count; i += 2)
+                    for (var i = 0; i < xCoords.Count; i += 2)
                     {
                         if (xCoords[i] <= point.X && xCoords[i + 1] >= point.X)
                             return true;
@@ -499,10 +498,10 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         private Vector2? GetTopMostVertex(Vertices vertices)
         {
-            float topMostValue = float.MaxValue;
+            var topMostValue = float.MaxValue;
             Vector2? topMost = null;
 
-            for (int i = 0; i < vertices.Count; i++)
+            for (var i = 0; i < vertices.Count; i++)
             {
                 if (topMostValue > vertices[i].Y)
                 {
@@ -516,9 +515,9 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         private float GetTopMostCoord(Vertices vertices)
         {
-            float returnValue = float.MaxValue;
+            var returnValue = float.MaxValue;
 
-            for (int i = 0; i < vertices.Count; i++)
+            for (var i = 0; i < vertices.Count; i++)
             {
                 if (returnValue > vertices[i].Y)
                 {
@@ -531,9 +530,9 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         private float GetBottomMostCoord(Vertices vertices)
         {
-            float returnValue = float.MinValue;
+            var returnValue = float.MinValue;
 
-            for (int i = 0; i < vertices.Count; i++)
+            for (var i = 0; i < vertices.Count; i++)
             {
                 if (returnValue < vertices[i].Y)
                 {
@@ -552,11 +551,11 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             if (polygon.Count < 3)
                 throw new ArgumentException("'polygon.MainPolygon.Count' can't be less then 3.");
 
-            List<float> result = SearchCrossingEdges(polygon, y);
+            var result = SearchCrossingEdges(polygon, y);
 
             if (polygon.Holes != null)
             {
-                for (int i = 0; i < polygon.Holes.Count; i++)
+                for (var i = 0; i < polygon.Holes.Count; i++)
                 {
                     result.AddRange(SearchCrossingEdges(polygon.Holes[i], y));
                 }
@@ -576,7 +575,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             // Used to search the x coordinates of edges in the polygon for a specific y coordinate.
             // (Usualy comming from the texture data, that's why it's an int and not a float.)
 
-            List<float> edges = new List<float>();
+            var edges = new List<float>();
 
             // current edge
             Vector2 slope;
@@ -594,10 +593,10 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                 // There is a gap between the last and the first vertex in the vertex list.
                 // We will bridge that by setting the last vertex (vertex2) to the last 
                 // vertex in the list.
-                vertex2 = polygon[polygon.Count - 1];
+                vertex2 = polygon[^1];
 
                 // We are moving along the polygon edges.
-                for (int i = 0; i < polygon.Count; i++)
+                for (var i = 0; i < polygon.Count; i++)
                 {
                     vertex1 = polygon[i];
 
@@ -622,9 +621,9 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                                 // If two edges are aligned like this: /\ and the y coordinate lies on the top,
                                 // then we get the same x coord twice and we don't need that.
                                 if (slope.Y > 0)
-                                    addFind = (nextSlope.Y <= 0);
+                                    addFind = nextSlope.Y <= 0;
                                 else
-                                    addFind = (nextSlope.Y >= 0);
+                                    addFind = nextSlope.Y >= 0;
                             }
 
                             if (addFind)
@@ -644,16 +643,16 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         private bool SplitPolygonEdge(Vertices polygon, Vector2 coordInsideThePolygon, out int vertex1Index, out int vertex2Index)
         {
             Vector2 slope;
-            int nearestEdgeVertex1Index = 0;
-            int nearestEdgeVertex2Index = 0;
-            bool edgeFound = false;
+            var nearestEdgeVertex1Index = 0;
+            var nearestEdgeVertex2Index = 0;
+            var edgeFound = false;
 
-            float shortestDistance = float.MaxValue;
+            var shortestDistance = float.MaxValue;
 
-            bool edgeCoordFound = false;
-            Vector2 foundEdgeCoord = Vector2.Zero;
+            var edgeCoordFound = false;
+            var foundEdgeCoord = Vector2.Zero;
 
-            List<float> xCoords = SearchCrossingEdges(polygon, (int)coordInsideThePolygon.Y);
+            var xCoords = SearchCrossingEdges(polygon, (int)coordInsideThePolygon.Y);
 
             vertex1Index = 0;
             vertex2Index = 0;
@@ -663,7 +662,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             if (xCoords != null && xCoords.Count > 1 && xCoords.Count % 2 == 0)
             {
                 float distance;
-                for (int i = 0; i < xCoords.Count; i++)
+                for (var i = 0; i < xCoords.Count; i++)
                 {
                     if (xCoords[i] < coordInsideThePolygon.X)
                     {
@@ -683,13 +682,13 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                 {
                     shortestDistance = float.MaxValue;
 
-                    int edgeVertex2Index = polygon.Count - 1;
+                    var edgeVertex2Index = polygon.Count - 1;
 
                     int edgeVertex1Index;
                     for (edgeVertex1Index = 0; edgeVertex1Index < polygon.Count; edgeVertex1Index++)
                     {
-                        Vector2 tempVector1 = polygon[edgeVertex1Index];
-                        Vector2 tempVector2 = polygon[edgeVertex2Index];
+                        var tempVector1 = polygon[edgeVertex1Index];
+                        var tempVector2 = polygon[edgeVertex2Index];
                         distance = LineUtils.DistanceBetweenPointAndLineSegment(ref foundEdgeCoord,
                             ref tempVector1, ref tempVector2);
                         if (distance < shortestDistance)
@@ -708,9 +707,9 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                     if (edgeFound)
                     {
                         slope = polygon[nearestEdgeVertex2Index] - polygon[nearestEdgeVertex1Index];
-                        slope.Normalize();
+                        slope = Vector2.Normalize(slope);
 
-                        Vector2 tempVector = polygon[nearestEdgeVertex1Index];
+                        var tempVector = polygon[nearestEdgeVertex1Index];
                         distance = Vector2.Distance(tempVector, foundEdgeCoord);
 
                         vertex1Index = nearestEdgeVertex1Index;
@@ -733,14 +732,14 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         /// <returns></returns>
         private Vertices CreateSimplePolygon(Vector2 entrance, Vector2 last)
         {
-            bool entranceFound = false;
-            bool endOfHull = false;
+            var entranceFound = false;
+            var endOfHull = false;
 
-            Vertices polygon = new Vertices(32);
-            Vertices hullArea = new Vertices(32);
-            Vertices endOfHullArea = new Vertices(32);
+            var polygon = new Vertices(32);
+            var hullArea = new Vertices(32);
+            var endOfHullArea = new Vertices(32);
 
-            Vector2 current = Vector2.Zero;
+            var current = Vector2.Zero;
 
             // Get the entrance point. //todo: alle möglichkeiten testen
             if (entrance == Vector2.Zero || !InBounds(ref entrance))
@@ -763,7 +762,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                     }
                     else
                     {
-                        if (SearchNearPixels(false, ref entrance, out Vector2 temp))
+                        if (SearchNearPixels(false, ref entrance, out var temp))
                         {
                             current = temp;
                             entranceFound = true;
@@ -781,12 +780,12 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                 polygon.Add(entrance);
                 hullArea.Add(entrance);
 
-                Vector2 next = entrance;
+                var next = entrance;
 
                 do
                 {
                     // Search in the pre vision list for an outstanding point.
-                    if (SearchForOutstandingVertex(hullArea, out Vector2 outstanding))
+                    if (SearchForOutstandingVertex(hullArea, out var outstanding))
                     {
                         if (endOfHull)
                         {
@@ -841,10 +840,10 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         private bool SearchNearPixels(bool searchingForSolidPixel, ref Vector2 current, out Vector2 foundPixel)
         {
-            for (int i = 0; i < ClosepixelsLength; i++)
+            for (var i = 0; i < ClosepixelsLength; i++)
             {
-                int x = (int)current.X + _closePixels[i, 0];
-                int y = (int)current.Y + _closePixels[i, 1];
+                var x = (int)current.X + _closePixels[i, 0];
+                var y = (int)current.Y + _closePixels[i, 1];
 
                 if (!searchingForSolidPixel ^ IsSolid(ref x, ref y))
                 {
@@ -860,10 +859,10 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         private bool IsNearPixel(ref Vector2 current, ref Vector2 near)
         {
-            for (int i = 0; i < ClosepixelsLength; i++)
+            for (var i = 0; i < ClosepixelsLength; i++)
             {
-                int x = (int)current.X + _closePixels[i, 0];
-                int y = (int)current.Y + _closePixels[i, 1];
+                var x = (int)current.X + _closePixels[i, 0];
+                var y = (int)current.Y + _closePixels[i, 1];
 
                 if (x >= 0 && x <= _width && y >= 0 && y <= _height)
                 {
@@ -880,9 +879,9 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         private bool SearchHullEntrance(out Vector2 entrance)
         {
             // Search for first solid pixel.
-            for (int y = 0; y <= _height; y++)
+            for (var y = 0; y <= _height; y++)
             {
-                for (int x = 0; x <= _width; x++)
+                for (var x = 0; x <= _width; x++)
                 {
                     if (IsSolid(ref x, ref y))
                     {
@@ -906,10 +905,10 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         {
             int x;
 
-            bool foundTransparent = false;
-            bool inPolygon = false;
+            var foundTransparent = false;
+            var inPolygon = false;
 
-            for (int i = (int)start.X + (int)start.Y * _width; i <= _dataLength; i++)
+            for (var i = (int)start.X + (int)start.Y * _width; i <= _dataLength; i++)
             {
                 if (IsSolid(ref i))
                 {
@@ -919,7 +918,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                         entrance = new Vector2(x, (i - x) / (float)_width);
 
                         inPolygon = false;
-                        for (int polygonIdx = 0; polygonIdx < detectedPolygons.Count; polygonIdx++)
+                        for (var polygonIdx = 0; polygonIdx < detectedPolygons.Count; polygonIdx++)
                         {
                             if (InPolygon(detectedPolygons[polygonIdx], entrance.Value))
                             {
@@ -947,10 +946,10 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             int x;
             int y;
 
-            int indexOfFirstPixelToCheck = GetIndexOfFirstPixelToCheck(ref last, ref current);
+            var indexOfFirstPixelToCheck = GetIndexOfFirstPixelToCheck(ref last, ref current);
             int indexOfPixelToCheck;
 
-            for (int i = 0; i < ClosepixelsLength; i++)
+            for (var i = 0; i < ClosepixelsLength; i++)
             {
                 indexOfPixelToCheck = (indexOfFirstPixelToCheck + i) % ClosepixelsLength;
 
@@ -973,19 +972,19 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         private bool SearchForOutstandingVertex(Vertices hullArea, out Vector2 outstanding)
         {
-            Vector2 outstandingResult = Vector2.Zero;
-            bool found = false;
+            var outstandingResult = Vector2.Zero;
+            var found = false;
 
             if (hullArea.Count > 2)
             {
-                int hullAreaLastPoint = hullArea.Count - 1;
+                var hullAreaLastPoint = hullArea.Count - 1;
 
                 Vector2 tempVector1;
-                Vector2 tempVector2 = hullArea[0];
-                Vector2 tempVector3 = hullArea[hullAreaLastPoint];
+                var tempVector2 = hullArea[0];
+                var tempVector3 = hullArea[hullAreaLastPoint];
 
                 // Search between the first and last hull point.
-                for (int i = 1; i < hullAreaLastPoint; i++)
+                for (var i = 1; i < hullAreaLastPoint; i++)
                 {
                     tempVector1 = hullArea[i];
 
@@ -1029,6 +1028,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                         case -1:
                             return 7;
                     }
+
                     break;
 
                 case 0:
@@ -1040,6 +1040,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                         case -1:
                             return 6;
                     }
+
                     break;
 
                 case -1:
@@ -1054,6 +1055,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
                         case -1:
                             return 5;
                     }
+
                     break;
             }
 
@@ -1092,7 +1094,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         }
 
         /// <summary>Can be used for scaling.</summary>
-        public Matrix Transform
+        public Matrix4x4 Transform
         {
             get { return _transform; }
             set { _transform = value; }
@@ -1131,11 +1133,11 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         public TextureConverter()
         {
-            Initialize(null, null, null, null, null, null, null, null);
+            Initialize(null, null, null, null, null, null, null, Matrix4x4.Identity);
         }
 
         public TextureConverter(byte? alphaTolerance, float? hullTolerance,
-                                bool? holeDetection, bool? multipartDetection, bool? pixelOffsetOptimization, Matrix? transform)
+            bool? holeDetection, bool? multipartDetection, bool? pixelOffsetOptimization, Matrix4x4? transform)
         {
             Initialize(null, null, alphaTolerance, hullTolerance, holeDetection,
                 multipartDetection, pixelOffsetOptimization, transform);
@@ -1143,12 +1145,12 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         public TextureConverter(uint[] data, int width)
         {
-            Initialize(data, width, null, null, null, null, null, null);
+            Initialize(data, width, null, null, null, null, null, Matrix4x4.Identity);
         }
 
         public TextureConverter(uint[] data, int width, byte? alphaTolerance,
-                                float? hullTolerance, bool? holeDetection, bool? multipartDetection,
-                                bool? pixelOffsetOptimization, Matrix? transform)
+            float? hullTolerance, bool? holeDetection, bool? multipartDetection,
+            bool? pixelOffsetOptimization, Matrix4x4? transform)
         {
             Initialize(data, width, alphaTolerance, hullTolerance, holeDetection,
                 multipartDetection, pixelOffsetOptimization, transform);
@@ -1163,7 +1165,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
             _tempIsSolidY = (int)v.Y;
 
             if (_tempIsSolidX >= 0 && _tempIsSolidX < _width && _tempIsSolidY >= 0 && _tempIsSolidY < _height)
-                return (_data[_tempIsSolidX + _tempIsSolidY * _width] >= _alphaTolerance);
+                return _data[_tempIsSolidX + _tempIsSolidY * _width] >= _alphaTolerance;
 
             //return ((_data[_tempIsSolidX + _tempIsSolidY * _width] & 0xFF000000) >= _alphaTolerance);
 
@@ -1173,7 +1175,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         public bool IsSolid(ref int x, ref int y)
         {
             if (x >= 0 && x < _width && y >= 0 && y < _height)
-                return (_data[x + y * _width] >= _alphaTolerance);
+                return _data[x + y * _width] >= _alphaTolerance;
 
             //return ((_data[x + y * _width] & 0xFF000000) >= _alphaTolerance);
 
@@ -1183,7 +1185,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
         public bool IsSolid(ref int index)
         {
             if (index >= 0 && index < _dataLength)
-                return (_data[index] >= _alphaTolerance);
+                return _data[index] >= _alphaTolerance;
 
             //return ((_data[index] & 0xFF000000) >= _alphaTolerance);
 
@@ -1192,7 +1194,7 @@ namespace Genbox.VelcroPhysics.Tools.TextureTools
 
         public bool InBounds(ref Vector2 coord)
         {
-            return (coord.X >= 0f && coord.X < _width && coord.Y >= 0f && coord.Y < _height);
+            return coord.X >= 0f && coord.X < _width && coord.Y >= 0f && coord.Y < _height;
         }
     }
 }

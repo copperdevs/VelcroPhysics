@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
+namespace VelcroPhysics.Tools.Triangulation.Seidel
 {
     internal class Edge
     {
@@ -32,9 +32,11 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
             B = p.Y - p.X * Slope;
             Above = null;
             Below = null;
-            MPoints = new HashSet<Point>();
-            MPoints.Add(p);
-            MPoints.Add(q);
+            MPoints =
+            [
+                p,
+                q
+            ];
         }
 
         public bool IsAbove(Point point)
@@ -49,7 +51,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
 
         public void AddMpoint(Point point)
         {
-            foreach (Point mp in MPoints)
+            foreach (var mp in MPoints)
             {
                 if (!mp.Neq(point))
                     return;

@@ -20,10 +20,9 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Shared;
-using Microsoft.Xna.Framework;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Tools.PolygonManipulation
+namespace VelcroPhysics.Tools.PolygonManipulation
 {
     /// <summary>
     /// Combines a list of triangles into a list of convex polygons. Starts with a seed triangle, keep adding
@@ -40,30 +39,30 @@ namespace Genbox.VelcroPhysics.Tools.PolygonManipulation
             if (triangles.Count <= 0)
                 return triangles;
 
-            List<Vertices> polys = new List<Vertices>();
+            var polys = new List<Vertices>();
 
-            bool[] covered = new bool[triangles.Count];
-            for (int i = 0; i < triangles.Count; ++i)
+            var covered = new bool[triangles.Count];
+            for (var i = 0; i < triangles.Count; ++i)
             {
                 covered[i] = false;
 
                 //Check here for degenerate triangles
-                Vertices triangle = triangles[i];
-                Vector2 a = triangle[0];
-                Vector2 b = triangle[1];
-                Vector2 c = triangle[2];
+                var triangle = triangles[i];
+                var a = triangle[0];
+                var b = triangle[1];
+                var c = triangle[2];
 
                 if ((a.X == b.X && a.Y == b.Y) || (b.X == c.X && b.Y == c.Y) || (a.X == c.X && a.Y == c.Y))
                     covered[i] = true;
             }
 
-            int polyIndex = 0;
+            var polyIndex = 0;
 
-            bool notDone = true;
+            var notDone = true;
             while (notDone)
             {
-                int currTri = -1;
-                for (int i = 0; i < triangles.Count; ++i)
+                var currTri = -1;
+                for (var i = 0; i < triangles.Count; ++i)
                 {
                     if (covered[i])
                         continue;
@@ -76,16 +75,16 @@ namespace Genbox.VelcroPhysics.Tools.PolygonManipulation
                     notDone = false;
                 else
                 {
-                    Vertices poly = new Vertices(3);
+                    var poly = new Vertices(3);
 
-                    for (int i = 0; i < 3; i++)
+                    for (var i = 0; i < 3; i++)
                     {
                         poly.Add(triangles[currTri][i]);
                     }
 
                     covered[currTri] = true;
-                    int index = 0;
-                    for (int i = 0; i < 2 * triangles.Count; ++i, ++index)
+                    var index = 0;
+                    for (var i = 0; i < 2 * triangles.Count; ++i, ++index)
                     {
                         while (index >= triangles.Count)
                         {
@@ -93,7 +92,7 @@ namespace Genbox.VelcroPhysics.Tools.PolygonManipulation
                         }
                         if (covered[index])
                             continue;
-                        Vertices newP = AddTriangle(triangles[index], poly);
+                        var newP = AddTriangle(triangles[index], poly);
                         if (newP == null)
                             continue; // is this right
 
@@ -129,7 +128,7 @@ namespace Genbox.VelcroPhysics.Tools.PolygonManipulation
 
             //TODO: Add sanity check
             //Remove empty vertice collections
-            for (int i = polys.Count - 1; i >= 0; i--)
+            for (var i = polys.Count - 1; i >= 0; i--)
             {
                 if (polys[i].Count == 0)
                     polys.RemoveAt(i);
@@ -141,11 +140,11 @@ namespace Genbox.VelcroPhysics.Tools.PolygonManipulation
         private static Vertices AddTriangle(Vertices t, Vertices vertices)
         {
             // First, find vertices that connect
-            int firstP = -1;
-            int firstT = -1;
-            int secondP = -1;
-            int secondT = -1;
-            for (int i = 0; i < vertices.Count; i++)
+            var firstP = -1;
+            var firstT = -1;
+            var secondP = -1;
+            var secondT = -1;
+            for (var i = 0; i < vertices.Count; i++)
             {
                 if (t[0].X == vertices[i].X && t[0].Y == vertices[i].Y)
                 {
@@ -200,14 +199,14 @@ namespace Genbox.VelcroPhysics.Tools.PolygonManipulation
                 return null;
 
             // Find tip index on triangle
-            int tipT = 0;
+            var tipT = 0;
             if (tipT == firstT || tipT == secondT)
                 tipT = 1;
             if (tipT == firstT || tipT == secondT)
                 tipT = 2;
 
-            Vertices result = new Vertices(vertices.Count + 1);
-            for (int i = 0; i < vertices.Count; i++)
+            var result = new Vertices(vertices.Count + 1);
+            for (var i = 0; i < vertices.Count; i++)
             {
                 result.Add(vertices[i]);
 

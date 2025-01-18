@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
+namespace VelcroPhysics.Tools.Triangulation.Seidel
 {
     internal class Triangulator
     {
@@ -23,9 +23,9 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
         public Triangulator(List<Point> polyLine, float sheer)
         {
             _sheer = sheer;
-            Triangles = new List<List<Point>>();
-            Trapezoids = new List<Trapezoid>();
-            _xMonoPoly = new List<MonotoneMountain>();
+            Triangles = [];
+            Trapezoids = [];
+            _xMonoPoly = [];
             _edgeList = InitEdges(polyLine);
             _trapezoidalMap = new TrapezoidalMap();
             _boundingBox = _trapezoidalMap.BoundingBox(_edgeList);
@@ -37,17 +37,17 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
         // Build the trapezoidal map and query graph
         private void Process()
         {
-            foreach (Edge edge in _edgeList)
+            foreach (var edge in _edgeList)
             {
-                List<Trapezoid> traps = _queryGraph.FollowEdge(edge);
+                var traps = _queryGraph.FollowEdge(edge);
 
                 // Remove trapezoids from trapezoidal Map
-                foreach (Trapezoid t in traps)
+                foreach (var t in traps)
                 {
                     _trapezoidalMap.Map.Remove(t);
 
-                    bool cp = t.Contains(edge.P);
-                    bool cq = t.Contains(edge.Q);
+                    var cp = t.Contains(edge.P);
+                    var cq = t.Contains(edge.Q);
                     Trapezoid[] tList;
 
                     if (cp && cq)
@@ -72,7 +72,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
                     }
 
                     // Add new trapezoids to map
-                    foreach (Trapezoid y in tList)
+                    foreach (var y in tList)
                     {
                         _trapezoidalMap.Map.Add(y);
                     }
@@ -81,13 +81,13 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
             }
 
             // Mark outside trapezoids
-            foreach (Trapezoid t in _trapezoidalMap.Map)
+            foreach (var t in _trapezoidalMap.Map)
             {
                 MarkOutside(t);
             }
 
             // Collect interior trapezoids
-            foreach (Trapezoid t in _trapezoidalMap.Map)
+            foreach (var t in _trapezoidalMap.Map)
             {
                 if (t.Inside)
                 {
@@ -103,11 +103,11 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
         // Build a list of x-monotone mountains
         private void CreateMountains()
         {
-            foreach (Edge edge in _edgeList)
+            foreach (var edge in _edgeList)
             {
                 if (edge.MPoints.Count > 2)
                 {
-                    MonotoneMountain mountain = new MonotoneMountain();
+                    var mountain = new MonotoneMountain();
 
                     // Sorting is a perfromance hit. Literature says this can be accomplised in
                     // linear time, although I don't see a way around using traditional methods
@@ -116,10 +116,10 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
                     // Insertion sort is one of the fastest algorithms for sorting arrays containing 
                     // fewer than ten elements, or for lists that are already mostly sorted.
 
-                    List<Point> points = new List<Point>(edge.MPoints);
+                    var points = new List<Point>(edge.MPoints);
                     points.Sort((p1, p2) => p1.X.CompareTo(p2.X));
 
-                    foreach (Point p in points)
+                    foreach (var p in points)
                     {
                         mountain.Add(p);
                     }
@@ -128,7 +128,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
                     mountain.Process();
 
                     // Extract the triangles into a single list
-                    foreach (List<Point> t in mountain.Triangles)
+                    foreach (var t in mountain.Triangles)
                     {
                         Triangles.Add(t);
                     }
@@ -148,25 +148,25 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
         // Create segments and connect end points; update edge event pointer
         private List<Edge> InitEdges(List<Point> points)
         {
-            List<Edge> edges = new List<Edge>();
+            var edges = new List<Edge>();
 
-            for (int i = 0; i < points.Count - 1; i++)
+            for (var i = 0; i < points.Count - 1; i++)
             {
                 edges.Add(new Edge(points[i], points[i + 1]));
             }
-            edges.Add(new Edge(points[0], points[points.Count - 1]));
+            edges.Add(new Edge(points[0], points[^1]));
             return OrderSegments(edges);
         }
 
         private List<Edge> OrderSegments(List<Edge> edgeInput)
         {
             // Ignore vertical segments!
-            List<Edge> edges = new List<Edge>();
+            var edges = new List<Edge>();
 
-            foreach (Edge e in edgeInput)
+            foreach (var e in edgeInput)
             {
-                Point p = ShearTransform(e.P);
-                Point q = ShearTransform(e.Q);
+                var p = ShearTransform(e.P);
+                var q = ShearTransform(e.Q);
 
                 // Point p must be to the left of point q
                 if (p.X > q.X)
@@ -183,13 +183,13 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
 
         private static void Shuffle<T>(IList<T> list)
         {
-            Random rng = new Random();
-            int n = list.Count;
+            var rng = new Random();
+            var n = list.Count;
             while (n > 1)
             {
                 n--;
-                int k = rng.Next(n + 1);
-                T value = list[k];
+                var k = rng.Next(n + 1);
+                var value = list[k];
                 list[k] = list[n];
                 list[n] = value;
             }

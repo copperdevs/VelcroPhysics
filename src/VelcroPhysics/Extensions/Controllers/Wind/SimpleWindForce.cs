@@ -1,7 +1,7 @@
-﻿using Genbox.VelcroPhysics.Dynamics;
+﻿using System.Numerics;
 using Microsoft.Xna.Framework;
 
-namespace Genbox.VelcroPhysics.Extensions.Controllers.Wind
+namespace VelcroPhysics.Extensions.Controllers.Wind
 {
     /// <summary>
     /// Reference implementation for forces based on AbstractForceController It supports all features provided by the
@@ -24,10 +24,10 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Wind
 
         public override void ApplyForce(float dt, float strength)
         {
-            foreach (Body body in World.BodyList)
+            foreach (var body in World.BodyList)
             {
                 //TODO: Consider Force Type
-                float decayMultiplier = GetDecayMultiplier(body);
+                var decayMultiplier = GetDecayMultiplier(body);
 
                 if (decayMultiplier != 0)
                 {
@@ -37,7 +37,7 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Wind
                         forceVector = body.Position - Position;
                     else
                     {
-                        Direction.Normalize();
+                        Direction = Vector2.Normalize(Direction);
 
                         forceVector = Direction;
 
@@ -51,13 +51,13 @@ namespace Genbox.VelcroPhysics.Extensions.Controllers.Wind
                     // Calculate random Variation
                     if (Variation != 0)
                     {
-                        float strengthVariation = (float)Randomize.NextDouble() * MathHelper.Clamp(Variation, 0, 1);
-                        forceVector.Normalize();
+                        var strengthVariation = (float)Randomize.NextDouble() * MathHelper.Clamp(Variation, 0, 1);
+                        forceVector = Vector2.Normalize(forceVector);
                         body.ApplyForce(forceVector * strength * decayMultiplier * strengthVariation);
                     }
                     else
                     {
-                        forceVector.Normalize();
+                        forceVector = Vector2.Normalize(forceVector);
                         body.ApplyForce(forceVector * strength * decayMultiplier);
                     }
                 }

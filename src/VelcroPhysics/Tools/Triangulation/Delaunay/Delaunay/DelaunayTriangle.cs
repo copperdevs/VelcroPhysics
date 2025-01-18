@@ -32,10 +32,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Shared.Optimization;
-using Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep;
+using VelcroPhysics.Shared.Optimization;
+using VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay
+namespace VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay
 {
     internal class DelaunayTriangle
     {
@@ -61,7 +61,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay
 
         public int IndexOf(TriangulationPoint p)
         {
-            int i = Points.IndexOf(p);
+            var i = Points.IndexOf(p);
             if (i == -1)
                 throw new Exception("Calling index with a point that doesn't exist in triangle");
             return i;
@@ -70,7 +70,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay
         //TODO: Port note - different implementation
         public int IndexCW(TriangulationPoint p)
         {
-            int index = IndexOf(p);
+            var index = IndexOf(p);
             switch (index)
             {
                 case 0:
@@ -85,7 +85,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay
         //TODO: Port note - different implementation
         public int IndexCCW(TriangulationPoint p)
         {
-            int index = IndexOf(p);
+            var index = IndexOf(p);
             switch (index)
             {
                 case 0:
@@ -173,7 +173,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay
         public void Clear()
         {
             DelaunayTriangle t;
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 t = Neighbors[i];
                 if (t != null)
@@ -218,7 +218,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay
 
         private void RotateCW()
         {
-            TriangulationPoint t = Points[2];
+            var t = Points[2];
             Points[2] = Points[1];
             Points[1] = Points[0];
             Points[0] = t;
@@ -241,7 +241,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay
         /// <summary>Finalize edge marking</summary>
         public void MarkNeighborEdges()
         {
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 if (EdgeIsConstrained[i] && Neighbors[i] != null)
                     Neighbors[i].MarkConstrainedEdge(Points[(i + 1) % 3], Points[(i + 2) % 3]);
@@ -250,7 +250,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay
 
         public void MarkEdge(DelaunayTriangle triangle)
         {
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 if (EdgeIsConstrained[i])
                     triangle.MarkConstrainedEdge(Points[(i + 1) % 3], Points[(i + 2) % 3]);
@@ -259,9 +259,9 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay
 
         public void MarkEdge(List<DelaunayTriangle> tList)
         {
-            foreach (DelaunayTriangle t in tList)
+            foreach (var t in tList)
             {
-                for (int i = 0; i < 3; i++)
+                for (var i = 0; i < 3; i++)
                 {
                     if (t.EdgeIsConstrained[i])
                         MarkConstrainedEdge(t.Points[(i + 1) % 3], t.Points[(i + 2) % 3]);
@@ -282,23 +282,23 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay
         /// <summary>Mark edge as constrained</summary>
         public void MarkConstrainedEdge(TriangulationPoint p, TriangulationPoint q)
         {
-            int i = EdgeIndex(p, q);
+            var i = EdgeIndex(p, q);
             if (i != -1)
                 EdgeIsConstrained[i] = true;
         }
 
         public double Area()
         {
-            double b = Points[0].X - Points[1].X;
-            double h = Points[2].Y - Points[1].Y;
+            var b = Points[0].X - Points[1].X;
+            var h = Points[2].Y - Points[1].Y;
 
             return Math.Abs(b * h * 0.5f);
         }
 
         public TriangulationPoint Centroid()
         {
-            double cx = (Points[0].X + Points[1].X + Points[2].X) / 3f;
-            double cy = (Points[0].Y + Points[1].Y + Points[2].Y) / 3f;
+            var cx = (Points[0].X + Points[1].X + Points[2].X) / 3f;
+            var cy = (Points[0].Y + Points[1].Y + Points[2].Y) / 3f;
             return new TriangulationPoint(cx, cy);
         }
 
@@ -306,13 +306,13 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay
         /// <returns>index of the shared edge or -1 if edge isn't shared</returns>
         public int EdgeIndex(TriangulationPoint p1, TriangulationPoint p2)
         {
-            int i1 = Points.IndexOf(p1);
-            int i2 = Points.IndexOf(p2);
+            var i1 = Points.IndexOf(p1);
+            var i2 = Points.IndexOf(p2);
 
             // Points of this triangle in the edge p1-p2
-            bool a = i1 == 0 || i2 == 0;
-            bool b = i1 == 1 || i2 == 1;
-            bool c = i1 == 2 || i2 == 2;
+            var a = i1 == 0 || i2 == 0;
+            var b = i1 == 1 || i2 == 1;
+            var c = i1 == 2 || i2 == 2;
 
             if (b && c) return 0;
             if (a && c) return 1;

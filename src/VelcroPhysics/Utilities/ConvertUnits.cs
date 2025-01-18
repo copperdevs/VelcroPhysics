@@ -1,11 +1,11 @@
 /*
-* Velcro Physics:
-* Copyright (c) 2017 Ian Qvist
-*/
+ * Velcro Physics:
+ * Copyright (c) 2017 Ian Qvist
+ */
 
-using Microsoft.Xna.Framework;
+using System.Numerics;
 
-namespace Genbox.VelcroPhysics.Utilities
+namespace VelcroPhysics.Utilities
 {
     /// <summary>Convert units between display and simulation units.</summary>
     public static class ConvertUnits
@@ -36,7 +36,7 @@ namespace Genbox.VelcroPhysics.Utilities
 
         public static void ToDisplayUnits(ref Vector2 simUnits, out Vector2 displayUnits)
         {
-            Vector2.Multiply(ref simUnits, _displayUnitsToSimUnitsRatio, out displayUnits);
+            displayUnits = simUnits * _displayUnitsToSimUnitsRatio;
         }
 
         public static Vector3 ToDisplayUnits(Vector3 simUnits)
@@ -83,7 +83,7 @@ namespace Genbox.VelcroPhysics.Utilities
 
         public static void ToSimUnits(ref Vector2 displayUnits, out Vector2 simUnits)
         {
-            Vector2.Multiply(ref displayUnits, _simUnitsToDisplayUnitsRatio, out simUnits);
+            simUnits = displayUnits * _simUnitsToDisplayUnitsRatio;
         }
 
         public static Vector2 ToSimUnits(float x, float y)

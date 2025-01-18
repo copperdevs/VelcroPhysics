@@ -30,9 +30,9 @@
  */
 
 using System.Collections.Generic;
-using Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep;
+using VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay
+namespace VelcroPhysics.Tools.Triangulation.Delaunay
 {
     internal class TriangulationPoint
     {
@@ -70,7 +70,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay
         public void AddEdge(DTSweepConstraint e)
         {
             if (Edges == null)
-                Edges = new List<DTSweepConstraint>();
+                Edges = [];
             Edges.Add(e);
         }
     }

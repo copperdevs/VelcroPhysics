@@ -1,7 +1,7 @@
-using Genbox.VelcroPhysics.Collision.Filtering;
-using Genbox.VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Collision.Filtering;
+using VelcroPhysics.Collision.Shapes;
 
-namespace Genbox.VelcroPhysics.Definitions
+namespace VelcroPhysics.Definitions
 {
     public class FixtureDef : IDef
     {

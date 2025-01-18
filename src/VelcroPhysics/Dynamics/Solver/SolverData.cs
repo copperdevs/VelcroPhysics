@@ -1,4 +1,4 @@
-namespace Genbox.VelcroPhysics.Dynamics.Solver
+namespace VelcroPhysics.Dynamics.Solver
 {
     internal struct SolverData
     {

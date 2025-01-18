@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Genbox.VelcroPhysics.Collision.RayCast;
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
+using System.Numerics;
 using Microsoft.Xna.Framework;
+using VelcroPhysics.Collision.RayCast;
+using VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
+namespace VelcroPhysics.Extensions.PhysicsLogics.Explosion
 {
     // Original Code by Steven Lu - see http://www.box2d.org/forum/viewtopic.php?f=3&t=1688
     // Ported by Nicol�s Hormaz�bal
@@ -38,7 +39,7 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
         /// <summary>Two degrees: maximum angle from edges to first ray tested</summary>
         private const float MaxEdgeOffset = MathConstants.Pi / 90;
 
-        private List<ShapeData> _data = new List<ShapeData>();
+        private List<ShapeData> _data;
         private RayDataComparer _rdc;
 
         /// <summary>Ratio of arc length to angle from edges to first ray tested. Defaults to 1/40.</summary>
@@ -60,7 +61,7 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
             : base(world, PhysicsLogicType.Explosion)
         {
             _rdc = new RayDataComparer();
-            _data = new List<ShapeData>();
+            _data = [];
         }
 
         /// <summary>Activate the explosion at the specified position.</summary>
@@ -76,14 +77,14 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
             AABB aabb;
             aabb.LowerBound = pos + new Vector2(-radius, -radius);
             aabb.UpperBound = pos + new Vector2(radius, radius);
-            Fixture[] shapes = new Fixture[MaxShapes];
+            var shapes = new Fixture[MaxShapes];
 
             // More than 5 shapes in an explosion could be possible, but still strange.
-            Fixture[] containedShapes = new Fixture[5];
-            bool exit = false;
+            var containedShapes = new Fixture[5];
+            var exit = false;
 
-            int shapeCount = 0;
-            int containedShapeCount = 0;
+            var shapeCount = 0;
+            var containedShapeCount = 0;
 
             // Query the world for overlapping shapes.
             World.QueryAABB(
@@ -109,19 +110,19 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
             if (exit)
                 return new Dictionary<Fixture, Vector2>();
 
-            Dictionary<Fixture, Vector2> exploded = new Dictionary<Fixture, Vector2>(shapeCount + containedShapeCount);
+            var exploded = new Dictionary<Fixture, Vector2>(shapeCount + containedShapeCount);
 
             // Per shape max/min angles for now.
-            float[] vals = new float[shapeCount * 2];
-            int valIndex = 0;
-            for (int i = 0; i < shapeCount; ++i)
+            var vals = new float[shapeCount * 2];
+            var valIndex = 0;
+            for (var i = 0; i < shapeCount; ++i)
             {
                 PolygonShape ps;
                 if (shapes[i].Shape is CircleShape cs)
                 {
                     // We create a "diamond" approximation of the circle
-                    Vertices v = new Vertices();
-                    Vector2 vec = Vector2.Zero + new Vector2(cs._radius, 0);
+                    var v = new Vertices();
+                    var vec = Vector2.Zero + new Vector2(cs._radius, 0);
                     v.Add(vec);
                     vec = Vector2.Zero + new Vector2(0, cs._radius);
                     v.Add(vec);
@@ -136,18 +137,18 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
 
                 if (shapes[i].Body.BodyType == BodyType.Dynamic && ps != null)
                 {
-                    Vector2 toCentroid = shapes[i].Body.GetWorldPoint(ps._massData._centroid) - pos;
-                    float angleToCentroid = (float)Math.Atan2(toCentroid.Y, toCentroid.X);
-                    float min = float.MaxValue;
-                    float max = float.MinValue;
-                    float minAbsolute = 0.0f;
-                    float maxAbsolute = 0.0f;
+                    var toCentroid = shapes[i].Body.GetWorldPoint(ps._massData._centroid) - pos;
+                    var angleToCentroid = (float)Math.Atan2(toCentroid.Y, toCentroid.X);
+                    var min = float.MaxValue;
+                    var max = float.MinValue;
+                    var minAbsolute = 0.0f;
+                    var maxAbsolute = 0.0f;
 
-                    for (int j = 0; j < ps._vertices.Count; ++j)
+                    for (var j = 0; j < ps._vertices.Count; ++j)
                     {
-                        Vector2 toVertex = shapes[i].Body.GetWorldPoint(ps._vertices[j]) - pos;
-                        float newAngle = (float)Math.Atan2(toVertex.Y, toVertex.X);
-                        float diff = newAngle - angleToCentroid;
+                        var toVertex = shapes[i].Body.GetWorldPoint(ps._vertices[j]) - pos;
+                        var newAngle = (float)Math.Atan2(toVertex.Y, toVertex.X);
+                        var diff = newAngle - angleToCentroid;
 
                         diff = (diff - MathConstants.Pi) % (2 * MathConstants.Pi);
 
@@ -182,14 +183,14 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
 
             Array.Sort(vals, 0, valIndex, _rdc);
             _data.Clear();
-            bool rayMissed = true;
+            var rayMissed = true;
 
-            for (int i = 0; i < valIndex; ++i)
+            for (var i = 0; i < valIndex; ++i)
             {
                 Fixture fixture = null;
                 float midpt;
 
-                int iplus = i == valIndex - 1 ? 0 : i + 1;
+                var iplus = i == valIndex - 1 ? 0 : i + 1;
                 if (vals[i] == vals[iplus])
                     continue;
 
@@ -203,14 +204,14 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
 
                 midpt /= 2;
 
-                Vector2 p1 = pos;
-                Vector2 p2 = radius * new Vector2((float)Math.Cos(midpt), (float)Math.Sin(midpt)) + pos;
+                var p1 = pos;
+                var p2 = radius * new Vector2((float)Math.Cos(midpt), (float)Math.Sin(midpt)) + pos;
 
                 // RaycastOne
-                bool hitClosest = false;
+                var hitClosest = false;
                 World.RayCast((f, p, n, fr) =>
                 {
-                    Body body = f.Body;
+                    var body = f.Body;
 
                     if (!IsActiveOn(body))
                         return 0;
@@ -225,8 +226,8 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
                 {
                     if (_data.Any() && _data.Last().Body == fixture.Body && !rayMissed)
                     {
-                        int laPos = _data.Count - 1;
-                        ShapeData la = _data[laPos];
+                        var laPos = _data.Count - 1;
+                        var la = _data[laPos];
                         la.Max = vals[iplus];
                         _data[laPos] = la;
                     }
@@ -245,7 +246,7 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
                         && _data.Last().Body == _data.First().Body
                         && _data.Last().Max == _data.First().Min)
                     {
-                        ShapeData fi = _data[0];
+                        var fi = _data[0];
                         fi.Min = _data.Last().Min;
                         _data.RemoveAt(_data.Count - 1);
                         _data[0] = fi;
@@ -256,8 +257,8 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
                         }
                     }
 
-                    int lastPos = _data.Count - 1;
-                    ShapeData last = _data[lastPos];
+                    var lastPos = _data.Count - 1;
+                    var last = _data[lastPos];
                     while (_data.Count > 0
                            && _data.Last().Min >= _data.Last().Max) // just making sure min<max
                     {
@@ -270,42 +271,42 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
                     rayMissed = true; // raycast did not find a shape
             }
 
-            for (int i = 0; i < _data.Count; ++i)
+            for (var i = 0; i < _data.Count; ++i)
             {
                 if (!IsActiveOn(_data[i].Body))
                     continue;
 
-                float arclen = _data[i].Max - _data[i].Min;
+                var arclen = _data[i].Max - _data[i].Min;
 
-                float first = MathHelper.Min(MaxEdgeOffset, EdgeRatio * arclen);
-                int insertedRays = (int)Math.Ceiling(((arclen - 2.0f * first) - (MinRays - 1) * MaxAngle) / MaxAngle);
+                var first = MathHelper.Min(MaxEdgeOffset, EdgeRatio * arclen);
+                var insertedRays = (int)Math.Ceiling((arclen - 2.0f * first - (MinRays - 1) * MaxAngle) / MaxAngle);
 
                 if (insertedRays < 0)
                     insertedRays = 0;
 
-                float offset = (arclen - first * 2.0f) / ((float)MinRays + insertedRays - 1);
+                var offset = (arclen - first * 2.0f) / ((float)MinRays + insertedRays - 1);
 
                 //Note: This loop can go into infinite as it operates on floats.
                 //Added FloatEquals with a large epsilon.
-                for (float j = _data[i].Min + first;
+                for (var j = _data[i].Min + first;
                      j < _data[i].Max || MathUtils.FloatEquals(j, _data[i].Max, 0.0001f);
                      j += offset)
                 {
-                    Vector2 p1 = pos;
-                    Vector2 p2 = pos + radius * new Vector2((float)Math.Cos(j), (float)Math.Sin(j));
-                    Vector2 hitpoint = Vector2.Zero;
-                    float minlambda = float.MaxValue;
+                    var p1 = pos;
+                    var p2 = pos + radius * new Vector2((float)Math.Cos(j), (float)Math.Sin(j));
+                    var hitpoint = Vector2.Zero;
+                    var minlambda = float.MaxValue;
 
-                    List<Fixture> fl = _data[i].Body.FixtureList;
-                    for (int x = 0; x < fl.Count; x++)
+                    var fl = _data[i].Body.FixtureList;
+                    for (var x = 0; x < fl.Count; x++)
                     {
-                        Fixture f = fl[x];
+                        var f = fl[x];
                         RayCastInput ri;
                         ri.Point1 = p1;
                         ri.Point2 = p2;
                         ri.MaxFraction = 50f;
 
-                        if (f.RayCast(out RayCastOutput ro, ref ri, 0))
+                        if (f.RayCast(out var ro, ref ri, 0))
                         {
                             if (minlambda > ro.Fraction)
                             {
@@ -316,10 +317,10 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
 
                         // the force that is to be applied for this particular ray.
                         // offset is angular coverage. lambda*length of segment is distance.
-                        float impulse = arclen / (MinRays + insertedRays) * maxForce * 180.0f / MathConstants.Pi * (1.0f - Math.Min(1.0f, minlambda));
+                        var impulse = arclen / (MinRays + insertedRays) * maxForce * 180.0f / MathConstants.Pi * (1.0f - Math.Min(1.0f, minlambda));
 
                         // We Apply the impulse!!!
-                        Vector2 vectImp = Vector2.Dot(impulse * new Vector2((float)Math.Cos(j), (float)Math.Sin(j)), -ro.Normal) * new Vector2((float)Math.Cos(j), (float)Math.Sin(j));
+                        var vectImp = Vector2.Dot(impulse * new Vector2((float)Math.Cos(j), (float)Math.Sin(j)), -ro.Normal) * new Vector2((float)Math.Cos(j), (float)Math.Sin(j));
                         _data[i].Body.ApplyLinearImpulse(ref vectImp, ref hitpoint);
 
                         // We gather the fixtures for returning them
@@ -335,25 +336,25 @@ namespace Genbox.VelcroPhysics.Extensions.PhysicsLogics.Explosion
             }
 
             // We check contained shapes
-            for (int i = 0; i < containedShapeCount; ++i)
+            for (var i = 0; i < containedShapeCount; ++i)
             {
-                Fixture fix = containedShapes[i];
+                var fix = containedShapes[i];
 
                 if (!IsActiveOn(fix.Body))
                     continue;
 
-                float impulse = MinRays * maxForce * 180.0f / MathConstants.Pi;
+                var impulse = MinRays * maxForce * 180.0f / MathConstants.Pi;
                 Vector2 hitPoint;
 
                 if (fix.Shape is CircleShape circShape)
                     hitPoint = fix.Body.GetWorldPoint(circShape.Position);
                 else
                 {
-                    PolygonShape shape = fix.Shape as PolygonShape;
+                    var shape = fix.Shape as PolygonShape;
                     hitPoint = fix.Body.GetWorldPoint(shape._massData._centroid);
                 }
 
-                Vector2 vectImp = impulse * (hitPoint - pos);
+                var vectImp = impulse * (hitPoint - pos);
 
                 fix.Body.ApplyLinearImpulse(ref vectImp, ref hitPoint);
 

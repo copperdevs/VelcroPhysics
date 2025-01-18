@@ -21,14 +21,14 @@
 */
 
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Definitions.Joints;
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
-using Genbox.VelcroPhysics.Dynamics.Solver;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Definitions.Joints;
+using VelcroPhysics.Dynamics.Joints.Misc;
+using VelcroPhysics.Dynamics.Solver;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Dynamics.Joints
+namespace VelcroPhysics.Dynamics.Joints
 {
     // Gear Joint:
     // C0 = (coordinate1 + ratio * coordinate2)_initial
@@ -115,14 +115,14 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             Debug.Assert(_bodyA._type == BodyType.Dynamic);
 
             // Get geometry of joint1
-            Transform xfA = _bodyA._xf;
-            float aA = _bodyA._sweep.A;
-            Transform xfC = _bodyC._xf;
-            float aC = _bodyC._sweep.A;
+            var xfA = _bodyA._xf;
+            var aA = _bodyA._sweep.A;
+            var xfC = _bodyC._xf;
+            var aC = _bodyC._sweep.A;
 
             if (_typeA == JointType.Revolute)
             {
-                RevoluteJoint revolute = (RevoluteJoint)def.JointA;
+                var revolute = (RevoluteJoint)def.JointA;
                 _localAnchorC = revolute._localAnchorA;
                 _localAnchorA = revolute._localAnchorB;
                 _referenceAngleA = revolute._referenceAngle;
@@ -132,14 +132,14 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             }
             else
             {
-                PrismaticJoint prismatic = (PrismaticJoint)def.JointA;
+                var prismatic = (PrismaticJoint)def.JointA;
                 _localAnchorC = prismatic._localAnchorA;
                 _localAnchorA = prismatic._localAnchorB;
                 _referenceAngleA = prismatic._referenceAngle;
                 _localAxisC = prismatic._localXAxisA;
 
-                Vector2 pC = _localAnchorC;
-                Vector2 pA = MathUtils.MulT(xfC.q, MathUtils.Mul(xfA.q, _localAnchorA) + (xfA.p - xfC.p));
+                var pC = _localAnchorC;
+                var pA = MathUtils.MulT(xfC.q, MathUtils.Mul(xfA.q, _localAnchorA) + (xfA.p - xfC.p));
                 coordinateA = MathUtils.Dot(pA - pC, _localAxisC);
             }
 
@@ -150,14 +150,14 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             Debug.Assert(_bodyB._type == BodyType.Dynamic);
 
             // Get geometry of joint2
-            Transform xfB = _bodyB._xf;
-            float aB = _bodyB._sweep.A;
-            Transform xfD = _bodyD._xf;
-            float aD = _bodyD._sweep.A;
+            var xfB = _bodyB._xf;
+            var aB = _bodyB._sweep.A;
+            var xfD = _bodyD._xf;
+            var aD = _bodyD._sweep.A;
 
             if (_typeB == JointType.Revolute)
             {
-                RevoluteJoint revolute = (RevoluteJoint)def.JointB;
+                var revolute = (RevoluteJoint)def.JointB;
                 _localAnchorD = revolute._localAnchorA;
                 _localAnchorB = revolute._localAnchorB;
                 _referenceAngleB = revolute._referenceAngle;
@@ -167,14 +167,14 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             }
             else
             {
-                PrismaticJoint prismatic = (PrismaticJoint)def.JointB;
+                var prismatic = (PrismaticJoint)def.JointB;
                 _localAnchorD = prismatic._localAnchorA;
                 _localAnchorB = prismatic._localAnchorB;
                 _referenceAngleB = prismatic._referenceAngle;
                 _localAxisD = prismatic._localXAxisA;
 
-                Vector2 pD = _localAnchorD;
-                Vector2 pB = MathUtils.MulT(xfD.q, MathUtils.Mul(xfB.q, _localAnchorB) + (xfB.p - xfD.p));
+                var pD = _localAnchorD;
+                var pB = MathUtils.MulT(xfD.q, MathUtils.Mul(xfB.q, _localAnchorB) + (xfB.p - xfD.p));
                 coordinateB = MathUtils.Dot(pB - pD, _localAxisD);
             }
 
@@ -216,14 +216,14 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             Debug.Assert(_bodyA._type == BodyType.Dynamic);
 
             // Get geometry of joint1
-            Transform xfA = _bodyA._xf;
-            float aA = _bodyA._sweep.A;
-            Transform xfC = _bodyC._xf;
-            float aC = _bodyC._sweep.A;
+            var xfA = _bodyA._xf;
+            var aA = _bodyA._sweep.A;
+            var xfC = _bodyC._xf;
+            var aC = _bodyC._sweep.A;
 
             if (_typeA == JointType.Revolute)
             {
-                RevoluteJoint revolute = (RevoluteJoint)jointA;
+                var revolute = (RevoluteJoint)jointA;
                 _localAnchorC = revolute._localAnchorA;
                 _localAnchorA = revolute._localAnchorB;
                 _referenceAngleA = revolute._referenceAngle;
@@ -233,14 +233,14 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             }
             else
             {
-                PrismaticJoint prismatic = (PrismaticJoint)jointA;
+                var prismatic = (PrismaticJoint)jointA;
                 _localAnchorC = prismatic._localAnchorA;
                 _localAnchorA = prismatic._localAnchorB;
                 _referenceAngleA = prismatic._referenceAngle;
                 _localAxisC = prismatic._localXAxisA;
 
-                Vector2 pC = _localAnchorC;
-                Vector2 pA = MathUtils.MulT(xfC.q, MathUtils.Mul(xfA.q, _localAnchorA) + (xfA.p - xfC.p));
+                var pC = _localAnchorC;
+                var pA = MathUtils.MulT(xfC.q, MathUtils.Mul(xfA.q, _localAnchorA) + (xfA.p - xfC.p));
                 coordinateA = Vector2.Dot(pA - pC, _localAxisC);
             }
 
@@ -251,14 +251,14 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             Debug.Assert(_bodyB._type == BodyType.Dynamic);
 
             // Get geometry of joint2
-            Transform xfB = _bodyB._xf;
-            float aB = _bodyB._sweep.A;
-            Transform xfD = _bodyD._xf;
-            float aD = _bodyD._sweep.A;
+            var xfB = _bodyB._xf;
+            var aB = _bodyB._sweep.A;
+            var xfD = _bodyD._xf;
+            var aD = _bodyD._sweep.A;
 
             if (_typeB == JointType.Revolute)
             {
-                RevoluteJoint revolute = (RevoluteJoint)jointB;
+                var revolute = (RevoluteJoint)jointB;
                 _localAnchorD = revolute._localAnchorA;
                 _localAnchorB = revolute._localAnchorB;
                 _referenceAngleB = revolute._referenceAngle;
@@ -268,14 +268,14 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             }
             else
             {
-                PrismaticJoint prismatic = (PrismaticJoint)jointB;
+                var prismatic = (PrismaticJoint)jointB;
                 _localAnchorD = prismatic._localAnchorA;
                 _localAnchorB = prismatic._localAnchorB;
                 _referenceAngleB = prismatic._referenceAngle;
                 _localAxisD = prismatic._localXAxisA;
 
-                Vector2 pD = _localAnchorD;
-                Vector2 pB = MathUtils.MulT(xfD.q, MathUtils.Mul(xfB.q, _localAnchorB) + (xfB.p - xfD.p));
+                var pD = _localAnchorD;
+                var pB = MathUtils.MulT(xfD.q, MathUtils.Mul(xfB.q, _localAnchorB) + (xfB.p - xfD.p));
                 coordinateB = Vector2.Dot(pB - pD, _localAxisD);
             }
 
@@ -311,13 +311,13 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
 
         public override Vector2 GetReactionForce(float invDt)
         {
-            Vector2 P = _impulse * _JvAC;
+            var P = _impulse * _JvAC;
             return invDt * P;
         }
 
         public override float GetReactionTorque(float invDt)
         {
-            float L = _impulse * _JwA;
+            var L = _impulse * _JwA;
             return invDt * L;
         }
 
@@ -340,23 +340,23 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             _iC = _bodyC._invI;
             _iD = _bodyD._invI;
 
-            float aA = data.Positions[_indexA].A;
-            Vector2 vA = data.Velocities[_indexA].V;
-            float wA = data.Velocities[_indexA].W;
+            var aA = data.Positions[_indexA].A;
+            var vA = data.Velocities[_indexA].V;
+            var wA = data.Velocities[_indexA].W;
 
-            float aB = data.Positions[_indexB].A;
-            Vector2 vB = data.Velocities[_indexB].V;
-            float wB = data.Velocities[_indexB].W;
+            var aB = data.Positions[_indexB].A;
+            var vB = data.Velocities[_indexB].V;
+            var wB = data.Velocities[_indexB].W;
 
-            float aC = data.Positions[_indexC].A;
-            Vector2 vC = data.Velocities[_indexC].V;
-            float wC = data.Velocities[_indexC].W;
+            var aC = data.Positions[_indexC].A;
+            var vC = data.Velocities[_indexC].V;
+            var wC = data.Velocities[_indexC].W;
 
-            float aD = data.Positions[_indexD].A;
-            Vector2 vD = data.Velocities[_indexD].V;
-            float wD = data.Velocities[_indexD].W;
+            var aD = data.Positions[_indexD].A;
+            var vD = data.Velocities[_indexD].V;
+            var wD = data.Velocities[_indexD].W;
 
-            Rot qA = new Rot(aA), qB = new Rot(aB), qC = new Rot(aC), qD = new Rot(aD);
+            Rot qA = new(aA), qB = new(aB), qC = new(aC), qD = new(aD);
 
             _mass = 0.0f;
 
@@ -369,9 +369,9 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             }
             else
             {
-                Vector2 u = MathUtils.Mul(qC, _localAxisC);
-                Vector2 rC = MathUtils.Mul(qC, _localAnchorC - _lcC);
-                Vector2 rA = MathUtils.Mul(qA, _localAnchorA - _lcA);
+                var u = MathUtils.Mul(qC, _localAxisC);
+                var rC = MathUtils.Mul(qC, _localAnchorC - _lcC);
+                var rA = MathUtils.Mul(qA, _localAnchorA - _lcA);
                 _JvAC = u;
                 _JwC = MathUtils.Cross(rC, u);
                 _JwA = MathUtils.Cross(rA, u);
@@ -387,9 +387,9 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             }
             else
             {
-                Vector2 u = MathUtils.Mul(qD, _localAxisD);
-                Vector2 rD = MathUtils.Mul(qD, _localAnchorD - _lcD);
-                Vector2 rB = MathUtils.Mul(qB, _localAnchorB - _lcB);
+                var u = MathUtils.Mul(qD, _localAxisD);
+                var rD = MathUtils.Mul(qD, _localAnchorD - _lcD);
+                var rB = MathUtils.Mul(qB, _localAnchorB - _lcB);
                 _JvBD = _ratio * u;
                 _JwD = _ratio * MathUtils.Cross(rD, u);
                 _JwB = _ratio * MathUtils.Cross(rB, u);
@@ -401,13 +401,13 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
 
             if (data.Step.WarmStarting)
             {
-                vA += (_mA * _impulse) * _JvAC;
+                vA += _mA * _impulse * _JvAC;
                 wA += _iA * _impulse * _JwA;
-                vB += (_mB * _impulse) * _JvBD;
+                vB += _mB * _impulse * _JvBD;
                 wB += _iB * _impulse * _JwB;
-                vC -= (_mC * _impulse) * _JvAC;
+                vC -= _mC * _impulse * _JvAC;
                 wC -= _iC * _impulse * _JwC;
-                vD -= (_mD * _impulse) * _JvBD;
+                vD -= _mD * _impulse * _JvBD;
                 wD -= _iD * _impulse * _JwD;
             }
             else
@@ -425,28 +425,28 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
 
         internal override void SolveVelocityConstraints(ref SolverData data)
         {
-            Vector2 vA = data.Velocities[_indexA].V;
-            float wA = data.Velocities[_indexA].W;
-            Vector2 vB = data.Velocities[_indexB].V;
-            float wB = data.Velocities[_indexB].W;
-            Vector2 vC = data.Velocities[_indexC].V;
-            float wC = data.Velocities[_indexC].W;
-            Vector2 vD = data.Velocities[_indexD].V;
-            float wD = data.Velocities[_indexD].W;
+            var vA = data.Velocities[_indexA].V;
+            var wA = data.Velocities[_indexA].W;
+            var vB = data.Velocities[_indexB].V;
+            var wB = data.Velocities[_indexB].W;
+            var vC = data.Velocities[_indexC].V;
+            var wC = data.Velocities[_indexC].W;
+            var vD = data.Velocities[_indexD].V;
+            var wD = data.Velocities[_indexD].W;
 
-            float Cdot = Vector2.Dot(_JvAC, vA - vC) + Vector2.Dot(_JvBD, vB - vD);
-            Cdot += (_JwA * wA - _JwC * wC) + (_JwB * wB - _JwD * wD);
+            var Cdot = Vector2.Dot(_JvAC, vA - vC) + Vector2.Dot(_JvBD, vB - vD);
+            Cdot += _JwA * wA - _JwC * wC + (_JwB * wB - _JwD * wD);
 
-            float impulse = -_mass * Cdot;
+            var impulse = -_mass * Cdot;
             _impulse += impulse;
 
-            vA += (_mA * impulse) * _JvAC;
+            vA += _mA * impulse * _JvAC;
             wA += _iA * impulse * _JwA;
-            vB += (_mB * impulse) * _JvBD;
+            vB += _mB * impulse * _JvBD;
             wB += _iB * impulse * _JwB;
-            vC -= (_mC * impulse) * _JvAC;
+            vC -= _mC * impulse * _JvAC;
             wC -= _iC * impulse * _JwC;
-            vD -= (_mD * impulse) * _JvBD;
+            vD -= _mD * impulse * _JvBD;
             wD -= _iD * impulse * _JwD;
 
             data.Velocities[_indexA].V = vA;
@@ -461,16 +461,16 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
 
         internal override bool SolvePositionConstraints(ref SolverData data)
         {
-            Vector2 cA = data.Positions[_indexA].C;
-            float aA = data.Positions[_indexA].A;
-            Vector2 cB = data.Positions[_indexB].C;
-            float aB = data.Positions[_indexB].A;
-            Vector2 cC = data.Positions[_indexC].C;
-            float aC = data.Positions[_indexC].A;
-            Vector2 cD = data.Positions[_indexD].C;
-            float aD = data.Positions[_indexD].A;
+            var cA = data.Positions[_indexA].C;
+            var aA = data.Positions[_indexA].A;
+            var cB = data.Positions[_indexB].C;
+            var aB = data.Positions[_indexB].A;
+            var cC = data.Positions[_indexC].C;
+            var aC = data.Positions[_indexC].A;
+            var cD = data.Positions[_indexD].C;
+            var aD = data.Positions[_indexD].A;
 
-            Rot qA = new Rot(aA), qB = new Rot(aB), qC = new Rot(aC), qD = new Rot(aD);
+            Rot qA = new(aA), qB = new(aB), qC = new(aC), qD = new(aD);
 
             const float linearError = 0.0f;
 
@@ -478,7 +478,7 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
 
             Vector2 JvAC, JvBD;
             float JwA, JwB, JwC, JwD;
-            float mass = 0.0f;
+            var mass = 0.0f;
 
             if (_typeA == JointType.Revolute)
             {
@@ -491,16 +491,16 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             }
             else
             {
-                Vector2 u = MathUtils.Mul(qC, _localAxisC);
-                Vector2 rC = MathUtils.Mul(qC, _localAnchorC - _lcC);
-                Vector2 rA = MathUtils.Mul(qA, _localAnchorA - _lcA);
+                var u = MathUtils.Mul(qC, _localAxisC);
+                var rC = MathUtils.Mul(qC, _localAnchorC - _lcC);
+                var rA = MathUtils.Mul(qA, _localAnchorA - _lcA);
                 JvAC = u;
                 JwC = MathUtils.Cross(rC, u);
                 JwA = MathUtils.Cross(rA, u);
                 mass += _mC + _mA + _iC * JwC * JwC + _iA * JwA * JwA;
 
-                Vector2 pC = _localAnchorC - _lcC;
-                Vector2 pA = MathUtils.MulT(qC, rA + (cA - cC));
+                var pC = _localAnchorC - _lcC;
+                var pA = MathUtils.MulT(qC, rA + (cA - cC));
                 coordinateA = Vector2.Dot(pA - pC, _localAxisC);
             }
 
@@ -515,22 +515,22 @@ namespace Genbox.VelcroPhysics.Dynamics.Joints
             }
             else
             {
-                Vector2 u = MathUtils.Mul(qD, _localAxisD);
-                Vector2 rD = MathUtils.Mul(qD, _localAnchorD - _lcD);
-                Vector2 rB = MathUtils.Mul(qB, _localAnchorB - _lcB);
+                var u = MathUtils.Mul(qD, _localAxisD);
+                var rD = MathUtils.Mul(qD, _localAnchorD - _lcD);
+                var rB = MathUtils.Mul(qB, _localAnchorB - _lcB);
                 JvBD = _ratio * u;
                 JwD = _ratio * MathUtils.Cross(rD, u);
                 JwB = _ratio * MathUtils.Cross(rB, u);
                 mass += _ratio * _ratio * (_mD + _mB) + _iD * JwD * JwD + _iB * JwB * JwB;
 
-                Vector2 pD = _localAnchorD - _lcD;
-                Vector2 pB = MathUtils.MulT(qD, rB + (cB - cD));
+                var pD = _localAnchorD - _lcD;
+                var pB = MathUtils.MulT(qD, rB + (cB - cD));
                 coordinateB = Vector2.Dot(pB - pD, _localAxisD);
             }
 
-            float C = (coordinateA + _ratio * coordinateB) - _constant;
+            var C = coordinateA + _ratio * coordinateB - _constant;
 
-            float impulse = 0.0f;
+            var impulse = 0.0f;
             if (mass > 0.0f)
                 impulse = -C / mass;
 

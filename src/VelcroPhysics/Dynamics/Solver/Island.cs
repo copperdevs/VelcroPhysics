@@ -140,12 +140,12 @@ However, we can compute sin+cos of the same angle fast.
 
 using System;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.ContactSystem;
-using Genbox.VelcroPhysics.Dynamics.Joints;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.ContactSystem;
+using VelcroPhysics.Dynamics.Joints;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Dynamics.Solver
+namespace VelcroPhysics.Dynamics.Solver
 {
     /// <summary>This is an internal class.</summary>
     internal class Island
@@ -153,8 +153,8 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
         private float _linTolSqr = Settings.LinearSleepTolerance * Settings.LinearSleepTolerance;
         private float _angTolSqr = Settings.AngularSleepTolerance * Settings.AngularSleepTolerance;
         private ContactManager _contactManager;
-        private ContactSolver _contactSolver = new ContactSolver();
-        private Stopwatch _timer = new Stopwatch();
+        private ContactSolver _contactSolver = new();
+        private Stopwatch _timer = new();
 
         private Contact[] _contacts;
         private Joint[] _joints;
@@ -203,17 +203,17 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
 
         public void Solve(ref Profile profile, ref TimeStep step, ref Vector2 gravity, bool allowSleep)
         {
-            float h = step.DeltaTime;
+            var h = step.DeltaTime;
 
             // Integrate velocities and apply damping. Initialize the body state.
-            for (int i = 0; i < _bodyCount; ++i)
+            for (var i = 0; i < _bodyCount; ++i)
             {
-                Body b = _bodies[i];
+                var b = _bodies[i];
 
-                Vector2 c = b._sweep.C;
-                float a = b._sweep.A;
-                Vector2 v = b._linearVelocity;
-                float w = b._angularVelocity;
+                var c = b._sweep.C;
+                var a = b._sweep.A;
+                var v = b._linearVelocity;
+                var w = b._angularVelocity;
 
                 // Store positions for continuous collision.
                 b._sweep.C0 = b._sweep.C;
@@ -245,10 +245,12 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
             _timer.Restart();
 
             // Solver data
-            SolverData solverData = new SolverData();
-            solverData.Step = step;
-            solverData.Positions = _positions;
-            solverData.Velocities = _velocities;
+            var solverData = new SolverData
+            {
+                Step = step,
+                Positions = _positions,
+                Velocities = _velocities
+            };
 
             //Velcro: We reduce the amount of garbage by reusing the contactsolver and only resetting the state
             _contactSolver.Reset(step, _contactCount, _contacts, _positions, _velocities);
@@ -257,7 +259,7 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
             if (step.WarmStarting)
                 _contactSolver.WarmStart();
 
-            for (int i = 0; i < _jointCount; ++i)
+            for (var i = 0; i < _jointCount; ++i)
             {
                 if (_joints[i]._enabled)
                     _joints[i].InitVelocityConstraints(ref solverData);
@@ -267,11 +269,11 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
 
             // Solve velocity constraints.
             _timer.Restart();
-            for (int i = 0; i < step.VelocityIterations; ++i)
+            for (var i = 0; i < step.VelocityIterations; ++i)
             {
-                for (int j = 0; j < _jointCount; ++j)
+                for (var j = 0; j < _jointCount; ++j)
                 {
-                    Joint joint = _joints[j];
+                    var joint = _joints[j];
 
                     if (!joint._enabled)
                         continue;
@@ -288,25 +290,25 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
             profile.SolveVelocity = _timer.ElapsedTicks;
 
             // Integrate positions
-            for (int i = 0; i < _bodyCount; ++i)
+            for (var i = 0; i < _bodyCount; ++i)
             {
-                Vector2 c = _positions[i].C;
-                float a = _positions[i].A;
-                Vector2 v = _velocities[i].V;
-                float w = _velocities[i].W;
+                var c = _positions[i].C;
+                var a = _positions[i].A;
+                var v = _velocities[i].V;
+                var w = _velocities[i].W;
 
                 // Check for large velocities
-                Vector2 translation = h * v;
+                var translation = h * v;
                 if (Vector2.Dot(translation, translation) > Settings.MaxTranslation * Settings.MaxTranslation)
                 {
-                    float ratio = Settings.MaxTranslation / translation.Length();
+                    var ratio = Settings.MaxTranslation / translation.Length();
                     v *= ratio;
                 }
 
-                float rotation = h * w;
+                var rotation = h * w;
                 if (rotation * rotation > Settings.MaxRotation * Settings.MaxRotation)
                 {
-                    float ratio = Settings.MaxRotation / Math.Abs(rotation);
+                    var ratio = Settings.MaxRotation / Math.Abs(rotation);
                     w *= ratio;
                 }
 
@@ -322,21 +324,21 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
 
             // Solve position constraints
             _timer.Restart();
-            bool positionSolved = false;
-            for (int i = 0; i < step.PositionIterations; ++i)
+            var positionSolved = false;
+            for (var i = 0; i < step.PositionIterations; ++i)
             {
-                bool contactsOkay = _contactSolver.SolvePositionConstraints();
+                var contactsOkay = _contactSolver.SolvePositionConstraints();
 
-                bool jointsOkay = true;
-                for (int j = 0; j < _jointCount; ++j)
+                var jointsOkay = true;
+                for (var j = 0; j < _jointCount; ++j)
                 {
-                    Joint joint = _joints[j];
+                    var joint = _joints[j];
 
                     //Velcro: We support disabling joints
                     if (!joint._enabled)
                         continue;
 
-                    bool jointOkay = joint.SolvePositionConstraints(ref solverData);
+                    var jointOkay = joint.SolvePositionConstraints(ref solverData);
                     jointsOkay = jointsOkay && jointOkay;
                 }
 
@@ -349,9 +351,9 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
             }
 
             // Copy state buffers back to the bodies
-            for (int i = 0; i < _bodyCount; ++i)
+            for (var i = 0; i < _bodyCount; ++i)
             {
-                Body body = _bodies[i];
+                var body = _bodies[i];
                 body._sweep.C = _positions[i].C;
                 body._sweep.A = _positions[i].A;
                 body._linearVelocity = _velocities[i].V;
@@ -365,11 +367,11 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
 
             if (allowSleep)
             {
-                float minSleepTime = MathConstants.MaxFloat;
+                var minSleepTime = MathConstants.MaxFloat;
 
-                for (int i = 0; i < _bodyCount; ++i)
+                for (var i = 0; i < _bodyCount; ++i)
                 {
-                    Body b = _bodies[i];
+                    var b = _bodies[i];
 
                     if (b.BodyType == BodyType.Static)
                         continue;
@@ -388,9 +390,9 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
 
                 if (minSleepTime >= Settings.TimeToSleep && positionSolved)
                 {
-                    for (int i = 0; i < _bodyCount; ++i)
+                    for (var i = 0; i < _bodyCount; ++i)
                     {
-                        Body b = _bodies[i];
+                        var b = _bodies[i];
                         b.Awake = false;
                     }
                 }
@@ -403,9 +405,9 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
             Debug.Assert(toiIndexB < _bodyCount);
 
             // Initialize the body state.
-            for (int i = 0; i < _bodyCount; ++i)
+            for (var i = 0; i < _bodyCount; ++i)
             {
-                Body b = _bodies[i];
+                var b = _bodies[i];
                 _positions[i].C = b._sweep.C;
                 _positions[i].A = b._sweep.A;
                 _velocities[i].V = b._linearVelocity;
@@ -416,9 +418,9 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
             _contactSolver.Reset(subStep, _contactCount, _contacts, _positions, _velocities);
 
             // Solve position constraints.
-            for (int i = 0; i < subStep.PositionIterations; ++i)
+            for (var i = 0; i < subStep.PositionIterations; ++i)
             {
-                bool contactsOkay = _contactSolver.SolveTOIPositionConstraints(toiIndexA, toiIndexB);
+                var contactsOkay = _contactSolver.SolveTOIPositionConstraints(toiIndexA, toiIndexB);
                 if (contactsOkay)
                     break;
             }
@@ -434,7 +436,7 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
             _contactSolver.InitializeVelocityConstraints();
 
             // Solve velocity constraints.
-            for (int i = 0; i < subStep.VelocityIterations; ++i)
+            for (var i = 0; i < subStep.VelocityIterations; ++i)
             {
                 _contactSolver.SolveVelocityConstraints();
             }
@@ -442,28 +444,28 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
             // Don't store the TOI contact forces for warm starting
             // because they can be quite large.
 
-            float h = subStep.DeltaTime;
+            var h = subStep.DeltaTime;
 
             // Integrate positions.
-            for (int i = 0; i < _bodyCount; ++i)
+            for (var i = 0; i < _bodyCount; ++i)
             {
-                Vector2 c = _positions[i].C;
-                float a = _positions[i].A;
-                Vector2 v = _velocities[i].V;
-                float w = _velocities[i].W;
+                var c = _positions[i].C;
+                var a = _positions[i].A;
+                var v = _velocities[i].V;
+                var w = _velocities[i].W;
 
                 // Check for large velocities
-                Vector2 translation = h * v;
+                var translation = h * v;
                 if (Vector2.Dot(translation, translation) > Settings.MaxTranslation * Settings.MaxTranslation)
                 {
-                    float ratio = Settings.MaxTranslation / translation.Length();
+                    var ratio = Settings.MaxTranslation / translation.Length();
                     v *= ratio;
                 }
 
-                float rotation = h * w;
+                var rotation = h * w;
                 if (rotation * rotation > Settings.MaxRotation * Settings.MaxRotation)
                 {
-                    float ratio = Settings.MaxRotation / Math.Abs(rotation);
+                    var ratio = Settings.MaxRotation / Math.Abs(rotation);
                     w *= ratio;
                 }
 
@@ -477,7 +479,7 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
                 _velocities[i].W = w;
 
                 // Sync bodies
-                Body body = _bodies[i];
+                var body = _bodies[i];
                 body._sweep.C = c;
                 body._sweep.A = a;
                 body._linearVelocity = v;
@@ -512,9 +514,9 @@ namespace Genbox.VelcroPhysics.Dynamics.Solver
             if (_contactManager == null)
                 return;
 
-            for (int i = 0; i < _contactCount; ++i)
+            for (var i = 0; i < _contactCount; ++i)
             {
-                Contact c = _contacts[i];
+                var c = _contacts[i];
 
                 //Velcro feature: added after collision
                 c._fixtureA.AfterCollision?.Invoke(c._fixtureA, c._fixtureB, c, constraints[i]);

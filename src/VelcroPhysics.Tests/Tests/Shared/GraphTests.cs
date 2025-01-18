@@ -1,19 +1,19 @@
-﻿using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Tests.Code;
+﻿using VelcroPhysics.Shared;
+using VelcroPhysics.Tests.Code;
 using Xunit;
 
-namespace Genbox.VelcroPhysics.Tests.Tests.Shared
+namespace VelcroPhysics.Tests.Tests.Shared
 {
     public class GraphTests
     {
         [Fact]
         public void TestEmptyConstruction()
         {
-            Graph<int> graph = new Graph<int>();
+            var graph = new Graph<int>();
             Assert.Equal(0, graph.Count);
             Assert.Null(graph.First);
 
-            Graph<Dummy> graph2 = new Graph<Dummy>();
+            var graph2 = new Graph<Dummy>();
             Assert.Equal(0, graph2.Count);
             Assert.Null(graph2.First);
         }
@@ -21,8 +21,8 @@ namespace Genbox.VelcroPhysics.Tests.Tests.Shared
         [Fact]
         public void TestAddValueType()
         {
-            Graph<int> graph = new Graph<int>();
-            GraphNode<int> node = graph.Add(10);
+            var graph = new Graph<int>();
+            var node = graph.Add(10);
 
             Assert.Equal(10, node.Item);
             Assert.Equal(node, node.Prev);
@@ -32,11 +32,11 @@ namespace Genbox.VelcroPhysics.Tests.Tests.Shared
         [Fact]
         public void TestAddReferenceType()
         {
-            Graph<Dummy> graph = new Graph<Dummy>();
+            var graph = new Graph<Dummy>();
 
-            Dummy instance = new Dummy();
+            var instance = new Dummy();
 
-            GraphNode<Dummy> node = graph.Add(instance);
+            var node = graph.Add(instance);
 
             Assert.Equal(instance, node.Item);
             Assert.Equal(node, node.Prev);
@@ -46,8 +46,8 @@ namespace Genbox.VelcroPhysics.Tests.Tests.Shared
         [Fact]
         public void TestRemoveValueType()
         {
-            Graph<int> graph = new Graph<int>();
-            GraphNode<int> node = graph.Add(10);
+            var graph = new Graph<int>();
+            var node = graph.Add(10);
 
             Assert.Equal(1, graph.Count);
 
@@ -63,8 +63,8 @@ namespace Genbox.VelcroPhysics.Tests.Tests.Shared
         [Fact]
         public void TestRemoveReferenceType()
         {
-            Graph<Dummy> graph = new Graph<Dummy>();
-            GraphNode<Dummy> node = graph.Add(new Dummy());
+            var graph = new Graph<Dummy>();
+            var node = graph.Add(new Dummy());
 
             Assert.Equal(1, graph.Count);
 
@@ -80,18 +80,18 @@ namespace Genbox.VelcroPhysics.Tests.Tests.Shared
         [Fact]
         public void TestIteration()
         {
-            Graph<int> graph = new Graph<int>();
+            var graph = new Graph<int>();
 
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 graph.Add(i);
             }
 
             Assert.Equal(10, graph.Count);
 
-            int count = 0;
+            var count = 0;
 
-            foreach (int i in graph)
+            foreach (var i in graph)
             {
                 Assert.Equal(count++, i);
             }

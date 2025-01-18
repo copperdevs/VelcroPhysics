@@ -1,12 +1,12 @@
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.ContactSystem;
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Shared.Optimization;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.ContactSystem;
+using VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Shared.Optimization;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Collision.Narrowphase
+namespace VelcroPhysics.Collision.Narrowphase
 {
     public static class CollideEdge
     {
@@ -21,24 +21,24 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
             manifold.PointCount = 0;
 
             // Compute circle in frame of edge
-            Vector2 Q = MathUtils.MulT(ref transformA, MathUtils.Mul(ref transformB, ref circleB._position));
+            var Q = MathUtils.MulT(ref transformA, MathUtils.Mul(ref transformB, ref circleB._position));
 
             Vector2 A = edgeA.Vertex1, B = edgeA.Vertex2;
-            Vector2 e = B - A;
+            var e = B - A;
 
             // Normal points to the right for a CCW winding
-            Vector2 n = new Vector2(e.Y, -e.X);
-            float offset = MathUtils.Dot(n, Q - A);
+            var n = new Vector2(e.Y, -e.X);
+            var offset = MathUtils.Dot(n, Q - A);
 
-            bool oneSided = edgeA.OneSided;
+            var oneSided = edgeA.OneSided;
             if (oneSided && offset < 0.0f)
                 return;
 
             // Barycentric coordinates
-            float u = Vector2.Dot(e, B - Q);
-            float v = Vector2.Dot(e, Q - A);
+            var u = Vector2.Dot(e, B - Q);
+            var v = Vector2.Dot(e, Q - A);
 
-            float radius = edgeA._radius + circleB._radius;
+            var radius = edgeA._radius + circleB._radius;
 
             ContactFeature cf;
             cf.IndexB = 0;
@@ -47,19 +47,17 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
             // Region A
             if (v <= 0.0f)
             {
-                Vector2 P1 = A;
-                Vector2 d1 = Q - P1;
-                float dd1 = Vector2.Dot(d1, d1);
+                var d1 = Q - A;
+                var dd1 = Vector2.Dot(d1, d1);
                 if (dd1 > radius * radius)
                     return;
 
                 // Is there an edge connected to A?
                 if (edgeA.OneSided)
                 {
-                    Vector2 A1 = edgeA.Vertex0;
-                    Vector2 B1 = A;
-                    Vector2 e1 = B1 - A1;
-                    float u1 = Vector2.Dot(e1, B1 - Q);
+                    var A1 = edgeA.Vertex0;
+                    var e1 = A - A1;
+                    var u1 = Vector2.Dot(e1, A - Q);
 
                     // Is the circle in Region AB of the previous edge?
                     if (u1 > 0.0f)
@@ -71,7 +69,7 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
                 manifold.PointCount = 1;
                 manifold.Type = ManifoldType.Circles;
                 manifold.LocalNormal = Vector2.Zero;
-                manifold.LocalPoint = P1;
+                manifold.LocalPoint = A;
                 manifold.Points.Value0.Id.Key = 0;
                 manifold.Points.Value0.Id.ContactFeature = cf;
                 manifold.Points.Value0.LocalPoint = circleB.Position;
@@ -81,19 +79,17 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
             // Region B
             if (u <= 0.0f)
             {
-                Vector2 P2 = B;
-                Vector2 d2 = Q - P2;
-                float dd2 = Vector2.Dot(d2, d2);
+                var d2 = Q - B;
+                var dd2 = Vector2.Dot(d2, d2);
                 if (dd2 > radius * radius)
                     return;
 
                 // Is there an edge connected to B?
                 if (edgeA.OneSided)
                 {
-                    Vector2 B2 = edgeA.Vertex3;
-                    Vector2 A2 = B;
-                    Vector2 e2 = B2 - A2;
-                    float v2 = Vector2.Dot(e2, Q - A2);
+                    var B2 = edgeA.Vertex3;
+                    var e2 = B2 - B;
+                    var v2 = Vector2.Dot(e2, Q - B);
 
                     // Is the circle in Region AB of the next edge?
                     if (v2 > 0.0f)
@@ -105,7 +101,7 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
                 manifold.PointCount = 1;
                 manifold.Type = ManifoldType.Circles;
                 manifold.LocalNormal = Vector2.Zero;
-                manifold.LocalPoint = P2;
+                manifold.LocalPoint = B;
                 manifold.Points.Value0.Id.Key = 0;
                 manifold.Points.Value0.Id.ContactFeature = cf;
                 manifold.Points.Value0.LocalPoint = circleB.Position;
@@ -113,18 +109,18 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
             }
 
             // Region AB
-            float den = Vector2.Dot(e, e);
+            var den = Vector2.Dot(e, e);
             Debug.Assert(den > 0.0f);
-            Vector2 P = (1.0f / den) * (u * A + v * B);
-            Vector2 d = Q - P;
-            float dd = Vector2.Dot(d, d);
+            var P = 1.0f / den * (u * A + v * B);
+            var d = Q - P;
+            var dd = Vector2.Dot(d, d);
             if (dd > radius * radius)
                 return;
 
             if (offset < 0.0f)
                 n = new Vector2(-n.X, -n.Y);
 
-            n.Normalize();
+            n = Vector2.Normalize(n);
 
             cf.IndexA = 0;
             cf.TypeA = ContactFeatureType.Face;
@@ -141,43 +137,42 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
         {
             manifold.PointCount = 0;
 
-            Transform xf = MathUtils.MulT(xfA, xfB);
+            var xf = MathUtils.MulT(xfA, xfB);
 
-            Vector2 centroidB = MathUtils.Mul(ref xf, polygonB._massData._centroid);
+            var centroidB = MathUtils.Mul(ref xf, polygonB._massData._centroid);
 
-            Vector2 v1 = edgeA._vertex1;
-            Vector2 v2 = edgeA._vertex2;
+            var v1 = edgeA._vertex1;
+            var v2 = edgeA._vertex2;
 
-            Vector2 edge1 = v2 - v1;
-            edge1.Normalize();
+            var edge1 = Vector2.Normalize(v2 - v1);
 
             // Normal points to the right for a CCW winding
-            Vector2 normal1 = new Vector2(edge1.Y, -edge1.X);
-            float offset1 = MathUtils.Dot(normal1, centroidB - v1);
+            var normal1 = new Vector2(edge1.Y, -edge1.X);
+            var offset1 = MathUtils.Dot(normal1, centroidB - v1);
 
-            bool oneSided = edgeA._oneSided;
+            var oneSided = edgeA._oneSided;
             if (oneSided && offset1 < 0.0f)
             {
                 return;
             }
 
             // Get polygonB in frameA
-            TempPolygon tempPolygonB = new TempPolygon(polygonB._vertices.Count);
-            for (int i = 0; i < polygonB._vertices.Count; ++i)
+            var tempPolygonB = new TempPolygon(polygonB._vertices.Count);
+            for (var i = 0; i < polygonB._vertices.Count; ++i)
             {
                 tempPolygonB.Vertices[i] = MathUtils.Mul(ref xf, polygonB._vertices[i]);
                 tempPolygonB.Normals[i] = MathUtils.Mul(xf.q, polygonB._normals[i]);
             }
 
-            float radius = polygonB._radius + edgeA._radius;
+            var radius = polygonB._radius + edgeA._radius;
 
-            EPAxis edgeAxis = ComputeEdgeSeparation(ref tempPolygonB, v1, normal1);
+            var edgeAxis = ComputeEdgeSeparation(ref tempPolygonB, v1, normal1);
             if (edgeAxis.Separation > radius)
             {
                 return;
             }
 
-            EPAxis polygonAxis = ComputePolygonSeparation(ref tempPolygonB, v1, v2);
+            var polygonAxis = ComputePolygonSeparation(ref tempPolygonB, v1, v2);
             if (polygonAxis.Separation > radius)
             {
                 return;
@@ -202,18 +197,18 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
                 // Smooth collision
                 // See https://box2d.org/posts/2020/06/ghost-collisions/
 
-                Vector2 edge0 = v1 - edgeA._vertex0;
-                edge0.Normalize();
-                Vector2 normal0 = new Vector2(edge0.Y, -edge0.X);
-                bool convex1 = MathUtils.Cross(edge0, edge1) >= 0.0f;
+                var edge0 = v1 - edgeA._vertex0;
+                edge0 = Vector2.Normalize(edge0);
+                var normal0 = new Vector2(edge0.Y, -edge0.X);
+                var convex1 = MathUtils.Cross(edge0, edge1) >= 0.0f;
 
-                Vector2 edge2 = edgeA._vertex3 - v2;
-                edge2.Normalize();
-                Vector2 normal2 = new Vector2(edge2.Y, -edge2.X);
-                bool convex2 = MathUtils.Cross(edge1, edge2) >= 0.0f;
+                var edge2 = edgeA._vertex3 - v2;
+                edge2 = Vector2.Normalize(edge2);
+                var normal2 = new Vector2(edge2.Y, -edge2.X);
+                var convex2 = MathUtils.Cross(edge1, edge2) >= 0.0f;
 
                 const float sinTol = 0.1f;
-                bool side1 = MathUtils.Dot(primaryAxis.Normal, edge1) <= 0.0f;
+                var side1 = MathUtils.Dot(primaryAxis.Normal, edge1) <= 0.0f;
 
                 // Check Gauss Map
                 if (side1)
@@ -254,18 +249,18 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
                 }
             }
 
-            FixedArray2<ClipVertex> clipPoints = new FixedArray2<ClipVertex>();
+            var clipPoints = new FixedArray2<ClipVertex>();
             ReferenceFace ref1;
             if (primaryAxis.Type == EPAxisType.EdgeA)
             {
                 manifold.Type = ManifoldType.FaceA;
 
                 // Search for the polygon normal that is most anti-parallel to the edge normal.
-                int bestIndex = 0;
-                float bestValue = MathUtils.Dot(primaryAxis.Normal, tempPolygonB.Normals[0]);
-                for (int i = 1; i < tempPolygonB.Count; ++i)
+                var bestIndex = 0;
+                var bestValue = MathUtils.Dot(primaryAxis.Normal, tempPolygonB.Normals[0]);
+                for (var i = 1; i < tempPolygonB.Count; ++i)
                 {
-                    float value = MathUtils.Dot(primaryAxis.Normal, tempPolygonB.Normals[i]);
+                    var value = MathUtils.Dot(primaryAxis.Normal, tempPolygonB.Normals[i]);
                     if (value < bestValue)
                     {
                         bestValue = value;
@@ -273,8 +268,8 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
                     }
                 }
 
-                int i1 = bestIndex;
-                int i2 = i1 + 1 < tempPolygonB.Count ? i1 + 1 : 0;
+                var i1 = bestIndex;
+                var i2 = i1 + 1 < tempPolygonB.Count ? i1 + 1 : 0;
 
                 clipPoints.Value0.V = tempPolygonB.Vertices[i1];
                 clipPoints.Value0.Id.ContactFeature.IndexA = 0;
@@ -359,14 +354,14 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
                 manifold.LocalPoint = polygonB._vertices[ref1.i1];
             }
 
-            int pointCount = 0;
-            for (int i = 0; i < Settings.MaxManifoldPoints; ++i)
+            var pointCount = 0;
+            for (var i = 0; i < Settings.MaxManifoldPoints; ++i)
             {
-                float separation = MathUtils.Dot(ref1.Normal, clipPoints2[i].V - ref1.v1);
+                var separation = MathUtils.Dot(ref1.Normal, clipPoints2[i].V - ref1.v1);
 
                 if (separation <= radius)
                 {
-                    ManifoldPoint cp = manifold.Points[pointCount];
+                    var cp = manifold.Points[pointCount];
 
                     if (primaryAxis.Type == EPAxisType.EdgeA)
                     {
@@ -398,17 +393,17 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
             axis.Separation = -MathConstants.MaxFloat;
             axis.Normal = Vector2.Zero;
 
-            Vector2[] axes = { normal1, -normal1 };
+            Vector2[] axes = [normal1, -normal1];
 
             // Find axis with least overlap (min-max problem)
-            for (int j = 0; j < 2; ++j)
+            for (var j = 0; j < 2; ++j)
             {
-                float sj = MathConstants.MaxFloat;
+                var sj = MathConstants.MaxFloat;
 
                 // Find deepest polygon vertex along axis j
-                for (int i = 0; i < polygonB.Count; ++i)
+                for (var i = 0; i < polygonB.Count; ++i)
                 {
-                    float si = MathUtils.Dot(axes[j], polygonB.Vertices[i] - v1);
+                    var si = MathUtils.Dot(axes[j], polygonB.Vertices[i] - v1);
                     if (si < sj)
                     {
                         sj = si;
@@ -434,13 +429,13 @@ namespace Genbox.VelcroPhysics.Collision.Narrowphase
             axis.Separation = -MathConstants.MaxFloat;
             axis.Normal = Vector2.Zero;
 
-            for (int i = 0; i < polygonB.Count; ++i)
+            for (var i = 0; i < polygonB.Count; ++i)
             {
-                Vector2 n = -polygonB.Normals[i];
+                var n = -polygonB.Normals[i];
 
-                float s1 = MathUtils.Dot(n, polygonB.Vertices[i] - v1);
-                float s2 = MathUtils.Dot(n, polygonB.Vertices[i] - v2);
-                float s = MathUtils.Min(s1, s2);
+                var s1 = MathUtils.Dot(n, polygonB.Vertices[i] - v1);
+                var s2 = MathUtils.Dot(n, polygonB.Vertices[i] - v2);
+                var s = MathUtils.Min(s1, s2);
 
                 if (s > axis.Separation)
                 {

@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.Shapes;
 
-namespace Genbox.VelcroPhysics.Collision.Distance
+namespace VelcroPhysics.Collision.Distance
 {
     /// <summary>A distance proxy is used by the GJK algorithm. It encapsulates any shape.</summary>
     public struct DistanceProxy
@@ -17,7 +17,7 @@ namespace Genbox.VelcroPhysics.Collision.Distance
             {
                 case ShapeType.Circle:
                     {
-                        CircleShape circle = (CircleShape)shape;
+                        var circle = (CircleShape)shape;
                         _vertices = new Vector2[1];
                         _vertices[0] = circle._position;
                         _radius = circle._radius;
@@ -26,10 +26,10 @@ namespace Genbox.VelcroPhysics.Collision.Distance
 
                 case ShapeType.Polygon:
                     {
-                        PolygonShape polygon = (PolygonShape)shape;
+                        var polygon = (PolygonShape)shape;
                         _vertices = new Vector2[polygon._vertices.Count];
 
-                        for (int i = 0; i < polygon._vertices.Count; i++)
+                        for (var i = 0; i < polygon._vertices.Count; i++)
                         {
                             _vertices[i] = polygon._vertices[i];
                         }
@@ -41,7 +41,7 @@ namespace Genbox.VelcroPhysics.Collision.Distance
                 case ShapeType.Chain:
                     {
 
-                        ChainShape chain = (ChainShape)shape;
+                        var chain = (ChainShape)shape;
                         Debug.Assert(0 <= index && index < chain._vertices.Count);
 
                         _vertices = new Vector2[2];
@@ -54,7 +54,7 @@ namespace Genbox.VelcroPhysics.Collision.Distance
 
                 case ShapeType.Edge:
                     {
-                        EdgeShape edge = (EdgeShape)shape;
+                        var edge = (EdgeShape)shape;
                         _vertices = new Vector2[2];
                         _vertices[0] = edge._vertex1;
                         _vertices[1] = edge._vertex2;
@@ -77,11 +77,11 @@ namespace Genbox.VelcroPhysics.Collision.Distance
         /// <param name="direction">The direction.</param>
         public int GetSupport(Vector2 direction)
         {
-            int bestIndex = 0;
-            float bestValue = Vector2.Dot(_vertices[0], direction);
-            for (int i = 1; i < _vertices.Length; ++i)
+            var bestIndex = 0;
+            var bestValue = Vector2.Dot(_vertices[0], direction);
+            for (var i = 1; i < _vertices.Length; ++i)
             {
-                float value = Vector2.Dot(_vertices[i], direction);
+                var value = Vector2.Dot(_vertices[i], direction);
                 if (value > bestValue)
                 {
                     bestIndex = i;

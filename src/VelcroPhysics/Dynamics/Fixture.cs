@@ -21,17 +21,17 @@
 */
 
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.Broadphase;
-using Genbox.VelcroPhysics.Collision.ContactSystem;
-using Genbox.VelcroPhysics.Collision.Filtering;
-using Genbox.VelcroPhysics.Collision.Handlers;
-using Genbox.VelcroPhysics.Collision.RayCast;
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Genbox.VelcroPhysics.Definitions;
-using Genbox.VelcroPhysics.Shared;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.Broadphase;
+using VelcroPhysics.Collision.ContactSystem;
+using VelcroPhysics.Collision.Filtering;
+using VelcroPhysics.Collision.Handlers;
+using VelcroPhysics.Collision.RayCast;
+using VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Definitions;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Dynamics
+namespace VelcroPhysics.Dynamics
 {
     /// <summary>A fixture is used to attach a Shape to a body for collision detection. A fixture inherits its transform from
     /// its parent. Fixtures hold additional non-geometric data such as friction, collision filters, etc. Fixtures are created
@@ -88,9 +88,9 @@ namespace Genbox.VelcroPhysics.Dynamics
             _shape = def.Shape.Clone();
 
             // Reserve proxy space
-            int childCount = Shape.ChildCount;
+            var childCount = Shape.ChildCount;
             _proxies = new FixtureProxy[childCount];
-            for (int i = 0; i < childCount; ++i)
+            for (var i = 0; i < childCount; ++i)
             {
                 _proxies[i].Fixture = null;
                 _proxies[i].ProxyId = DynamicTreeBroadPhase.NullProxy;
@@ -229,26 +229,26 @@ namespace Genbox.VelcroPhysics.Dynamics
         private void Refilter()
         {
             // Flag associated contacts for filtering.
-            ContactEdge edge = _body._contactList;
+            var edge = _body._contactList;
             while (edge != null)
             {
-                Contact contact = edge.Contact;
-                Fixture fixtureA = contact._fixtureA;
-                Fixture fixtureB = contact._fixtureB;
+                var contact = edge.Contact;
+                var fixtureA = contact._fixtureA;
+                var fixtureB = contact._fixtureB;
                 if (fixtureA == this || fixtureB == this)
                     contact._flags |= ContactFlags.FilterFlag;
 
                 edge = edge.Next;
             }
 
-            World world = _body._world;
+            var world = _body._world;
 
             if (world == null)
                 return;
 
             // Touch each proxy so that new pairs may be created
-            IBroadPhase broadPhase = world._contactManager.BroadPhase;
-            for (int i = 0; i < _proxyCount; ++i)
+            var broadPhase = world._contactManager.BroadPhase;
+            for (var i = 0; i < _proxyCount; ++i)
             {
                 broadPhase.TouchProxy(_proxies[i].ProxyId);
             }
@@ -306,9 +306,9 @@ namespace Genbox.VelcroPhysics.Dynamics
             // Create proxies in the broad-phase.
             _proxyCount = _shape.ChildCount;
 
-            for (int i = 0; i < _proxyCount; ++i)
+            for (var i = 0; i < _proxyCount; ++i)
             {
-                FixtureProxy proxy = new FixtureProxy();
+                var proxy = new FixtureProxy();
                 _shape.ComputeAABB(ref xf, i, out proxy.AABB);
                 proxy.Fixture = this;
                 proxy.ChildIndex = i;
@@ -323,9 +323,9 @@ namespace Genbox.VelcroPhysics.Dynamics
         internal void DestroyProxies(IBroadPhase broadPhase)
         {
             // Destroy proxies in the broad-phase.
-            for (int i = 0; i < _proxyCount; ++i)
+            for (var i = 0; i < _proxyCount; ++i)
             {
-                FixtureProxy proxy = _proxies[i];
+                var proxy = _proxies[i];
                 broadPhase.RemoveProxy(proxy.ProxyId);
                 proxy.ProxyId = DynamicTreeBroadPhase.NullProxy;
             }
@@ -338,17 +338,17 @@ namespace Genbox.VelcroPhysics.Dynamics
             if (_proxyCount == 0)
                 return;
 
-            for (int i = 0; i < _proxyCount; ++i)
+            for (var i = 0; i < _proxyCount; ++i)
             {
-                FixtureProxy proxy = _proxies[i];
+                var proxy = _proxies[i];
 
                 // Compute an AABB that covers the swept Shape (may miss some rotation effect).
-                Shape.ComputeAABB(ref transform1, proxy.ChildIndex, out AABB aabb1);
-                Shape.ComputeAABB(ref transform2, proxy.ChildIndex, out AABB aabb2);
+                Shape.ComputeAABB(ref transform1, proxy.ChildIndex, out var aabb1);
+                Shape.ComputeAABB(ref transform2, proxy.ChildIndex, out var aabb2);
 
                 proxy.AABB.Combine(ref aabb1, ref aabb2);
 
-                Vector2 displacement = aabb2.Center - aabb1.Center;
+                var displacement = aabb2.Center - aabb1.Center;
 
                 broadPhase.MoveProxy(proxy.ProxyId, ref proxy.AABB, displacement);
             }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
+namespace VelcroPhysics.Tools.Triangulation.Seidel
 {
     internal class Trapezoid
     {
@@ -86,7 +86,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
 
         public List<Point> GetVertices()
         {
-            List<Point> verts = new List<Point>(4);
+            var verts = new List<Point>(4);
             verts.Add(LineIntersect(Top, LeftPoint.X));
             verts.Add(LineIntersect(Bottom, LeftPoint.X));
             verts.Add(LineIntersect(Bottom, RightPoint.X));
@@ -96,7 +96,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
 
         private Point LineIntersect(Edge edge, float x)
         {
-            float y = edge.Slope * x + edge.B;
+            var y = edge.Slope * x + edge.B;
             return new Point(x, y);
         }
 

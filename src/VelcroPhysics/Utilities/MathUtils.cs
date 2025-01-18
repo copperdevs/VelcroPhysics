@@ -21,10 +21,10 @@
 */
 
 using System;
-using Genbox.VelcroPhysics.Shared;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Utilities
+namespace VelcroPhysics.Utilities
 {
     public static class MathUtils
     {
@@ -85,8 +85,8 @@ namespace Genbox.VelcroPhysics.Utilities
 
         public static Vector2 Mul(ref Transform T, ref Vector2 v)
         {
-            float x = T.q.c * v.X - T.q.s * v.Y + T.p.X;
-            float y = T.q.s * v.X + T.q.c * v.Y + T.p.Y;
+            var x = T.q.c * v.X - T.q.s * v.Y + T.p.X;
+            var y = T.q.s * v.X + T.q.c * v.Y + T.p.Y;
 
             return new Vector2(x, y);
         }
@@ -108,10 +108,10 @@ namespace Genbox.VelcroPhysics.Utilities
 
         public static Vector2 MulT(ref Transform T, ref Vector2 v)
         {
-            float px = v.X - T.p.X;
-            float py = v.Y - T.p.Y;
-            float x = T.q.c * px + T.q.s * py;
-            float y = -T.q.s * px + T.q.c * py;
+            var px = v.X - T.p.X;
+            var py = v.Y - T.p.Y;
+            var x = T.q.c * px + T.q.s * py;
+            var y = -T.q.s * px + T.q.c * py;
 
             return new Vector2(x, y);
         }
@@ -137,9 +137,11 @@ namespace Genbox.VelcroPhysics.Utilities
             // v2 = A.q.Rot(B.q.Rot(v1) + B.p) + A.p
             //    = (A.q * B.q).Rot(v1) + A.q.Rot(B.p) + A.p
 
-            Transform c = new Transform();
-            c.q = Mul(a.q, b.q);
-            c.p = Mul(a.q, b.p) + a.p;
+            var c = new Transform
+            {
+                q = Mul(a.q, b.q),
+                p = Mul(a.q, b.p) + a.p
+            };
             return c;
         }
 
@@ -148,14 +150,16 @@ namespace Genbox.VelcroPhysics.Utilities
             // v2 = A.q' * (B.q * v1 + B.p - A.p)
             //    = A.q' * B.q * v1 + A.q' * (B.p - A.p)
 
-            c = new Transform();
-            c.q = MulT(a.q, b.q);
-            c.p = MulT(a.q, b.p - a.p);
+            c = new Transform
+            {
+                q = MulT(a.q, b.q),
+                p = MulT(a.q, b.p - a.p)
+            };
         }
 
         public static void Swap<T>(ref T a, ref T b)
         {
-            T tmp = a;
+            var tmp = a;
             a = b;
             b = tmp;
         }
@@ -181,10 +185,10 @@ namespace Genbox.VelcroPhysics.Utilities
 
         public static Vector2 MulT(Transform T, Vector2 v)
         {
-            float px = v.X - T.p.X;
-            float py = v.Y - T.p.Y;
-            float x = T.q.c * px + T.q.s * py;
-            float y = -T.q.s * px + T.q.c * py;
+            var px = v.X - T.p.X;
+            var py = v.Y - T.p.Y;
+            var x = T.q.c * px + T.q.s * py;
+            var y = -T.q.s * px + T.q.c * py;
 
             return new Vector2(x, y);
         }
@@ -207,9 +211,11 @@ namespace Genbox.VelcroPhysics.Utilities
             // v2 = A.q' * (B.q * v1 + B.p - A.p)
             //    = A.q' * B.q * v1 + A.q' * (B.p - A.p)
 
-            Transform c = new Transform();
-            c.q = MulT(a.q, b.q);
-            c.p = MulT(a.q, b.p - a.p);
+            var c = new Transform
+            {
+                q = MulT(a.q, b.q),
+                p = MulT(a.q, b.p - a.p)
+            };
             return c;
         }
 
@@ -277,9 +283,9 @@ namespace Genbox.VelcroPhysics.Utilities
         /// </summary>
         public static double VectorAngle(ref Vector2 p1, ref Vector2 p2)
         {
-            double theta1 = Math.Atan2(p1.Y, p1.X);
-            double theta2 = Math.Atan2(p2.Y, p2.X);
-            double dtheta = theta2 - theta1;
+            var theta1 = Math.Atan2(p1.Y, p1.X);
+            var theta2 = Math.Atan2(p2.Y, p2.X);
+            var dtheta = theta2 - theta1;
 
             while (dtheta > MathConstants.Pi)
             {
@@ -376,19 +382,19 @@ namespace Genbox.VelcroPhysics.Utilities
 
         public static float Distance(Vector2 a, Vector2 b)
         {
-            Vector2 c = a - b;
+            var c = a - b;
             return c.Length();
         }
 
         public static float Distance(ref Vector2 a, ref Vector2 b)
         {
-            Vector2 c = a - b;
+            var c = a - b;
             return c.Length();
         }
 
         public static float DistanceSquared(ref Vector2 a, ref Vector2 b)
         {
-            Vector2 c = a - b;
+            var c = a - b;
             return Dot(ref c, ref c);
         }
 
@@ -422,12 +428,12 @@ namespace Genbox.VelcroPhysics.Utilities
         /// </summary>
         public static float Normalize(ref Vector2 v)
         {
-            float length = v.Length();
+            var length = v.Length();
             if (length < MathConstants.Epsilon)
             {
                 return 0.0f;
             }
-            float invLength = 1.0f / length;
+            var invLength = 1.0f / length;
             v.X *= invLength;
             v.Y *= invLength;
 

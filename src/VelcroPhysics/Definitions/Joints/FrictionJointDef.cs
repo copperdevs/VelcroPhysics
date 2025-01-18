@@ -1,7 +1,7 @@
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Dynamics.Joints.Misc;
 
-namespace Genbox.VelcroPhysics.Definitions.Joints
+namespace VelcroPhysics.Definitions.Joints
 {
     public sealed class FrictionJointDef : JointDef
     {

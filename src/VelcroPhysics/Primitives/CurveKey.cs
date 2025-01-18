@@ -1,5 +1,4 @@
-﻿#if STANDARD_IMPLEMENTATION
-
+﻿
 // MIT License - Copyright (C) The Mono.Xna Team
 // This file is subject to the terms and conditions defined in
 // file 'MONOGAME LICENSE.txt', which is part of this source code package.
@@ -82,7 +81,9 @@ namespace Microsoft.Xna.Framework
         /// <param name="position">Position on the curve.</param>
         /// <param name="value">Value of the control point.</param>
         public CurveKey(float position, float value)
-            : this(position, value, 0, 0, CurveContinuity.Smooth) { }
+            : this(position, value, 0, 0, CurveContinuity.Smooth)
+        {
+        }
 
         /// <summary>Creates a new instance of <see cref="CurveKey" /> class.</summary>
         /// <param name="position">Position on the curve.</param>
@@ -90,7 +91,9 @@ namespace Microsoft.Xna.Framework
         /// <param name="tangentIn">Tangent approaching point from the previous point on the curve.</param>
         /// <param name="tangentOut">Tangent leaving point toward next point on the curve.</param>
         public CurveKey(float position, float value, float tangentIn, float tangentOut)
-            : this(position, value, tangentIn, tangentOut, CurveContinuity.Smooth) { }
+            : this(position, value, tangentIn, tangentOut, CurveContinuity.Smooth)
+        {
+        }
 
         /// <summary>Creates a new instance of <see cref="CurveKey" /> class.</summary>
         /// <param name="position">Position on the curve.</param>
@@ -129,4 +132,3 @@ namespace Microsoft.Xna.Framework
         }
     }
 }
-#endif

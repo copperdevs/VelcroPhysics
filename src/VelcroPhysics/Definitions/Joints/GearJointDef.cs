@@ -1,7 +1,7 @@
-using Genbox.VelcroPhysics.Dynamics.Joints;
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
+using VelcroPhysics.Dynamics.Joints;
+using VelcroPhysics.Dynamics.Joints.Misc;
 
-namespace Genbox.VelcroPhysics.Definitions.Joints
+namespace VelcroPhysics.Definitions.Joints
 {
     public sealed class GearJointDef : JointDef
     {

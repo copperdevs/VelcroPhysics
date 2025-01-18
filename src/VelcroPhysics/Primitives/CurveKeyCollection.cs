@@ -1,6 +1,4 @@
-﻿#if STANDARD_IMPLEMENTATION
-
-// MIT License - Copyright (C) The Mono.Xna Team
+﻿// MIT License - Copyright (C) The Mono.Xna Team
 // This file is subject to the terms and conditions defined in
 // file 'MONOGAME LICENSE.txt', which is part of this source code package.
 
@@ -23,7 +21,7 @@ namespace Microsoft.Xna.Framework
         /// <summary>Creates a new instance of <see cref="CurveKeyCollection" /> class.</summary>
         public CurveKeyCollection()
         {
-            _keys = new List<CurveKey>();
+            _keys = [];
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -46,7 +44,7 @@ namespace Microsoft.Xna.Framework
                 return;
             }
 
-            for (int i = 0; i < _keys.Count; i++)
+            for (var i = 0; i < _keys.Count; i++)
             {
                 if (item.Position < _keys[i].Position)
                 {
@@ -102,8 +100,8 @@ namespace Microsoft.Xna.Framework
         /// <returns>A copy of this collection.</returns>
         public CurveKeyCollection Clone()
         {
-            CurveKeyCollection ckc = new CurveKeyCollection();
-            foreach (CurveKey key in _keys)
+            var ckc = new CurveKeyCollection();
+            foreach (var key in _keys)
             {
                 ckc.Add(key);
             }
@@ -159,4 +157,3 @@ namespace Microsoft.Xna.Framework
         public bool IsReadOnly => false;
     }
 }
-#endif

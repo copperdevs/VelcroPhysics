@@ -1,12 +1,12 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Genbox.VelcroPhysics.Benchmarks.Code;
-using Genbox.VelcroPhysics.Benchmarks.Code.TestClasses;
+using VelcroPhysics.Benchmarks.Code;
+using VelcroPhysics.Benchmarks.Code.TestClasses;
 
-namespace Genbox.VelcroPhysics.Benchmarks.Tests.CLR
+namespace VelcroPhysics.Benchmarks.Tests.CLR
 {
     public class FieldPropertyBenchmarks : UnmeasuredBenchmark
     {
-        private readonly Dummy _dummy = new Dummy { ValueField = new Struct32() };
+        private readonly Dummy _dummy = new() { ValueField = new Struct32() };
 
         [Benchmark]
         public Struct32 PropertyGetTest()

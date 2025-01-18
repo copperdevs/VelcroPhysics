@@ -1,11 +1,11 @@
-﻿using BenchmarkDotNet.Attributes;
-using Genbox.VelcroPhysics.Benchmarks.Code;
-using Genbox.VelcroPhysics.Collision.RayCast;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+﻿using System.Numerics;
+using BenchmarkDotNet.Attributes;
+using VelcroPhysics.Benchmarks.Code;
+using VelcroPhysics.Collision.RayCast;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Benchmarks.Tests.Primitives
+namespace VelcroPhysics.Benchmarks.Tests.Primitives
 {
     public class AabbBenchmark : UnmeasuredBenchmark
     {
@@ -35,9 +35,11 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Primitives
         [Benchmark]
         public bool RayCast()
         {
-            RayCastInput input = new RayCastInput();
-            input.Point1 = Vector2.Zero;
-            input.Point2 = _a.Center;
+            var input = new RayCastInput
+            {
+                Point1 = Vector2.Zero,
+                Point2 = _a.Center
+            };
 
             return _a.RayCast(ref input, out _);
         }
@@ -46,12 +48,12 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Primitives
         [Benchmark]
         public AABB ComputeCircleAABBBenchmarkNormal()
         {
-            Vector2 pos = new Vector2(1, 1);
-            float radius = 4f;
-            Transform tf = new Transform();
+            var pos = new Vector2(1, 1);
+            var radius = 4f;
+            var tf = new Transform();
 
             AABB aabb;
-            Vector2 p = tf.p + MathUtils.Mul(ref tf.q, pos);
+            var p = tf.p + MathUtils.Mul(ref tf.q, pos);
             aabb.LowerBound = new Vector2(p.X - radius, p.Y - radius);
             aabb.UpperBound = new Vector2(p.X + radius, p.Y + radius);
             return aabb;
@@ -60,13 +62,13 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Primitives
         [Benchmark]
         public AABB ComputeCircleAABBBenchmarkOptimized()
         {
-            Vector2 pos = new Vector2(1, 1);
-            float radius = 4f;
-            Transform tf = new Transform();
+            var pos = new Vector2(1, 1);
+            var radius = 4f;
+            var tf = new Transform();
 
             AABB aabb;
-            float posX = tf.p.X + (tf.q.c * pos.X - tf.q.s * pos.Y);
-            float posY = tf.p.Y + (tf.q.s * pos.X + tf.q.c * pos.Y);
+            var posX = tf.p.X + (tf.q.c * pos.X - tf.q.s * pos.Y);
+            var posY = tf.p.Y + (tf.q.s * pos.X + tf.q.c * pos.Y);
 
             aabb.LowerBound.X = posX - radius;
             aabb.LowerBound.Y = posY - radius;

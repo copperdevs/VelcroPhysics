@@ -1,6 +1,6 @@
-using Genbox.VelcroPhysics.Dynamics;
+using VelcroPhysics.Dynamics;
 
-namespace Genbox.VelcroPhysics.Collision.Handlers
+namespace VelcroPhysics.Collision.Handlers
 {
     public delegate bool BeforeCollisionHandler(Fixture fixtureA, Fixture fixtureB);
 }

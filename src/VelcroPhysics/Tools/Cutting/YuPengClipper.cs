@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Tools.Cutting.Simple;
-using Genbox.VelcroPhysics.Tools.PolygonManipulation;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Tools.Cutting.Simple;
+using VelcroPhysics.Tools.PolygonManipulation;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Tools.Cutting
+namespace VelcroPhysics.Tools.Cutting
 {
     //Clipper contributed by Helge Backhaus
 
@@ -51,13 +51,13 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
 
             // Calculate the intersection and touch points between
             // subject and clip and add them to both
-            CalculateIntersections(subject, clip, out Vertices slicedSubject, out Vertices slicedClip);
+            CalculateIntersections(subject, clip, out var slicedSubject, out var slicedClip);
 
             // Translate polygons into upper right quadrant
             // as the algorithm depends on it
-            Vector2 lbSubject = subject.GetAABB().LowerBound;
-            Vector2 lbClip = clip.GetAABB().LowerBound;
-            Vector2.Min(ref lbSubject, ref lbClip, out Vector2 translate);
+            var lbSubject = subject.GetAABB().LowerBound;
+            var lbClip = clip.GetAABB().LowerBound;
+            var translate = Vector2.Min(lbSubject, lbClip);
             translate = Vector2.One - translate;
             if (translate != Vector2.Zero)
             {
@@ -71,26 +71,27 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
 
             // Build simplical chains from the polygons and calculate the
             // the corresponding coefficients
-            CalculateSimplicalChain(slicedSubject, out List<float> subjectCoeff, out List<Edge> subjectSimplices);
-            CalculateSimplicalChain(slicedClip, out List<float> clipCoeff, out List<Edge> clipSimplices);
+            CalculateSimplicalChain(slicedSubject, out var subjectCoeff, out var subjectSimplices);
+            CalculateSimplicalChain(slicedClip, out var clipCoeff, out var clipSimplices);
 
             // Determine the characteristics function for all non-original edges
             // in subject and clip simplical chain and combine the edges contributing
             // to the result, depending on the clipType
             CalculateResultChain(subjectCoeff, subjectSimplices, clipCoeff, clipSimplices, clipType,
-                out List<Edge> resultSimplices);
+                out var resultSimplices);
 
             // Convert result chain back to polygon(s)
-            error = BuildPolygonsFromChain(resultSimplices, out List<Vertices> result);
+            error = BuildPolygonsFromChain(resultSimplices, out var result);
 
             // Reverse the polygon translation from the beginning
             // and remove collinear points from output
             translate *= -1f;
-            for (int i = 0; i < result.Count; ++i)
+            for (var i = 0; i < result.Count; ++i)
             {
                 result[i].Translate(ref translate);
                 SimplifyTools.CollinearSimplify(result[i]);
             }
+
             return result;
         }
 
@@ -105,33 +106,34 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
             slicedPoly2 = new Vertices(polygon2);
 
             // Iterate through polygon1's edges
-            for (int i = 0; i < polygon1.Count; i++)
+            for (var i = 0; i < polygon1.Count; i++)
             {
                 // Get edge vertices
-                Vector2 a = polygon1[i];
-                Vector2 b = polygon1[polygon1.NextIndex(i)];
+                var a = polygon1[i];
+                var b = polygon1[polygon1.NextIndex(i)];
 
                 // Get intersections between this edge and polygon2
-                for (int j = 0; j < polygon2.Count; j++)
+                for (var j = 0; j < polygon2.Count; j++)
                 {
-                    Vector2 c = polygon2[j];
-                    Vector2 d = polygon2[polygon2.NextIndex(j)];
+                    var c = polygon2[j];
+                    var d = polygon2[polygon2.NextIndex(j)];
 
                     // Check if the edges intersect
-                    if (LineUtils.LineIntersect(a, b, c, d, out Vector2 intersectionPoint))
+                    if (LineUtils.LineIntersect(a, b, c, d, out var intersectionPoint))
                     {
                         // calculate alpha values for sorting multiple intersections points on a edge
-                        float alpha = GetAlpha(a, b, intersectionPoint);
+                        var alpha = GetAlpha(a, b, intersectionPoint);
 
                         // Insert intersection point into first polygon
                         if (alpha > 0f && alpha < 1f)
                         {
-                            int index = slicedPoly1.IndexOf(a) + 1;
+                            var index = slicedPoly1.IndexOf(a) + 1;
                             while (index < slicedPoly1.Count &&
                                    GetAlpha(a, b, slicedPoly1[index]) <= alpha)
                             {
                                 ++index;
                             }
+
                             slicedPoly1.Insert(index, intersectionPoint);
                         }
 
@@ -139,12 +141,13 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
                         alpha = GetAlpha(c, d, intersectionPoint);
                         if (alpha > 0f && alpha < 1f)
                         {
-                            int index = slicedPoly2.IndexOf(c) + 1;
+                            var index = slicedPoly2.IndexOf(c) + 1;
                             while (index < slicedPoly2.Count &&
                                    GetAlpha(c, d, slicedPoly2[index]) <= alpha)
                             {
                                 ++index;
                             }
+
                             slicedPoly2.Insert(index, intersectionPoint);
                         }
                     }
@@ -152,9 +155,9 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
             }
 
             // Check for very small edges
-            for (int i = 0; i < slicedPoly1.Count; ++i)
+            for (var i = 0; i < slicedPoly1.Count; ++i)
             {
-                int iNext = slicedPoly1.NextIndex(i);
+                var iNext = slicedPoly1.NextIndex(i);
 
                 //If they are closer than the distance remove vertex
                 if ((slicedPoly1[iNext] - slicedPoly1[i]).LengthSquared() <= ClipperEpsilonSquared)
@@ -163,9 +166,10 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
                     --i;
                 }
             }
-            for (int i = 0; i < slicedPoly2.Count; ++i)
+
+            for (var i = 0; i < slicedPoly2.Count; ++i)
             {
-                int iNext = slicedPoly2.NextIndex(i);
+                var iNext = slicedPoly2.NextIndex(i);
 
                 //If they are closer than the distance remove vertex
                 if ((slicedPoly2[iNext] - slicedPoly2[i]).LengthSquared() <= ClipperEpsilonSquared)
@@ -180,9 +184,9 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
         /// <remarks>Used by method <c>Execute()</c>.</remarks>
         private static void CalculateSimplicalChain(Vertices poly, out List<float> coeff, out List<Edge> simplicies)
         {
-            simplicies = new List<Edge>();
-            coeff = new List<float>();
-            for (int i = 0; i < poly.Count; ++i)
+            simplicies = [];
+            coeff = [];
+            for (var i = 0; i < poly.Count; ++i)
             {
                 simplicies.Add(new Edge(poly[i], poly[poly.NextIndex(i)]));
                 coeff.Add(CalculateSimplexCoefficient(Vector2.Zero, poly[i], poly[poly.NextIndex(i)]));
@@ -194,11 +198,12 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
         /// chain.
         /// </summary>
         /// <remarks>Used by method <c>Execute()</c>.</remarks>
-        private static void CalculateResultChain(List<float> poly1Coeff, List<Edge> poly1Simplicies, List<float> poly2Coeff, List<Edge> poly2Simplicies, PolyClipType clipType, out List<Edge> resultSimplices)
+        private static void CalculateResultChain(List<float> poly1Coeff, List<Edge> poly1Simplicies, List<float> poly2Coeff, List<Edge> poly2Simplicies, PolyClipType clipType,
+            out List<Edge> resultSimplices)
         {
-            resultSimplices = new List<Edge>();
+            resultSimplices = [];
 
-            for (int i = 0; i < poly1Simplicies.Count; ++i)
+            for (var i = 0; i < poly1Simplicies.Count; ++i)
             {
                 float edgeCharacter = 0;
                 if (poly2Simplicies.Contains(poly1Simplicies[i]))
@@ -207,7 +212,7 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
                     edgeCharacter = 1f;
                 else
                 {
-                    for (int j = 0; j < poly2Simplicies.Count; ++j)
+                    for (var j = 0; j < poly2Simplicies.Count; ++j)
                     {
                         if (!poly2Simplicies.Contains(-poly1Simplicies[i]))
                         {
@@ -216,6 +221,7 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
                         }
                     }
                 }
+
                 if (clipType == PolyClipType.Intersect)
                 {
                     if (edgeCharacter == 1f)
@@ -227,9 +233,10 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
                         resultSimplices.Add(poly1Simplicies[i]);
                 }
             }
-            for (int i = 0; i < poly2Simplicies.Count; ++i)
+
+            for (var i = 0; i < poly2Simplicies.Count; ++i)
             {
-                float edgeCharacter = 0f;
+                var edgeCharacter = 0f;
                 if (!resultSimplices.Contains(poly2Simplicies[i]) &&
                     !resultSimplices.Contains(-poly2Simplicies[i]))
                 {
@@ -238,7 +245,7 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
                     else
                     {
                         edgeCharacter = 0f;
-                        for (int j = 0; j < poly1Simplicies.Count; ++j)
+                        for (var j = 0; j < poly1Simplicies.Count; ++j)
                         {
                             if (!poly1Simplicies.Contains(poly2Simplicies[i]) && !poly1Simplicies.Contains(-poly2Simplicies[i]))
                             {
@@ -246,6 +253,7 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
                                     poly1Simplicies[j], poly1Coeff[j]);
                             }
                         }
+
                         if (clipType == PolyClipType.Intersect || clipType == PolyClipType.Difference)
                         {
                             if (edgeCharacter == 1f)
@@ -265,21 +273,21 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
         /// <remarks>Used by method <c>Execute()</c>.</remarks>
         private static PolyClipError BuildPolygonsFromChain(List<Edge> simplicies, out List<Vertices> result)
         {
-            result = new List<Vertices>();
-            PolyClipError errVal = PolyClipError.None;
+            result = [];
+            var errVal = PolyClipError.None;
 
             while (simplicies.Count > 0)
             {
-                Vertices output = new Vertices();
+                var output = new Vertices();
                 output.Add(simplicies[0].EdgeStart);
                 output.Add(simplicies[0].EdgeEnd);
                 simplicies.RemoveAt(0);
-                bool closed = false;
-                int index = 0;
-                int count = simplicies.Count; // Needed to catch infinite loops
+                var closed = false;
+                var index = 0;
+                var count = simplicies.Count; // Needed to catch infinite loops
                 while (!closed && simplicies.Count > 0)
                 {
-                    if (VectorEqual(output[output.Count - 1], simplicies[index].EdgeStart))
+                    if (VectorEqual(output[^1], simplicies[index].EdgeStart))
                     {
                         if (VectorEqual(simplicies[index].EdgeEnd, output[0]))
                             closed = true;
@@ -288,7 +296,7 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
                         simplicies.RemoveAt(index);
                         --index;
                     }
-                    else if (VectorEqual(output[output.Count - 1], simplicies[index].EdgeEnd))
+                    else if (VectorEqual(output[^1], simplicies[index].EdgeEnd))
                     {
                         if (VectorEqual(simplicies[index].EdgeStart, output[0]))
                             closed = true;
@@ -297,28 +305,33 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
                         simplicies.RemoveAt(index);
                         --index;
                     }
+
                     if (!closed)
                     {
                         if (++index == simplicies.Count)
                         {
                             if (count == simplicies.Count)
                             {
-                                result = new List<Vertices>();
+                                result = [];
                                 Debug.WriteLine("Undefined error while building result polygon(s).");
                                 return PolyClipError.BrokenResult;
                             }
+
                             index = 0;
                             count = simplicies.Count;
                         }
                     }
                 }
+
                 if (output.Count < 3)
                 {
                     errVal = PolyClipError.DegeneratedOutput;
                     Debug.WriteLine("Degenerated output polygon produced (vertices < 3).");
                 }
+
                 result.Add(output);
             }
+
             return errVal;
         }
 
@@ -326,7 +339,7 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
         /// <remarks>Used by method <c>CalculateEdgeCharacter()</c>.</remarks>
         private static float CalculateBeta(Vector2 point, Edge e, float coefficient)
         {
-            float result = 0f;
+            var result = 0f;
             if (PointInSimplex(point, e))
                 result = coefficient;
             if (PointOnLineSegment(Vector2.Zero, e.EdgeStart, point) ||
@@ -346,7 +359,7 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
         /// <remarks>Used by method <c>CalculateSimplicalChain()</c>.</remarks>
         private static float CalculateSimplexCoefficient(Vector2 a, Vector2 b, Vector2 c)
         {
-            float isLeft = MathUtils.Area(ref a, ref b, ref c);
+            var isLeft = MathUtils.Area(ref a, ref b, ref c);
             if (isLeft < 0f)
                 return -1f;
 
@@ -362,7 +375,7 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
         /// <returns>False if the winding number is even and the point is outside the simplex and True otherwise.</returns>
         private static bool PointInSimplex(Vector2 point, Edge edge)
         {
-            Vertices polygon = new Vertices();
+            var polygon = new Vertices();
             polygon.Add(Vector2.Zero);
             polygon.Add(edge.EdgeStart);
             polygon.Add(edge.EdgeEnd);
@@ -373,7 +386,7 @@ namespace Genbox.VelcroPhysics.Tools.Cutting
         /// <remarks>Used by method <c>CalculateBeta()</c>.</remarks>
         private static bool PointOnLineSegment(Vector2 start, Vector2 end, Vector2 point)
         {
-            Vector2 segment = end - start;
+            var segment = end - start;
             return MathUtils.Area(ref start, ref end, ref point) == 0f &&
                    Vector2.Dot(point - start, segment) >= 0f &&
                    Vector2.Dot(point - end, segment) <= 0f;

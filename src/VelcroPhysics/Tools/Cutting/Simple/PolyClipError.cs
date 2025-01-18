@@ -1,4 +1,4 @@
-namespace Genbox.VelcroPhysics.Tools.Cutting.Simple
+namespace VelcroPhysics.Tools.Cutting.Simple
 {
     public enum PolyClipError
     {

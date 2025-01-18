@@ -1,10 +1,10 @@
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Dynamics.Joints.Misc;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Definitions.Joints
+namespace VelcroPhysics.Definitions.Joints
 {
     /// <summary>Pulley joint definition. This requires two ground anchors, two dynamic body anchor points, and a pulley ratio.</summary>
     public sealed class PulleyJointDef : JointDef
@@ -43,9 +43,9 @@ namespace Genbox.VelcroPhysics.Definitions.Joints
             GroundAnchorB = groundB;
             LocalAnchorA = BodyA.GetLocalPoint(anchorA);
             LocalAnchorB = BodyB.GetLocalPoint(anchorB);
-            Vector2 dA = anchorA - groundA;
+            var dA = anchorA - groundA;
             LengthA = dA.Length();
-            Vector2 dB = anchorB - groundB;
+            var dB = anchorB - groundB;
             LengthB = dB.Length();
             Ratio = r;
             Debug.Assert(Ratio > MathConstants.Epsilon);

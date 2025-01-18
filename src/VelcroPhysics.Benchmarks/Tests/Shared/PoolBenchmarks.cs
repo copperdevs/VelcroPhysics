@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using BenchmarkDotNet.Attributes;
-using Genbox.VelcroPhysics.Benchmarks.Code;
-using Genbox.VelcroPhysics.Benchmarks.Code.TestClasses;
-using Genbox.VelcroPhysics.Shared;
+﻿using BenchmarkDotNet.Attributes;
+using VelcroPhysics.Benchmarks.Code;
+using VelcroPhysics.Benchmarks.Code.TestClasses;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Benchmarks.Tests.Shared
+namespace VelcroPhysics.Benchmarks.Tests.Shared
 {
     public class PoolBenchmarks : UnmeasuredBenchmark
     {
@@ -18,20 +17,22 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Shared
         [Benchmark]
         public void NewObject()
         {
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
-                PoolObject obj = new PoolObject();
-                obj.TestInteger = 5;
-                obj.TestString = "test";
+                var obj = new PoolObject
+                {
+                    TestInteger = 5,
+                    TestString = "test"
+                };
             }
         }
 
         [Benchmark]
         public void NewPooledObject()
         {
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
-                PoolObject obj = _pool.GetFromPool();
+                var obj = _pool.GetFromPool();
                 obj.TestInteger = 5;
                 obj.TestString = "test";
 
@@ -42,8 +43,8 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Shared
         [Benchmark]
         public void NewPooledObjectMany()
         {
-            IEnumerable<PoolObject> many = _pool.GetManyFromPool(1000);
-            foreach (PoolObject obj in many)
+            var many = _pool.GetManyFromPool(1000);
+            foreach (var obj in many)
             {
                 obj.TestInteger = 5;
                 obj.TestString = "test";

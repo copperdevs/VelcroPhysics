@@ -30,14 +30,14 @@
  */
 
 using System.Collections.Generic;
-using Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay;
+using VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay
+namespace VelcroPhysics.Tools.Triangulation.Delaunay
 {
     internal abstract class TriangulationContext
     {
-        public readonly List<TriangulationPoint> Points = new List<TriangulationPoint>(200);
-        public readonly List<DelaunayTriangle> Triangles = new List<DelaunayTriangle>();
+        public readonly List<TriangulationPoint> Points = new(200);
+        public readonly List<DelaunayTriangle> Triangles = [];
 
         protected TriangulationContext()
         {

@@ -3,11 +3,12 @@
 * Copyright (c) 2017 Ian Qvist
 */
 
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Shared;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Primitives;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Extensions.DebugView
+namespace VelcroPhysics.Extensions.DebugView
 {
     /// <summary>Implement and register this class with a World to provide debug drawing of physics entities in your game.</summary>
     public abstract class DebugViewBase

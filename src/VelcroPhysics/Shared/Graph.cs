@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Genbox.VelcroPhysics.Shared.Contracts;
+using VelcroPhysics.Shared.Contracts;
 
-namespace Genbox.VelcroPhysics.Shared
+namespace VelcroPhysics.Shared
 {
     /// <summary>This graph is a doubly linked circular list. It is circular to avoid branches in Add/Remove methods.</summary>
     public class Graph<T> : IEnumerable<T>
@@ -29,11 +29,11 @@ namespace Genbox.VelcroPhysics.Shared
 
         public IEnumerator<T> GetEnumerator()
         {
-            GraphNode<T> node = First;
+            var node = First;
 
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
-                GraphNode<T> node0 = node;
+                var node0 = node;
                 node = node.Next;
                 yield return node0.Item;
             }
@@ -49,7 +49,7 @@ namespace Genbox.VelcroPhysics.Shared
         /// <returns>The node that represents the value</returns>
         public GraphNode<T> Add(T value)
         {
-            GraphNode<T> result = new GraphNode<T>(value);
+            var result = new GraphNode<T>(value);
             Add(result);
             return result;
         }
@@ -90,7 +90,7 @@ namespace Genbox.VelcroPhysics.Shared
         /// <returns>The graph node that was found if any. Otherwise it returns null.</returns>
         public GraphNode<T> Find(T value)
         {
-            GraphNode<T> node = First;
+            var node = First;
 
             if (node == null)
                 return null;
@@ -120,11 +120,11 @@ namespace Genbox.VelcroPhysics.Shared
 
         public void Clear()
         {
-            GraphNode<T> node = First;
+            var node = First;
 
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
-                GraphNode<T> node0 = node;
+                var node0 = node;
                 node = node.Next;
                 node0.Invalidate();
             }
@@ -135,7 +135,7 @@ namespace Genbox.VelcroPhysics.Shared
         /// <returns>True if the value was removed, otherwise false.</returns>
         public bool Remove(T value)
         {
-            GraphNode<T> node = Find(value);
+            var node = Find(value);
 
             if (node == null)
                 return false;
@@ -172,11 +172,11 @@ namespace Genbox.VelcroPhysics.Shared
 
         public IEnumerable<GraphNode<T>> GetNodes()
         {
-            GraphNode<T> node = First;
+            var node = First;
 
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
-                GraphNode<T> node0 = node;
+                var node0 = node;
                 node = node.Next;
                 yield return node0;
             }

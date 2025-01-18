@@ -22,21 +22,20 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.Broadphase;
-using Genbox.VelcroPhysics.Collision.ContactSystem;
-using Genbox.VelcroPhysics.Collision.Filtering;
-using Genbox.VelcroPhysics.Collision.Handlers;
-using Genbox.VelcroPhysics.Collision.Shapes;
-using Genbox.VelcroPhysics.Collision.TOI;
-using Genbox.VelcroPhysics.Definitions;
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
-using Genbox.VelcroPhysics.Extensions.Controllers.ControllerBase;
-using Genbox.VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.ContactSystem;
+using VelcroPhysics.Collision.Filtering;
+using VelcroPhysics.Collision.Handlers;
+using VelcroPhysics.Collision.Shapes;
+using VelcroPhysics.Collision.TOI;
+using VelcroPhysics.Definitions;
+using VelcroPhysics.Dynamics.Joints.Misc;
+using VelcroPhysics.Extensions.Controllers.ControllerBase;
+using VelcroPhysics.Extensions.PhysicsLogics.PhysicsLogicBase;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Dynamics
+namespace VelcroPhysics.Dynamics
 {
     public class Body
     {
@@ -197,10 +196,10 @@ namespace Genbox.VelcroPhysics.Dynamics
                 _torque = 0.0f;
 
                 // Delete the attached contacts.
-                ContactEdge ce = _contactList;
+                var ce = _contactList;
                 while (ce != null)
                 {
-                    ContactEdge ce0 = ce;
+                    var ce0 = ce;
                     ce = ce.Next;
                     _world.ContactManager.Remove(ce0.Contact);
                 }
@@ -208,11 +207,11 @@ namespace Genbox.VelcroPhysics.Dynamics
                 _contactList = null;
 
                 // Touch the proxies so that new contacts will be created (when appropriate)
-                IBroadPhase broadPhase = _world.ContactManager.BroadPhase;
-                foreach (Fixture fixture in _fixtureList)
+                var broadPhase = _world.ContactManager.BroadPhase;
+                foreach (var fixture in _fixtureList)
                 {
-                    int proxyCount = fixture.ProxyCount;
-                    for (int j = 0; j < proxyCount; j++)
+                    var proxyCount = fixture.ProxyCount;
+                    for (var j = 0; j < proxyCount; j++)
                     {
                         broadPhase.TouchProxy(fixture.Proxies[j].ProxyId);
                     }
@@ -354,8 +353,8 @@ namespace Genbox.VelcroPhysics.Dynamics
                     _flags |= BodyFlags.Enabled;
 
                     // Create all proxies.
-                    IBroadPhase broadPhase = _world.ContactManager.BroadPhase;
-                    for (int i = 0; i < _fixtureList.Count; i++)
+                    var broadPhase = _world.ContactManager.BroadPhase;
+                    for (var i = 0; i < _fixtureList.Count; i++)
                     {
                         _fixtureList[i].CreateProxies(broadPhase, ref _xf);
                     }
@@ -368,18 +367,18 @@ namespace Genbox.VelcroPhysics.Dynamics
                     _flags &= ~BodyFlags.Enabled;
 
                     // Destroy all proxies.
-                    IBroadPhase broadPhase = _world.ContactManager.BroadPhase;
+                    var broadPhase = _world.ContactManager.BroadPhase;
 
-                    for (int i = 0; i < _fixtureList.Count; i++)
+                    for (var i = 0; i < _fixtureList.Count; i++)
                     {
                         _fixtureList[i].DestroyProxies(broadPhase);
                     }
 
                     // Destroy the attached contacts.
-                    ContactEdge ce = _contactList;
+                    var ce = _contactList;
                     while (ce != null)
                     {
-                        ContactEdge ce0 = ce;
+                        var ce0 = ce;
                         ce = ce.Next;
                         _world.ContactManager.Remove(ce0.Contact);
                     }
@@ -475,12 +474,12 @@ namespace Genbox.VelcroPhysics.Dynamics
                 //Velcro: We support setting the mass independently
 
                 // Move center of mass.
-                Vector2 oldCenter = _sweep.C;
+                var oldCenter = _sweep.C;
                 _sweep.LocalCenter = value;
                 _sweep.C0 = _sweep.C = MathUtils.Mul(ref _xf, ref _sweep.LocalCenter);
 
                 // Update center of mass velocity.
-                Vector2 a = _sweep.C - oldCenter;
+                var a = _sweep.C - oldCenter;
                 _linearVelocity += new Vector2(-_angularVelocity * a.Y, _angularVelocity * a.X);
             }
         }
@@ -533,7 +532,7 @@ namespace Genbox.VelcroPhysics.Dynamics
         {
             set
             {
-                for (int i = 0; i < _fixtureList.Count; i++)
+                for (var i = 0; i < _fixtureList.Count; i++)
                 {
                     _fixtureList[i].Restitution = value;
                 }
@@ -544,7 +543,7 @@ namespace Genbox.VelcroPhysics.Dynamics
         {
             set
             {
-                for (int i = 0; i < _fixtureList.Count; i++)
+                for (var i = 0; i < _fixtureList.Count; i++)
                 {
                     _fixtureList[i].Friction = value;
                 }
@@ -553,17 +552,19 @@ namespace Genbox.VelcroPhysics.Dynamics
 
         public void GetMassData(out MassData data)
         {
-            data = new MassData();
-            data._mass = _mass;
-            data._inertia = _inertia + _mass * MathUtils.Dot(ref _sweep.LocalCenter, ref _sweep.LocalCenter);
-            data._centroid = _sweep.LocalCenter;
+            data = new MassData
+            {
+                _mass = _mass,
+                _inertia = _inertia + _mass * MathUtils.Dot(ref _sweep.LocalCenter, ref _sweep.LocalCenter),
+                _centroid = _sweep.LocalCenter
+            };
         }
 
         public Category CollisionCategories
         {
             set
             {
-                for (int i = 0; i < _fixtureList.Count; i++)
+                for (var i = 0; i < _fixtureList.Count; i++)
                 {
                     _fixtureList[i].CollisionCategories = value;
                 }
@@ -574,7 +575,7 @@ namespace Genbox.VelcroPhysics.Dynamics
         {
             set
             {
-                for (int i = 0; i < _fixtureList.Count; i++)
+                for (var i = 0; i < _fixtureList.Count; i++)
                 {
                     _fixtureList[i].CollidesWith = value;
                 }
@@ -590,7 +591,7 @@ namespace Genbox.VelcroPhysics.Dynamics
         {
             set
             {
-                for (int i = 0; i < _fixtureList.Count; i++)
+                for (var i = 0; i < _fixtureList.Count; i++)
                 {
                     _fixtureList[i].IgnoreCcdWith = value;
                 }
@@ -601,7 +602,7 @@ namespace Genbox.VelcroPhysics.Dynamics
         {
             set
             {
-                for (int i = 0; i < _fixtureList.Count; i++)
+                for (var i = 0; i < _fixtureList.Count; i++)
                 {
                     _fixtureList[i].CollisionGroup = value;
                 }
@@ -612,7 +613,7 @@ namespace Genbox.VelcroPhysics.Dynamics
         {
             set
             {
-                for (int i = 0; i < _fixtureList.Count; i++)
+                for (var i = 0; i < _fixtureList.Count; i++)
                 {
                     _fixtureList[i].IsSensor = value;
                 }
@@ -651,11 +652,11 @@ namespace Genbox.VelcroPhysics.Dynamics
             if (_world._isLocked)
                 return null;
 
-            Fixture fixture = new Fixture(def);
+            var fixture = new Fixture(def);
 
             if ((_flags & BodyFlags.Enabled) == BodyFlags.Enabled)
             {
-                IBroadPhase broadPhase = _world._contactManager.BroadPhase;
+                var broadPhase = _world._contactManager.BroadPhase;
                 fixture.CreateProxies(broadPhase, ref _xf);
             }
 
@@ -688,8 +689,10 @@ namespace Genbox.VelcroPhysics.Dynamics
             if (_world._isLocked)
                 return null;
 
-            FixtureDef template = new FixtureDef();
-            template.Shape = shape;
+            var template = new FixtureDef
+            {
+                Shape = shape
+            };
 
             return AddFixture(template);
         }
@@ -719,14 +722,14 @@ namespace Genbox.VelcroPhysics.Dynamics
             Debug.Assert(_fixtureList.Contains(fixture));
 
             // Destroy any contacts associated with the fixture.
-            ContactEdge edge = _contactList;
+            var edge = _contactList;
             while (edge != null)
             {
-                Contact c = edge.Contact;
+                var c = edge.Contact;
                 edge = edge.Next;
 
-                Fixture fixtureA = c._fixtureA;
-                Fixture fixtureB = c._fixtureB;
+                var fixtureA = c._fixtureA;
+                var fixtureB = c._fixtureB;
 
                 if (fixture == fixtureA || fixture == fixtureB)
                 {
@@ -738,7 +741,7 @@ namespace Genbox.VelcroPhysics.Dynamics
 
             if ((_flags & BodyFlags.Enabled) == BodyFlags.Enabled)
             {
-                IBroadPhase broadPhase = _world.ContactManager.BroadPhase;
+                var broadPhase = _world.ContactManager.BroadPhase;
                 fixture.DestroyProxies(broadPhase);
             }
 
@@ -781,8 +784,8 @@ namespace Genbox.VelcroPhysics.Dynamics
             _sweep.C0 = _sweep.C;
             _sweep.A0 = rotation;
 
-            IBroadPhase broadPhase = _world.ContactManager.BroadPhase;
-            for (int i = 0; i < _fixtureList.Count; i++)
+            var broadPhase = _world.ContactManager.BroadPhase;
+            for (var i = 0; i < _fixtureList.Count; i++)
             {
                 _fixtureList[i].Synchronize(broadPhase, ref _xf, ref _xf);
             }
@@ -954,13 +957,13 @@ namespace Genbox.VelcroPhysics.Dynamics
             Debug.Assert(_type == BodyType.Dynamic || _type == BodyType.Static);
 
             // Accumulate mass over all fixtures.
-            Vector2 localCenter = Vector2.Zero;
-            foreach (Fixture f in _fixtureList)
+            var localCenter = Vector2.Zero;
+            foreach (var f in _fixtureList)
             {
                 if (f.Shape._density == 0.0f)
                     continue;
 
-                MassData massData = f.Shape._massData;
+                var massData = f.Shape._massData;
                 _mass += massData._mass;
                 localCenter += massData._mass * massData._centroid;
                 _inertia += massData._inertia;
@@ -995,12 +998,12 @@ namespace Genbox.VelcroPhysics.Dynamics
             }
 
             // Move center of mass.
-            Vector2 oldCenter = _sweep.C;
+            var oldCenter = _sweep.C;
             _sweep.LocalCenter = localCenter;
             _sweep.C0 = _sweep.C = MathUtils.Mul(ref _xf, ref _sweep.LocalCenter);
 
             // Update center of mass velocity.
-            Vector2 a = _sweep.C - oldCenter;
+            var a = _sweep.C - oldCenter;
             _linearVelocity += new Vector2(-_angularVelocity * a.Y, _angularVelocity * a.X);
         }
 
@@ -1120,22 +1123,22 @@ namespace Genbox.VelcroPhysics.Dynamics
 
         internal void SynchronizeFixtures()
         {
-            IBroadPhase broadPhase = _world.ContactManager.BroadPhase;
+            var broadPhase = _world.ContactManager.BroadPhase;
 
             if ((_flags & BodyFlags.AwakeFlag) == BodyFlags.AwakeFlag)
             {
-                Transform xf1 = new Transform();
+                var xf1 = new Transform();
                 xf1.q.Set(_sweep.A0);
                 xf1.p = _sweep.C0 - MathUtils.Mul(xf1.q, _sweep.LocalCenter);
 
-                for (int i = 0; i < _fixtureList.Count; i++)
+                for (var i = 0; i < _fixtureList.Count; i++)
                 {
                     _fixtureList[i].Synchronize(broadPhase, ref xf1, ref _xf);
                 }
             }
             else
             {
-                for (int i = 0; i < _fixtureList.Count; i++)
+                for (var i = 0; i < _fixtureList.Count; i++)
                 {
                     _fixtureList[i].Synchronize(broadPhase, ref _xf, ref _xf);
                 }
@@ -1157,7 +1160,7 @@ namespace Genbox.VelcroPhysics.Dynamics
                 return false;
 
             // Does a joint prevent collision?
-            for (JointEdge jn = _jointList; jn != null; jn = jn.Next)
+            for (var jn = _jointList; jn != null; jn = jn.Next)
             {
                 if (jn.Other == other)
                 {

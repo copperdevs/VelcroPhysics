@@ -1,8 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Genbox.VelcroPhysics.Benchmarks.Code;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using VelcroPhysics.Benchmarks.Code;
+using Vector2 = System.Numerics.Vector2;
 
-namespace Genbox.VelcroPhysics.Benchmarks.Tests.Primitives
+namespace VelcroPhysics.Benchmarks.Tests.Primitives
 {
     public class Vector2Benchmark : UnmeasuredBenchmark
     {
@@ -24,7 +24,7 @@ namespace Genbox.VelcroPhysics.Benchmarks.Tests.Primitives
         [Benchmark]
         public Vector2 CreateWithZero()
         {
-            Vector2 v = Vector2.Zero;
+            var v = Vector2.Zero;
             v.X = 1;
             v.Y = 2;
             return v;

@@ -1,9 +1,9 @@
 using System;
-using Genbox.VelcroPhysics.Collision.RayCast;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.RayCast;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Shared
+namespace VelcroPhysics.Shared
 {
     /// <summary>An axis aligned bounding box.</summary>
     public struct AABB
@@ -41,8 +41,8 @@ namespace Genbox.VelcroPhysics.Shared
         {
             get
             {
-                float wx = UpperBound.X - LowerBound.X;
-                float wy = UpperBound.Y - LowerBound.Y;
+                var wx = UpperBound.X - LowerBound.X;
+                var wy = UpperBound.Y - LowerBound.Y;
                 return 2.0f * (wx + wy);
             }
         }
@@ -53,7 +53,7 @@ namespace Genbox.VelcroPhysics.Shared
         {
             get
             {
-                Vertices vertices = new Vertices(4);
+                var vertices = new Vertices(4);
                 vertices.Add(UpperBound);
                 vertices.Add(new Vector2(UpperBound.X, LowerBound.Y));
                 vertices.Add(LowerBound);
@@ -63,23 +63,23 @@ namespace Genbox.VelcroPhysics.Shared
         }
 
         /// <summary>First quadrant</summary>
-        public AABB Q1 => new AABB(Center, UpperBound);
+        public AABB Q1 => new(Center, UpperBound);
 
         /// <summary>Second quadrant</summary>
-        public AABB Q2 => new AABB(new Vector2(LowerBound.X, Center.Y), new Vector2(Center.X, UpperBound.Y));
+        public AABB Q2 => new(new Vector2(LowerBound.X, Center.Y), new Vector2(Center.X, UpperBound.Y));
 
         /// <summary>Third quadrant</summary>
-        public AABB Q3 => new AABB(LowerBound, Center);
+        public AABB Q3 => new(LowerBound, Center);
 
         /// <summary>Forth quadrant</summary>
-        public AABB Q4 => new AABB(new Vector2(Center.X, LowerBound.Y), new Vector2(UpperBound.X, Center.Y));
+        public AABB Q4 => new(new Vector2(Center.X, LowerBound.Y), new Vector2(UpperBound.X, Center.Y));
 
         /// <summary>Verify that the bounds are sorted. And the bounds are valid numbers (not NaN).</summary>
         /// <returns><c>true</c> if this instance is valid; otherwise, <c>false</c>.</returns>
         public bool IsValid()
         {
-            Vector2 d = UpperBound - LowerBound;
-            bool valid = d.X >= 0.0f && d.Y >= 0.0f;
+            var d = UpperBound - LowerBound;
+            var valid = d.X >= 0.0f && d.Y >= 0.0f;
             return valid && LowerBound.IsValid() && UpperBound.IsValid();
         }
 
@@ -105,7 +105,7 @@ namespace Genbox.VelcroPhysics.Shared
         /// <returns><c>true</c> if it contains the specified AABB; otherwise, <c>false</c>.</returns>
         public bool Contains(ref AABB aabb)
         {
-            bool result = LowerBound.X <= aabb.LowerBound.X;
+            var result = LowerBound.X <= aabb.LowerBound.X;
             result = result && LowerBound.Y <= aabb.LowerBound.Y;
             result = result && aabb.UpperBound.X <= UpperBound.X;
             result = result && aabb.UpperBound.Y <= UpperBound.Y;
@@ -118,8 +118,8 @@ namespace Genbox.VelcroPhysics.Shared
         public bool Contains(ref Vector2 point)
         {
             //using epsilon to try and guard against float rounding errors.
-            return (point.X > (LowerBound.X + float.Epsilon) && point.X < (UpperBound.X - float.Epsilon) &&
-                    (point.Y > (LowerBound.Y + float.Epsilon) && point.Y < (UpperBound.Y - float.Epsilon)));
+            return point.X > LowerBound.X + float.Epsilon && point.X < UpperBound.X - float.Epsilon &&
+                   point.Y > LowerBound.Y + float.Epsilon && point.Y < UpperBound.Y - float.Epsilon;
         }
 
         /// <summary>Test if the two AABBs overlap.</summary>
@@ -128,8 +128,8 @@ namespace Genbox.VelcroPhysics.Shared
         /// <returns>True if they are overlapping.</returns>
         public static bool TestOverlap(ref AABB a, ref AABB b)
         {
-            Vector2 d1 = b.LowerBound - a.UpperBound;
-            Vector2 d2 = a.LowerBound - b.UpperBound;
+            var d1 = b.LowerBound - a.UpperBound;
+            var d2 = a.LowerBound - b.UpperBound;
 
             return d1.X <= 0 && d1.Y <= 0 && d2.X <= 0 && d2.Y <= 0;
         }
@@ -145,21 +145,21 @@ namespace Genbox.VelcroPhysics.Shared
 
             output = new RayCastOutput();
 
-            float tmin = -MathConstants.MaxFloat;
-            float tmax = MathConstants.MaxFloat;
+            var tmin = -MathConstants.MaxFloat;
+            var tmax = MathConstants.MaxFloat;
 
-            Vector2 p = input.Point1;
-            Vector2 d = input.Point2 - input.Point1;
-            Vector2 absD = MathUtils.Abs(d);
+            var p = input.Point1;
+            var d = input.Point2 - input.Point1;
+            var absD = MathUtils.Abs(d);
 
-            Vector2 normal = Vector2.Zero;
+            var normal = Vector2.Zero;
 
-            for (int i = 0; i < 2; ++i)
+            for (var i = 0; i < 2; ++i)
             {
-                float absD_i = i == 0 ? absD.X : absD.Y;
-                float lowerBound_i = i == 0 ? LowerBound.X : LowerBound.Y;
-                float upperBound_i = i == 0 ? UpperBound.X : UpperBound.Y;
-                float p_i = i == 0 ? p.X : p.Y;
+                var absD_i = i == 0 ? absD.X : absD.Y;
+                var lowerBound_i = i == 0 ? LowerBound.X : LowerBound.Y;
+                var upperBound_i = i == 0 ? UpperBound.X : UpperBound.Y;
+                var p_i = i == 0 ? p.X : p.Y;
 
                 if (absD_i < MathConstants.Epsilon)
                 {
@@ -169,14 +169,14 @@ namespace Genbox.VelcroPhysics.Shared
                 }
                 else
                 {
-                    float d_i = i == 0 ? d.X : d.Y;
+                    var d_i = i == 0 ? d.X : d.Y;
 
-                    float inv_d = 1.0f / d_i;
-                    float t1 = (lowerBound_i - p_i) * inv_d;
-                    float t2 = (upperBound_i - p_i) * inv_d;
+                    var inv_d = 1.0f / d_i;
+                    var t1 = (lowerBound_i - p_i) * inv_d;
+                    var t2 = (upperBound_i - p_i) * inv_d;
 
                     // Sign of the normal vector.
-                    float s = -1.0f;
+                    var s = -1.0f;
 
                     if (t1 > t2)
                     {

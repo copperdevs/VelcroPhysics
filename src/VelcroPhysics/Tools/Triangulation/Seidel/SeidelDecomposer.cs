@@ -5,10 +5,10 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Shared;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Shared;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
+namespace VelcroPhysics.Tools.Triangulation.Seidel
 {
     /// <summary>
     /// Convex decomposition algorithm created by Raimund Seidel
@@ -37,22 +37,22 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
         {
             Debug.Assert(vertices.Count > 3);
 
-            List<Point> compatList = new List<Point>(vertices.Count);
+            var compatList = new List<Point>(vertices.Count);
 
-            foreach (Vector2 vertex in vertices)
+            foreach (var vertex in vertices)
             {
                 compatList.Add(new Point(vertex.X, vertex.Y));
             }
 
-            Triangulator t = new Triangulator(compatList, sheer);
+            var t = new Triangulator(compatList, sheer);
 
-            List<Vertices> list = new List<Vertices>();
+            var list = new List<Vertices>();
 
-            foreach (List<Point> triangle in t.Triangles)
+            foreach (var triangle in t.Triangles)
             {
-                Vertices outTriangles = new Vertices(triangle.Count);
+                var outTriangles = new Vertices(triangle.Count);
 
-                foreach (Point outTriangle in triangle)
+                foreach (var outTriangle in triangle)
                 {
                     outTriangles.Add(new Vector2(outTriangle.X, outTriangle.Y));
                 }
@@ -69,23 +69,23 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Seidel
         /// <returns>A list of trapezoids</returns>
         public static List<Vertices> ConvexPartitionTrapezoid(Vertices vertices, float sheer = 0.001f)
         {
-            List<Point> compatList = new List<Point>(vertices.Count);
+            var compatList = new List<Point>(vertices.Count);
 
-            foreach (Vector2 vertex in vertices)
+            foreach (var vertex in vertices)
             {
                 compatList.Add(new Point(vertex.X, vertex.Y));
             }
 
-            Triangulator t = new Triangulator(compatList, sheer);
+            var t = new Triangulator(compatList, sheer);
 
-            List<Vertices> list = new List<Vertices>();
+            var list = new List<Vertices>();
 
-            foreach (Trapezoid trapezoid in t.Trapezoids)
+            foreach (var trapezoid in t.Trapezoids)
             {
-                Vertices verts = new Vertices();
+                var verts = new Vertices();
 
-                List<Point> points = trapezoid.GetVertices();
-                foreach (Point point in points)
+                var points = trapezoid.GetVertices();
+                foreach (var point in points)
                 {
                     verts.Add(new Vector2(point.X, point.Y));
                 }

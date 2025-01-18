@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Bayazit
+namespace VelcroPhysics.Tools.Triangulation.Bayazit
 {
     //From phed rev 36: http://code.google.com/p/phed/source/browse/trunk/Polygon.cpp
 
@@ -35,19 +35,19 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Bayazit
 
         private static List<Vertices> TriangulatePolygon(Vertices vertices)
         {
-            List<Vertices> list = new List<Vertices>();
-            Vector2 lowerInt = new Vector2();
-            Vector2 upperInt = new Vector2(); // intersection points
+            var list = new List<Vertices>();
+            var lowerInt = new Vector2();
+            var upperInt = new Vector2(); // intersection points
             int lowerIndex = 0, upperIndex = 0;
             Vertices lowerPoly, upperPoly;
 
-            for (int i = 0; i < vertices.Count; ++i)
+            for (var i = 0; i < vertices.Count; ++i)
             {
                 if (Reflex(i, vertices))
                 {
                     float upperDist;
-                    float lowerDist = upperDist = float.MaxValue;
-                    for (int j = 0; j < vertices.Count; ++j)
+                    var lowerDist = upperDist = float.MaxValue;
+                    for (var j = 0; j < vertices.Count; ++j)
                     {
                         // if line intersects with an edge
                         float d;
@@ -91,7 +91,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Bayazit
                     // if there are no vertices to connect to, choose a point in the middle
                     if (lowerIndex == (upperIndex + 1) % vertices.Count)
                     {
-                        Vector2 p = (lowerInt + upperInt) / 2;
+                        var p = (lowerInt + upperInt) / 2;
 
                         lowerPoly = Copy(i, upperIndex, vertices);
                         lowerPoly.Add(p);
@@ -106,7 +106,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Bayazit
                             upperIndex += vertices.Count;
                         }
 
-                        for (int j = lowerIndex; j <= upperIndex; ++j)
+                        for (var j = lowerIndex; j <= upperIndex; ++j)
                         {
                             if (CanSee(i, j, vertices))
                             {
@@ -152,8 +152,8 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Bayazit
 
         private static Vector2 At(int i, Vertices vertices)
         {
-            int s = vertices.Count;
-            return vertices[i < 0 ? s - 1 - ((-i - 1) % s) : i % s];
+            var s = vertices.Count;
+            return vertices[i < 0 ? s - 1 - (-i - 1) % s : i % s];
         }
 
         private static Vertices Copy(int i, int j, Vertices vertices)
@@ -163,7 +163,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Bayazit
                 j += vertices.Count;
             }
 
-            Vertices p = new Vertices(j);
+            var p = new Vertices(j);
 
             for (; i <= j; ++i)
             {
@@ -194,7 +194,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Bayazit
                 if (RightOn(At(j, vertices), At(j + 1, vertices), At(i, vertices)) || LeftOn(At(j, vertices), At(j - 1, vertices), At(i, vertices)))
                     return false;
             }
-            for (int k = 0; k < vertices.Count; ++k)
+            for (var k = 0; k < vertices.Count; ++k)
             {
                 if ((k + 1) % vertices.Count == i || k == i || (k + 1) % vertices.Count == j || k == j)
                     continue; // ignore incident edges
@@ -237,8 +237,8 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Bayazit
 
         private static float SquareDist(Vector2 a, Vector2 b)
         {
-            float dx = b.X - a.X;
-            float dy = b.Y - a.Y;
+            var dx = b.X - a.X;
+            var dy = b.Y - a.Y;
             return dx * dx + dy * dy;
         }
     }

@@ -37,11 +37,11 @@
 
 using System.Collections.Generic;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Polygon
+namespace VelcroPhysics.Tools.Triangulation.Delaunay.Polygon
 {
     internal class PolygonSet
     {
-        protected List<Polygon> _polygons = new List<Polygon>();
+        protected List<Polygon> _polygons = [];
 
         public PolygonSet() { }
 

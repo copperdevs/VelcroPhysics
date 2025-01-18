@@ -1,6 +1,6 @@
 using System;
 
-namespace Genbox.VelcroPhysics.Benchmarks.Utilities
+namespace VelcroPhysics.Benchmarks.Utilities
 {
     public static class RandomExtensions
     {
@@ -13,7 +13,7 @@ namespace Genbox.VelcroPhysics.Benchmarks.Utilities
         /// <summary>Random floating point number in range [lo, hi]</summary>
         public static float RandomFloat(this Random random, float lo, float hi)
         {
-            float r = (float)random.NextDouble();
+            var r = (float)random.NextDouble();
             r = (hi - lo) * r + lo;
             return r;
         }

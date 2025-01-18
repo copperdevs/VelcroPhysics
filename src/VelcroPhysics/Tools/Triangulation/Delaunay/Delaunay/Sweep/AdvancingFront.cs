@@ -38,7 +38,7 @@
 using System;
 using System.Text;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
+namespace VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
 {
     /**
      * @author Thomas Åhlen (thahlen@gmail.com)
@@ -70,8 +70,8 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
-            AdvancingFrontNode node = Head;
+            var sb = new StringBuilder();
+            var node = Head;
             while (node != Tail)
             {
                 sb.Append(node.Point.X).Append("->");
@@ -99,7 +99,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
 
         private AdvancingFrontNode LocateNode(double x)
         {
-            AdvancingFrontNode node = FindSearchNode(x);
+            var node = FindSearchNode(x);
             if (x < node.Value)
             {
                 while ((node = node.Prev) != null)
@@ -128,9 +128,9 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.Delaunay.Delaunay.Sweep
         /// <summary>This implementation will use simple node traversal algorithm to find a point on the front</summary>
         public AdvancingFrontNode LocatePoint(TriangulationPoint point)
         {
-            double px = point.X;
-            AdvancingFrontNode node = FindSearchNode(px);
-            double nx = node.Point.X;
+            var px = point.X;
+            var node = FindSearchNode(px);
+            var nx = node.Point.X;
 
             if (px == nx)
             {

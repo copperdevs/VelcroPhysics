@@ -1,4 +1,4 @@
-namespace Genbox.VelcroPhysics.Collision.TOI
+namespace VelcroPhysics.Collision.TOI
 {
     public enum TOIOutputState
     {

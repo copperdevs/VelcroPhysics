@@ -1,6 +1,6 @@
 using System;
 
-namespace Genbox.VelcroPhysics.Extensions.DebugView
+namespace VelcroPhysics.Extensions.DebugView
 {
     [Flags]
     public enum DebugViewFlags
@@ -18,7 +18,7 @@ namespace Genbox.VelcroPhysics.Extensions.DebugView
         AABB = 1 << 2,
 
         /// <summary>Draw broad-phase pairs.</summary>
-        Pair = (1 << 3),
+        Pair = 1 << 3,
 
         /// <summary>Draw center of mass frame.</summary>
         CenterOfMass = 1 << 4,

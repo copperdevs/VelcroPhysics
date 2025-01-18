@@ -1,8 +1,7 @@
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Tools.ConvexHull.GiftWrap
+namespace VelcroPhysics.Tools.ConvexHull.GiftWrap
 {
     /// <summary>
     /// Giftwrap convex hull algorithm. O(n * h) time complexity, where n is the number of points and h is the number
@@ -20,11 +19,11 @@ namespace Genbox.VelcroPhysics.Tools.ConvexHull.GiftWrap
                 return vertices;
 
             // Find the right most point on the hull
-            int i0 = 0;
-            float x0 = vertices[0].X;
-            for (int i = 1; i < vertices.Count; ++i)
+            var i0 = 0;
+            var x0 = vertices[0].X;
+            for (var i = 1; i < vertices.Count; ++i)
             {
-                float x = vertices[i].X;
+                var x = vertices[i].X;
                 if (x > x0 || (x == x0 && vertices[i].Y < vertices[i0].Y))
                 {
                     i0 = i;
@@ -32,16 +31,16 @@ namespace Genbox.VelcroPhysics.Tools.ConvexHull.GiftWrap
                 }
             }
 
-            int[] hull = new int[vertices.Count];
-            int m = 0;
-            int ih = i0;
+            var hull = new int[vertices.Count];
+            var m = 0;
+            var ih = i0;
 
             for (;;)
             {
                 hull[m] = ih;
 
-                int ie = 0;
-                for (int j = 1; j < vertices.Count; ++j)
+                var ie = 0;
+                for (var j = 1; j < vertices.Count; ++j)
                 {
                     if (ie == ih)
                     {
@@ -49,9 +48,9 @@ namespace Genbox.VelcroPhysics.Tools.ConvexHull.GiftWrap
                         continue;
                     }
 
-                    Vector2 r = vertices[ie] - vertices[hull[m]];
-                    Vector2 v = vertices[j] - vertices[hull[m]];
-                    float c = MathUtils.Cross(ref r, ref v);
+                    var r = vertices[ie] - vertices[hull[m]];
+                    var v = vertices[j] - vertices[hull[m]];
+                    var c = MathUtils.Cross(ref r, ref v);
                     if (c < 0.0f)
                         ie = j;
 
@@ -67,10 +66,10 @@ namespace Genbox.VelcroPhysics.Tools.ConvexHull.GiftWrap
                     break;
             }
 
-            Vertices result = new Vertices(m);
+            var result = new Vertices(m);
 
             // Copy vertices.
-            for (int i = 0; i < m; ++i)
+            for (var i = 0; i < m; ++i)
             {
                 result.Add(vertices[hull[i]]);
             }

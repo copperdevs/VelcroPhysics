@@ -20,9 +20,9 @@
 * 3. This notice may not be removed or altered from any source distribution. 
 */
 
-using Genbox.VelcroPhysics.Collision.ContactSystem;
+using VelcroPhysics.Collision.ContactSystem;
 
-namespace Genbox.VelcroPhysics.Collision.Handlers
+namespace VelcroPhysics.Collision.Handlers
 {
     /// <summary>This delegate is called when a contact is deleted</summary>
     public delegate void EndContactHandler(Contact contact);

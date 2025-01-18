@@ -1,4 +1,4 @@
-﻿namespace Genbox.VelcroPhysics.Benchmarks.Code
+﻿namespace VelcroPhysics.Benchmarks.Code
 {
     public class DummyStopWatch
     {

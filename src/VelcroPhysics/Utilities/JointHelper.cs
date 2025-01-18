@@ -1,12 +1,12 @@
-﻿using Genbox.VelcroPhysics.Dynamics;
+﻿using VelcroPhysics.Dynamics;
 
-namespace Genbox.VelcroPhysics.Utilities
+namespace VelcroPhysics.Utilities
 {
     public static class JointHelper
     {
         public static void LinearStiffness(float frequencyHertz, float dampingRatio, Body bodyA, Body bodyB, out float stiffness, out float damping)
         {
-            float massA = bodyA.Mass;
+            var massA = bodyA.Mass;
 
             float massB = 0;
             
@@ -22,15 +22,15 @@ namespace Genbox.VelcroPhysics.Utilities
             else
                 mass = massB;
 
-            float omega = MathConstants.TwoPi * frequencyHertz;
+            var omega = MathConstants.TwoPi * frequencyHertz;
             stiffness = mass * omega * omega;
             damping = 2.0f * mass * dampingRatio * omega;
         }
 
         public static void AngularStiffness(float frequencyHertz, float dampingRatio, Body bodyA, Body bodyB, out float stiffness, out float damping)
         {
-            float inertiaA = bodyA.Inertia;
-            float inertiaB = bodyB.Inertia;
+            var inertiaA = bodyA.Inertia;
+            var inertiaB = bodyB.Inertia;
             float I;
 
             if (inertiaA > 0.0f && inertiaB > 0.0f)
@@ -40,7 +40,7 @@ namespace Genbox.VelcroPhysics.Utilities
             else
                 I = inertiaB;
 
-            float omega = MathConstants.TwoPi * frequencyHertz;
+            var omega = MathConstants.TwoPi * frequencyHertz;
             stiffness = I * omega * omega;
             damping = 2.0f * I * dampingRatio * omega;
         }

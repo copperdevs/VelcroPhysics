@@ -1,22 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Tools.ConvexHull.GiftWrap;
-using Genbox.VelcroPhysics.Tools.Triangulation.Bayazit;
-using Genbox.VelcroPhysics.Tools.Triangulation.Delaunay;
-using Genbox.VelcroPhysics.Tools.Triangulation.Earclip;
-using Genbox.VelcroPhysics.Tools.Triangulation.FlipCode;
-using Genbox.VelcroPhysics.Tools.Triangulation.Seidel;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Tools.ConvexHull.GiftWrap;
+using VelcroPhysics.Tools.Triangulation.Bayazit;
+using VelcroPhysics.Tools.Triangulation.Delaunay;
+using VelcroPhysics.Tools.Triangulation.Earclip;
+using VelcroPhysics.Tools.Triangulation.FlipCode;
+using VelcroPhysics.Tools.Triangulation.Seidel;
 
-namespace Genbox.VelcroPhysics.Tools.Triangulation.TriangulationBase
+namespace VelcroPhysics.Tools.Triangulation.TriangulationBase
 {
     public static class Triangulate
     {
         public static List<Vertices> ConvexPartition(Vertices vertices, TriangulationAlgorithm algorithm, bool discardAndFixInvalid = true, float tolerance = 0.001f)
         {
             if (vertices.Count <= 3)
-                return new List<Vertices> { vertices };
+                return [vertices];
 
             List<Vertices> results = null;
 
@@ -29,7 +29,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.TriangulationBase
                     {
                         if (vertices.IsCounterClockWise())
                         {
-                            Vertices temp = new Vertices(vertices);
+                            var temp = new Vertices(vertices);
                             temp.Reverse();
                             results = EarclipDecomposer.ConvexPartition(temp, tolerance);
                         }
@@ -44,7 +44,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.TriangulationBase
                     {
                         if (!vertices.IsCounterClockWise())
                         {
-                            Vertices temp = new Vertices(vertices);
+                            var temp = new Vertices(vertices);
                             temp.Reverse();
                             results = BayazitDecomposer.ConvexPartition(temp);
                         }
@@ -59,7 +59,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.TriangulationBase
                     {
                         if (!vertices.IsCounterClockWise())
                         {
-                            Vertices temp = new Vertices(vertices);
+                            var temp = new Vertices(vertices);
                             temp.Reverse();
                             results = FlipcodeDecomposer.ConvexPartition(temp);
                         }
@@ -82,9 +82,9 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.TriangulationBase
 
             if (discardAndFixInvalid)
             {
-                for (int i = results.Count - 1; i >= 0; i--)
+                for (var i = results.Count - 1; i >= 0; i--)
                 {
-                    Vertices polygon = results[i];
+                    var polygon = results[i];
 
                     if (!ValidatePolygon(polygon))
                         results.RemoveAt(i);
@@ -96,7 +96,7 @@ namespace Genbox.VelcroPhysics.Tools.Triangulation.TriangulationBase
 
         private static bool ValidatePolygon(Vertices polygon)
         {
-            PolygonError errorCode = polygon.CheckPolygon();
+            var errorCode = polygon.CheckPolygon();
 
             if (errorCode == PolygonError.InvalidAmountOfVertices || errorCode == PolygonError.AreaTooSmall || errorCode == PolygonError.SideTooSmall || errorCode == PolygonError.NotSimple)
                 return false;

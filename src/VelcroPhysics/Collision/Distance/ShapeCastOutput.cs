@@ -1,6 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Numerics;
 
-namespace Genbox.VelcroPhysics.Collision.Distance
+namespace VelcroPhysics.Collision.Distance
 {
     /// <summary>Output results for b2ShapeCast</summary>
     public struct ShapeCastOutput

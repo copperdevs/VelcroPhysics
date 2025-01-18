@@ -1,9 +1,9 @@
-using Genbox.VelcroPhysics.Dynamics;
-using Genbox.VelcroPhysics.Dynamics.Joints.Misc;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Dynamics;
+using VelcroPhysics.Dynamics.Joints.Misc;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Definitions.Joints
+namespace VelcroPhysics.Definitions.Joints
 {
     /// <summary>Distance joint definition. This requires defining an anchor point on both bodies and the non-zero length of
     /// the distance joint. The definition uses local anchor points so that the initial configuration can violate the
@@ -44,7 +44,7 @@ namespace Genbox.VelcroPhysics.Definitions.Joints
             BodyB = b2;
             LocalAnchorA = BodyA.GetLocalPoint(anchor1);
             LocalAnchorB = BodyB.GetLocalPoint(anchor2);
-            Vector2 d = anchor2 - anchor1;
+            var d = anchor2 - anchor1;
             Length = MathUtils.Max(d.Length(), Settings.LinearSlop);
             MinLength = Length;
             MaxLength = Length;

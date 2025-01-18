@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
-using Genbox.VelcroPhysics.Collision.RayCast;
-using Genbox.VelcroPhysics.Shared;
-using Genbox.VelcroPhysics.Utilities;
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using VelcroPhysics.Collision.RayCast;
+using VelcroPhysics.Shared;
+using VelcroPhysics.Utilities;
 
-namespace Genbox.VelcroPhysics.Collision
+namespace VelcroPhysics.Collision
 {
     public static class RayCastHelper
     {
@@ -19,46 +19,45 @@ namespace Genbox.VelcroPhysics.Collision
             output = new RayCastOutput();
 
             // Put the ray into the edge's frame of reference.
-            Vector2 p1 = MathUtils.MulT(transform.q, input.Point1 - transform.p);
-            Vector2 p2 = MathUtils.MulT(transform.q, input.Point2 - transform.p);
-            Vector2 d = p2 - p1;
+            var p1 = MathUtils.MulT(transform.q, input.Point1 - transform.p);
+            var p2 = MathUtils.MulT(transform.q, input.Point2 - transform.p);
+            var d = p2 - p1;
 
-            Vector2 v1 = start;
-            Vector2 v2 = end;
-            Vector2 e = v2 - v1;
+            var v1 = start;
+            var v2 = end;
+            var e = v2 - v1;
 
             // Normal points to the right, looking from v1 at v2
-            Vector2 normal = new Vector2(e.Y, -e.X); //Velcro TODO: Could possibly cache the normal.
-            normal.Normalize();
+            var normal = Vector2.Normalize(new Vector2(e.Y, -e.X)); //Velcro TODO: Could possibly cache the normal.
 
             // q = p1 + t * d
             // dot(normal, q - v1) = 0
             // dot(normal, p1 - v1) + t * dot(normal, d) = 0
-            float numerator = Vector2.Dot(normal, v1 - p1);
+            var numerator = Vector2.Dot(normal, v1 - p1);
             if (oneSided && numerator > 0.0f)
             {
                 return false;
             }
 
-            float denominator = Vector2.Dot(normal, d);
+            var denominator = Vector2.Dot(normal, d);
 
             if (denominator == 0.0f)
                 return false;
 
-            float t = numerator / denominator;
+            var t = numerator / denominator;
             if (t < 0.0f || input.MaxFraction < t)
                 return false;
 
-            Vector2 q = p1 + t * d;
+            var q = p1 + t * d;
 
             // q = v1 + s * r
             // s = dot(q - v1, r) / dot(r, r)
-            Vector2 r = v2 - v1;
-            float rr = Vector2.Dot(r, r);
+            var r = v2 - v1;
+            var rr = Vector2.Dot(r, r);
             if (rr == 0.0f)
                 return false;
 
-            float s = Vector2.Dot(q - v1, r) / rr;
+            var s = Vector2.Dot(q - v1, r) / rr;
             if (s < 0.0f || 1.0f < s)
                 return false;
 
@@ -79,22 +78,22 @@ namespace Genbox.VelcroPhysics.Collision
 
             output = new RayCastOutput();
 
-            Vector2 position = transform.p + MathUtils.Mul(transform.q, pos);
-            Vector2 s = input.Point1 - position;
-            float b = Vector2.Dot(s, s) - radius * radius;
+            var position = transform.p + MathUtils.Mul(transform.q, pos);
+            var s = input.Point1 - position;
+            var b = Vector2.Dot(s, s) - radius * radius;
 
             // Solve quadratic equation.
-            Vector2 r = input.Point2 - input.Point1;
-            float c = Vector2.Dot(s, r);
-            float rr = Vector2.Dot(r, r);
-            float sigma = c * c - rr * b;
+            var r = input.Point2 - input.Point1;
+            var c = Vector2.Dot(s, r);
+            var rr = Vector2.Dot(r, r);
+            var sigma = c * c - rr * b;
 
             // Check for negative discriminant and short segment.
             if (sigma < 0.0f || rr < MathConstants.Epsilon)
                 return false;
 
             // Find the point of intersection of the line with the circle.
-            float a = -(c + (float)Math.Sqrt(sigma));
+            var a = -(c + (float)Math.Sqrt(sigma));
 
             // Is the intersection point on the segment?
             if (0.0f <= a && a <= input.MaxFraction * rr)
@@ -102,7 +101,7 @@ namespace Genbox.VelcroPhysics.Collision
                 a /= rr;
                 output.Fraction = a;
                 output.Normal = s + a * r;
-                output.Normal.Normalize();
+                output.Normal = Vector2.Normalize(output.Normal);
                 return true;
             }
 
@@ -114,21 +113,21 @@ namespace Genbox.VelcroPhysics.Collision
             output = new RayCastOutput();
 
             // Put the ray into the polygon's frame of reference.
-            Vector2 p1 = MathUtils.MulT(transform.q, input.Point1 - transform.p);
-            Vector2 p2 = MathUtils.MulT(transform.q, input.Point2 - transform.p);
-            Vector2 d = p2 - p1;
+            var p1 = MathUtils.MulT(transform.q, input.Point1 - transform.p);
+            var p2 = MathUtils.MulT(transform.q, input.Point2 - transform.p);
+            var d = p2 - p1;
 
             float lower = 0.0f, upper = input.MaxFraction;
 
-            int index = -1;
+            var index = -1;
 
-            for (int i = 0; i < vertices.Count; ++i)
+            for (var i = 0; i < vertices.Count; ++i)
             {
                 // p = p1 + a * d
                 // dot(normal, p - v) = 0
                 // dot(normal, p1 - v) + a * dot(normal, d) = 0
-                float numerator = Vector2.Dot(normals[i], vertices[i] - p1);
-                float denominator = Vector2.Dot(normals[i], d);
+                var numerator = Vector2.Dot(normals[i], vertices[i] - p1);
+                var denominator = Vector2.Dot(normals[i], d);
 
                 if (denominator == 0.0f)
                 {
