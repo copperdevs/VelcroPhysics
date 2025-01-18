@@ -1,16 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <OutputPath>..\bin\</OutputPath>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>default</LangVersion>
+        <OutputPath>..\bin\</OutputPath>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.Content.Pipeline" Version="3.8.0.1641" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="MonoGame.Framework.Content.Pipeline" Version="3.8.2.1105" />
+        <PackageReference Update="MinVer" Version="6.0.0" />
+        <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\VelcroPhysics\VelcroPhysics.MonoGame.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\VelcroPhysics\VelcroPhysics.MonoGame.csproj"/>
+    </ItemGroup>
 
 </Project>

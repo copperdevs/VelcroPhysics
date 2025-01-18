@@ -1,17 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>default</LangVersion>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\VelcroPhysics\VelcroPhysics.MonoGame.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\VelcroPhysics\VelcroPhysics.MonoGame.csproj"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Content\Font.xnb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <None Update="Content\Font.xnb">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Update="MinVer" Version="6.0.0" />
+      <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+    </ItemGroup>
 
 </Project>
