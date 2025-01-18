@@ -56,3 +56,5 @@ ServiceFabricBackup/
 *.binlog
 
 TempRelease
+
+.idea/
